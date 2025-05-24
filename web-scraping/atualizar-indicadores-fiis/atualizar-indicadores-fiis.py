@@ -15,7 +15,7 @@ driver = webdriver.Chrome(options=options)
 print('')
 
 # Abre a planilha
-excel_path = 'Investimento.xlsx'
+excel_path = 'atualizar-indicadores-fiis.xlsx'
 workbook = load_workbook(excel_path)
 worksheet = workbook['Indicadores']
 
