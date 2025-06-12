@@ -40,9 +40,9 @@ while True:
         print(f"{ativo} = Preço: {preco}; VP: {vp}; Dividendo: {dividendo}")
 
         # Escreve na planilha
-        worksheet.cell(row = row, column = 3).value = preco[3:len(preco)]
-        worksheet.cell(row = row, column = 4).value = vp[3:len(vp)]
-        worksheet.cell(row = row, column = 5).value = dividendo
+        worksheet.cell(row = row, column = 3).value = float(preco.replace("R$", "").replace(".", "").replace(",", ".").strip())
+        worksheet.cell(row = row, column = 4).value = float(vp.replace("R$", "").replace(".", "").replace(",", ".").strip())
+        worksheet.cell(row = row, column = 5).value = float(dividendo.replace("%", "").replace(",", ".").strip()) / 100
     except Exception as e:        
         print(f"Erro ao buscar {ativo}: {e}")
         log = open("Log.txt", "w")
