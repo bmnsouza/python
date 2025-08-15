@@ -41,7 +41,7 @@ while True:
 
         # Escreve na planilha
         worksheet.cell(row = row, column = 3).value = float(preco.replace("US$", "").replace(".", "").replace(",", ".").strip())
-        worksheet.cell(row = row, column = 5).value = float(dividendo.replace("%", "").replace(",", ".").strip()) / 100
+        worksheet.cell(row = row, column = 4).value = float(dividendo.replace("%", "").replace(",", ".").strip()) / 100
     except Exception as e:        
         print(f"Erro ao buscar {ativo}: {e}")
         log = open("Log.txt", "w")
