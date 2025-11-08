@@ -1,30 +1,33 @@
-# GraphQL API Notas Fiscais
+# FastAPI Notas Fiscais
 
-API de consulta a dados de Notas Fiscais construída com **FastAPI**, **Strawberry GraphQL** e **Oracle**.
-
----
+API de consulta a dados de Notas Fiscais construída com **FastAPI** e **Oracle**.
 
 ## Estrutura
 - app/
-  - schema
-    - mutation.py
-    - query.py
-    - types.py
+  - crud
+    - contribuinte_crud.py
+    - danfe_crud.py
+    - endereco_crud.py
+  - models.py
+    - contribuinte_model.py
+    - danfe_model.py
+    - endereco_model.py
+  - routers
+    - contribuinte_router.py
+    - danfe_router.py
+    - endereco_router.py
+  - schemas
+    - contribuinte_schema.py
+    - danfe_schema.py
+    - endereco_schema.py
   - config.py
-  - db.py
-  - logger.py
+  - database.py
   - main.py
-- logs
-  - app.log
-  - sql.log
 - sql
   - script.sql
   - setup.sql
-- tests
-  - test_query.py
 - .env
 - .gitignore
-- pytest.ini
 - README.md
 - requirements.txt
 

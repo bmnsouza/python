@@ -134,3 +134,18 @@ class Query:
             proximo_cursor=proximo_cursor,
             danfes=[Danfe(**d) for d in danfes]
         )
+
+    # ===========================
+    # LISTAR ENDERECOS DIRETAMENTE
+    # ===========================
+    @strawberry.field
+    async def get_enderecos(self, limit: int = 50) -> List[Endereco]:
+        sql = """
+            SELECT id_endereco, logradouro, municipio, uf
+            FROM NOTA_FISCAL.ENDERECO
+            WHERE ROWNUM <= :limit
+            ORDER BY id_endereco
+        """
+        enderecos = fetch_all(sql, {"limit": limit})
+        return [Endereco(**e) for e in enderecos]
+
