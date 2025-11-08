@@ -21,7 +21,7 @@ graphql_app = GraphQLRouter(schema)
 # CONFIGURAÇÃO PRINCIPAL DO FASTAPI
 # ==========================================================
 app = FastAPI(
-    title="API GraphQL Notas Fiscais",
+    title="GraphQL API Notas Fiscais",
     description="API com auditoria SQL, logs e alta performance.",
     version="1.0"
 )
@@ -39,7 +39,7 @@ async def startup_event():
     # Log seguro e formatado do ambiente
     masked_pwd = "*****" if config.ORACLE_PASSWORD else None
     app_logger.info("==========================================")
-    app_logger.info("API GraphQL Notas Fiscais iniciada.")
+    app_logger.info("GraphQL API Notas Fiscais iniciada.")
     app_logger.info(f"Host: {config.API_HOST}")
     app_logger.info(f"Porta: {config.API_PORT}")
     app_logger.info(f"Oracle User: {config.ORACLE_USER}")
@@ -75,7 +75,7 @@ async def log_request_timing(request: Request, call_next):
 @app.get("/")
 def root():
     return {
-        "message": "API GraphQL Notas Fiscais em execução com auditoria SQL e logs de performance."
+        "message": "GraphQL API Notas Fiscais em execução com auditoria SQL e logs de performance."
     }
 
 

@@ -1,4 +1,4 @@
-# API GraphQL Notas Fiscais
+# GraphQL API Notas Fiscais
 
 API de consulta a dados de Notas Fiscais construída com **FastAPI**, **Strawberry GraphQL** e **Oracle Database**.
 

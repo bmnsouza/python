@@ -1,5 +1,5 @@
 """
-Pacote principal da API GraphQL Nota Fiscal.
+Pacote principal da GraphQL API Nota Fiscal.
 
 Estrutura do projeto:
 - config.py  → Leitura de variáveis de ambiente (.env)
