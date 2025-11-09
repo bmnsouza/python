@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request
+from contextlib import asynccontextmanager
 from strawberry.fastapi import GraphQLRouter
 import strawberry
 import time
@@ -6,7 +7,8 @@ import uuid
 
 from app.schema.query import Query
 from app.schema.mutation import Mutation
-from app.db import init_pool
+
+from app.database import init_pool
 from app.logger import app_logger
 from app import config
 
@@ -17,26 +19,16 @@ from app import config
 schema = strawberry.Schema(query=Query, mutation=Mutation)
 graphql_app = GraphQLRouter(schema)
 
-# ==========================================================
-# CONFIGURAÇÃO PRINCIPAL DO FASTAPI
-# ==========================================================
-app = FastAPI(
-    title="GraphQL API Notas Fiscais",
-    description="API com auditoria SQL, logs e alta performance.",
-    version="1.0"
-)
-
-app.include_router(graphql_app, prefix="/graphql")
-
 
 # ==========================================================
-# EVENTO DE INICIALIZAÇÃO (cria pool de conexões)
+# CONTEXTO DE VIDA (LIFESPAN)
 # ==========================================================
-@app.on_event("startup")
-async def startup_event():
-    """Executado na inicialização da API."""
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Gerencia o ciclo de vida da aplicação (startup/shutdown)."""
+    # --- STARTUP ---
     init_pool()
-    # Log seguro e formatado do ambiente
+
     masked_pwd = "*****" if config.ORACLE_PASSWORD else None
     app_logger.info("==========================================")
     app_logger.info("GraphQL API Notas Fiscais iniciada.")
@@ -45,6 +37,24 @@ async def startup_event():
     app_logger.info(f"Oracle Password: {masked_pwd}")
     app_logger.info("==========================================")
     app_logger.info("Pool Oracle inicializado e API pronta para uso.")
+
+    yield  # <- mantém a API ativa enquanto roda
+
+    # --- SHUTDOWN ---
+    app_logger.info("Encerrando aplicação e liberando recursos Oracle...")
+
+
+# ==========================================================
+# CONFIGURAÇÃO PRINCIPAL DO FASTAPI
+# ==========================================================
+app = FastAPI(
+    title="GraphQL API Notas Fiscais",
+    description="API com auditoria SQL, logs e alta performance.",
+    version="1.1",
+    lifespan=lifespan,  # substitui o on_event("startup")
+)
+
+app.include_router(graphql_app, prefix="/graphql")
 
 
 # ==========================================================
@@ -60,9 +70,7 @@ async def log_request_timing(request: Request, call_next):
     response = await call_next(request)
 
     duration_ms = (time.perf_counter() - start) * 1000
-    app_logger.info(
-        f"[{request_id}] Finalizada em {duration_ms:.2f} ms - Status {response.status_code}"
-    )
+    app_logger.info(f"[{request_id}] Finalizada em {duration_ms:.2f} ms - Status {response.status_code}")
 
     return response
 
@@ -75,16 +83,3 @@ def root():
     return {
         "message": "GraphQL API Notas Fiscais em execução com auditoria SQL e logs de performance."
     }
-
-
-# ==========================================================
-# EXECUÇÃO DIRETA (porta/host do .env)
-# ==========================================================
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "app.main:app",
-        host=config.API_HOST,
-        port=config.API_PORT,
-        reload=True
-    )

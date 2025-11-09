@@ -21,8 +21,8 @@ async def test_get_contribuintes(monkeypatch):
         return fake_data
 
     # Substitui função real pela fake
-    from app import db
-    monkeypatch.setattr(db, "fetch_all", fake_fetch_all)
+    from app import database
+    monkeypatch.setattr(database, "fetch_all", fake_fetch_all)
 
     # Query GraphQL simulada
     query = """
