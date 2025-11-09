@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, CHAR, ForeignKey, Text, Numeric, DateTime
+from sqlalchemy import Column, String, Integer, ForeignKey, Numeric, DateTime
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -12,4 +12,4 @@ class Danfe(Base):
     valor_total = Column(Numeric(12,2))
     data_emissao = Column(DateTime)
 
-    contribuinte = relationship("Contribuinte", back_populates="danfes")
+    contribuinte = relationship("Contribuinte", back_populates="danfe")

@@ -9,7 +9,7 @@ def get_contribuintes(db: Session, skip: int = 0, limit: int = 100):
     return db.query(Contribuinte).offset(skip).limit(limit).all()
 
 def create_contribuinte(db: Session, contribuinte: ContribuinteCreate):
-    db_contribuinte = contribuinte.Contribuinte(**contribuinte.dict())
+    db_contribuinte = Contribuinte(**contribuinte.model_dump())
     db.add(db_contribuinte)
     db.commit()
     db.refresh(db_contribuinte)
@@ -19,7 +19,7 @@ def update_contribuinte(db: Session, cd_contribuinte: str, updates: Contribuinte
     db_contribuinte = get_contribuinte(db, cd_contribuinte)
     if not db_contribuinte:
         return None
-    for key, value in updates.dict(exclude_unset=True).items():
+    for key, value in updates.model_dump(exclude_unset=True).items():
         setattr(db_contribuinte, key, value)
     db.commit()
     db.refresh(db_contribuinte)

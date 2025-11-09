@@ -10,10 +10,11 @@ async def lifespan(app: FastAPI):
     database.init_pool()
     print("Pool de conexões Oracle inicializado com sucesso.")
 
-    yield  # <-- Aqui o app roda normalmente
+    yield  # API rodando
 
     if database.pool:
-        database.pool.close()
+        print("Encerrando pool de conexões Oracle...")
+        database.pool.close(force=True)
         print("Pool de conexões Oracle encerrado.")
 
 

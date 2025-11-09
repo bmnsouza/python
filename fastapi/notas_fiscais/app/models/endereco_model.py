@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, CHAR, ForeignKey, Text, Numeric, DateTime
+from sqlalchemy import Column, String, Integer, CHAR, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -12,4 +12,4 @@ class Endereco(Base):
     municipio = Column(String(100))
     uf = Column(CHAR(2))
 
-    contribuinte = relationship("Contribuinte", back_populates="enderecos")
+    contribuinte = relationship("Contribuinte", back_populates="endereco")

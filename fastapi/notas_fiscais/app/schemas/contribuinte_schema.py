@@ -16,8 +16,8 @@ class ContribuinteUpdate(BaseModel):
     cnpj_contribuinte: Optional[str] = None
 
 class Contribuinte(ContribuinteBase):
-    enderecos: List[Endereco] = []
-    danfes: List[Danfe] = []
+    endereco: List[Endereco] = []
+    danfe: List[Danfe] = []
 
     class Config:
         orm_mode = True

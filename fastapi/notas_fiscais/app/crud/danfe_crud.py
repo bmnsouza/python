@@ -9,7 +9,7 @@ def get_danfes(db: Session, skip: int = 0, limit: int = 100):
     return db.query(Danfe).offset(skip).limit(limit).all()
 
 def create_danfe(db: Session, danfe: DanfeCreate):
-    db_danfe = danfe.Danfe(**danfe.dict())
+    db_danfe = Danfe(**danfe.model_dump())
     db.add(db_danfe)
     db.commit()
     db.refresh(db_danfe)
@@ -19,7 +19,7 @@ def update_danfe(db: Session, id_danfe: int, updates: DanfeUpdate):
     db_danfe = get_danfe(db, id_danfe)
     if not db_danfe:
         return None
-    for key, value in updates.dict(exclude_unset=True).items():
+    for key, value in updates.model_dump(exclude_unset=True).items():
         setattr(db_danfe, key, value)
     db.commit()
     db.refresh(db_danfe)
