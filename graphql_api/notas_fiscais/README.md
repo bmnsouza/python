@@ -6,16 +6,16 @@ API de consulta a dados de Notas Fiscais construída com **FastAPI**, **Strawber
 
 ## Estrutura
 - app/
-  - schema
-    - mutation
+  - schema/
+    - mutation/
       - contribuinte_mutation.py
       - danfe_mutation.py
       - endereco_mutation.py
-    - query
+    - query/
       - contribuinte_query.py
       - danfe_query.py
       - endereco_query.py
-    - types
+    - types/
       - contribuinte_type.py
       - danfe_type.py
       - endereco_type.py
@@ -23,13 +23,13 @@ API de consulta a dados de Notas Fiscais construída com **FastAPI**, **Strawber
   - database.py
   - logger.py
   - main.py
-- logs
+- logs/
   - app.log
   - sql.log
-- sql
+- sql/
   - script.sql
   - setup.sql
-- tests
+- tests/
   - test_query.py
 - .env
 - .gitignore
