@@ -1,0 +1,27 @@
+# === Core da API ===
+fastapi
+strawberry-graphql[fastapi]
+uvicorn[standard]
+
+# === Banco de dados ===
+sqlalchemy[asyncio]         # ORM moderno, com suporte ao async
+oracledb                    # Driver Oracle (modo síncrono e assíncrono)
+greenlet                    # Necessário para SQLAlchemy Async funcionar corretamente
+
+# === Configuração e ambiente ===
+python-dotenv               # Carrega variáveis do .env
+
+# === Logs, auditoria e observabilidade ===
+structlog                   # Log estruturado em JSON
+loguru                      # Log sofisticado com rotação e níveis configuráveis
+
+# === Testes ===
+pytest
+pytest-asyncio
+httpx
+
+# === Tipagem e lint (opcional, mas recomendado) ===
+mypy
+pylint
+black
+isort
