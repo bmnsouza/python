@@ -1,11 +1,11 @@
 # GraphQL API e FastAPI Notas Fiscais
-API de consulta a dados de Notas Fiscais construída com **FastAPI**, **Strawberry GraphQL** e **Oracle**.
+API de consulta a dados de Notas Fiscais construída com **FastAPI**, **Strawberry GraphQL** e **Oracle** usando SQLAlchemy ORM.
 
 ---
 
 ## Estrutura do Projeto
 ```bash
-notas_fiscais/
+notas_fiscais_orm/
 ├── .vscode/
 │   ├── launch.json
 │   ├── settings.json
