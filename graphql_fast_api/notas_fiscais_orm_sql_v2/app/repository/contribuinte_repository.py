@@ -3,10 +3,10 @@ from sqlalchemy import text
 from sqlalchemy.future import select
 from app.model.contribuinte_model import ContribuinteModel
 from app.fastapi.schema.contribuinte_schema import ContribuinteCreate, ContribuinteUpdate
-from app.core.pagination import DEFAULT_PAGE_SIZE, calculate_offset, format_result
+from app.core.pagination import DEFAULT_PAGE_SIZE, calculate_offset
 
 
-async def get_contribuintes_danfe_endereco(db: AsyncSession, filtro_nome: str, page: int):
+async def get_contribuintes_danfe_endereco(filtro_nome: str, page: int, db: AsyncSession):
     query = text("""
         SELECT c.CD_CONTRIBUINTE, c.CNPJ_CONTRIBUINTE, c.NM_FANTASIA,
             d.NUMERO, TO_CHAR(d.DATA_EMISSAO, 'dd/mm/yyyy') AS DATA_EMISSAO, d.VALOR_TOTAL,
@@ -17,16 +17,13 @@ async def get_contribuintes_danfe_endereco(db: AsyncSession, filtro_nome: str, p
         ORDER BY c.NM_FANTASIA, d.DATA_EMISSAO, d.VALOR_TOTAL
         OFFSET :page ROWS FETCH NEXT :page_size ROWS ONLY
     """)
-
     params = {
         "filtro_nome": f"%{filtro_nome}%",
         "page": calculate_offset(page),
         "page_size": DEFAULT_PAGE_SIZE   
     }
-
     result = await db.execute(query, params)
-    data = [dict(row) for row in result.mappings().all()]
-    return format_result(data=data, page=page)
+    return [dict(row) for row in result.mappings().all()]
 
 
 async def get_contribuintes(page: int, db: AsyncSession):
@@ -58,28 +55,28 @@ async def get_contribuinte_por_cnpj(cnpj_contribuinte: str, db: AsyncSession):
     return result.scalars().first()
 
 
-async def create_contribuinte(db: AsyncSession, contribuinte: ContribuinteCreate):
-    db_contribuinte = ContribuinteModel(**contribuinte.model_dump())
-    db.add(db_contribuinte)
+async def create_contribuinte(contribuinte: ContribuinteCreate, db: AsyncSession):
+    result = ContribuinteModel(**contribuinte.model_dump())
+    db.add(result)
     await db.commit()
-    await db.refresh(db_contribuinte)
-    return db_contribuinte
+    await db.refresh(result)
+    return result
 
 
-async def update_contribuinte(db: AsyncSession, cd_contribuinte: str, updates: ContribuinteUpdate):
-    db_contribuinte = await get_contribuinte_por_cd(cd_contribuinte, db)
-    if not db_contribuinte:
+async def update_contribuinte(cd_contribuinte: str, updates: ContribuinteUpdate, db: AsyncSession):
+    result = await get_contribuinte_por_cd(cd_contribuinte, db)
+    if not result:
         return None
     for key, value in updates.model_dump(exclude_unset=True).items():
-        setattr(db_contribuinte, key, value)
+        setattr(result, key, value)
     await db.commit()
-    await db.refresh(db_contribuinte)
-    return db_contribuinte
+    await db.refresh(result)
+    return result
 
 
-async def delete_contribuinte(db: AsyncSession, cd_contribuinte: str):
-    db_contribuinte = await get_contribuinte_por_cd(cd_contribuinte, db)
-    if db_contribuinte:
-        await db.delete(db_contribuinte)
+async def delete_contribuinte(cd_contribuinte: str, db: AsyncSession):
+    result = await get_contribuinte_por_cd(cd_contribuinte, db)
+    if result:
+        await db.delete(result)
         await db.commit()
-    return db_contribuinte
+    return result

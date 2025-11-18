@@ -1,5 +1,5 @@
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from .danfe_schema import Danfe
 from .endereco_schema import Endereco
 
@@ -20,14 +20,13 @@ class ContribuinteUpdate(BaseModel):
 
 
 class Contribuinte(ContribuinteBase):
-    danfes: List[Danfe] = []
-    enderecos: List[Endereco] = []
-
+    danfes:  List[Danfe] = Field(default_factory=list)
+    enderecos:  List[Endereco] = Field(default_factory=list)
     class Config:
         from_attributes = True
 
 
-class Response(BaseModel):
+class SingleResponse(BaseModel):
     data: Contribuinte
 
 
