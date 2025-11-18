@@ -23,6 +23,19 @@ class ContribuinteType:
 
 
 @strawberry.type
+class ContribuinteDenfeEndereoType:
+    cd_contribuinte: str
+    cnpj_contribuinte: Optional[str]
+    nm_fantasia: Optional[str]
+    numero: Optional[str]
+    data_emissao: Optional[str]
+    valor_total: Optional[float]
+    logradouro: Optional[str]
+    municipio: Optional[str]
+    uf: Optional[str]    
+
+
+@strawberry.type
 class PaginatedType:
     page: int
     page_size: int

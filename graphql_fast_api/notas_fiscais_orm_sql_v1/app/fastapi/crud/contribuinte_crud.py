@@ -50,7 +50,10 @@ async def get_contribuintes(db: AsyncSession, skip: int = 0, limit: int = 100):
 
 
 async def get_contribuinte(db: AsyncSession, cd_contribuinte: str):
-    query = select(ContribuinteModel).where(ContribuinteModel.cd_contribuinte == cd_contribuinte)
+    query = (
+        select(ContribuinteModel)
+        .where(ContribuinteModel.cd_contribuinte == cd_contribuinte)
+    )
     result = await db.execute(query)
     return result.scalars().first()
 

@@ -1,9 +1,9 @@
 from typing import List, Optional
 import strawberry
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.orm import selectinload
 from app.models.contribuinte_model import ContribuinteModel
-from app.graphql.schemas.types.contribuinte_type import ContribuinteType, PaginatedType
+from app.graphql.schemas.types.contribuinte_type import ContribuinteType, ContribuinteDenfeEndereoType, PaginatedType
 from app.utils.pagination import calculate_offset
 from app.core.constants import DEFAULT_PAGE_SIZE
 
@@ -11,53 +11,31 @@ from app.core.constants import DEFAULT_PAGE_SIZE
 @strawberry.type
 class ContribuinteQuery:
 
-    # async def get_contribuintes_danfe_endereco(db: AsyncSession, filtro_nome: str, page: int = 1):
-    #     query = text("""
-    #         SELECT c.CD_CONTRIBUINTE, c.CNPJ_CONTRIBUINTE, c.NM_FANTASIA,
-    #             d.NUMERO, TO_CHAR(d.DATA_EMISSAO, 'dd/mm/yyyy') AS DATA_EMISSAO, d.VALOR_TOTAL,
-    #             e.LOGRADOURO, e.MUNICIPIO, e.UF
-    #         FROM NOTA_FISCAL.CONTRIBUINTE c JOIN NOTA_FISCAL.DANFE d ON d.CD_CONTRIBUINTE = c.CD_CONTRIBUINTE
-    #         JOIN NOTA_FISCAL.ENDERECO e  ON e.CD_CONTRIBUINTE = c.CD_CONTRIBUINTE
-    #         WHERE c.NM_FANTASIA LIKE :filtro_nome
-    #         ORDER BY c.NM_FANTASIA, d.DATA_EMISSAO, d.VALOR_TOTAL
-    #         OFFSET :page ROWS FETCH NEXT :page_size ROWS ONLY
-    #     """)
+    @strawberry.field
+    async def get_contribuintes_danfe_endereco(self, info, filtro_nome: str, page: int = 1) -> PaginatedType:
+        print("filtro_nome:", filtro_nome)
+        session = info.context["session"]
+        query = text("""
+            SELECT c.CD_CONTRIBUINTE, c.CNPJ_CONTRIBUINTE, c.NM_FANTASIA,
+                d.NUMERO, TO_CHAR(d.DATA_EMISSAO, 'dd/mm/yyyy') AS DATA_EMISSAO, d.VALOR_TOTAL,
+                e.LOGRADOURO, e.MUNICIPIO, e.UF
+            FROM NOTA_FISCAL.CONTRIBUINTE c JOIN NOTA_FISCAL.DANFE d ON d.CD_CONTRIBUINTE = c.CD_CONTRIBUINTE
+            JOIN NOTA_FISCAL.ENDERECO e  ON e.CD_CONTRIBUINTE = c.CD_CONTRIBUINTE
+            WHERE c.NM_FANTASIA LIKE :filtro_nome
+            ORDER BY c.NM_FANTASIA, d.DATA_EMISSAO, d.VALOR_TOTAL
+            OFFSET :page ROWS FETCH NEXT :page_size ROWS ONLY
+        """)        
 
-    #     params = {
-    #         "filtro_nome": f"%{filtro_nome}%",
-    #         "page": calculate_offset(page),
-    #         "page_size": DEFAULT_PAGE_SIZE
-    #     }
+        params = {
+            "filtro_nome": f"%{filtro_nome}%",
+            "page": calculate_offset(page),
+            "page_size": DEFAULT_PAGE_SIZE   
+        }
 
-    #     result = await db.execute(query, params)
-    #     data = [dict(row) for row in result.mappings().all()]
-    #     return format_result(data=data, page=page)
-
-    # @strawberry.field
-    # async def get_contribuintes_danfe_endereco(self, filtro_nome: str, page: int = 1) -> PaginatedType:
-    #     sql = """
-    #         SELECT cd_contribuinte, nm_fantasia, cnpj_contribuinte
-    #         FROM NOTA_FISCAL.CONTRIBUINTE
-    #         WHERE ROWNUM <= :limit
-    #     """
-    #     contribs = fetch_all(sql, {"limit": limit})
-    #     contribuintes_result = []
-
-    #     for c in contribs:
-    #         enderecos_db = fetch_all(
-    #             "SELECT id_endereco, logradouro, municipio, uf FROM NOTA_FISCAL.ENDERECO WHERE cd_contribuinte = :cd",
-    #             {"cd": c["cd_contribuinte"]}
-    #         )
-    #         danfes_db = fetch_all(
-    #             "SELECT id_danfe, numero, valor_total, data_emissao FROM NOTA_FISCAL.DANFE WHERE cd_contribuinte = :cd",
-    #             {"cd": c["cd_contribuinte"]}
-    #         )
-
-    #         c["enderecos"] = [EnderecoType(**e) for e in enderecos_db]
-    #         c["danfes"] = [DanfeType(**d) for d in danfes_db]
-    #         contribuintes_result.append(ContribuinteType(**c))
-
-    #     return contribuintes_result
+        result = await session.execute(query, params)
+        rows = result.mappings().all()
+        data = [ContribuinteDenfeEndereoType(**row) for row in rows]
+        return PaginatedType(page=page, page_size=DEFAULT_PAGE_SIZE, data=data)
 
 
     @strawberry.field
