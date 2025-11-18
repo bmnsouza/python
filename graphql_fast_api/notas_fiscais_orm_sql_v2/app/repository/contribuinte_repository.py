@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 from sqlalchemy.future import select
+from app.core.exceptions import map_data_base_error
 from app.model.contribuinte_model import ContribuinteModel
 from app.fastapi.schema.contribuinte_schema import ContribuinteCreate, ContribuinteUpdate
 from app.core.pagination import DEFAULT_PAGE_SIZE, calculate_offset
@@ -58,10 +59,13 @@ async def get_contribuinte_por_cnpj(cnpj_contribuinte: str, db: AsyncSession):
 async def create_contribuinte(contribuinte: ContribuinteCreate, db: AsyncSession):
     result = ContribuinteModel(**contribuinte.model_dump())
     db.add(result)
-    await db.commit()
-    await db.refresh(result)
-    return result
-
+    try:
+        await db.commit()
+        await db.refresh(result)
+        return result
+    except Exception as e:
+        await db.rollback()
+        map_data_base_error(e)
 
 async def update_contribuinte(cd_contribuinte: str, updates: ContribuinteUpdate, db: AsyncSession):
     result = await get_contribuinte_por_cd(cd_contribuinte, db)

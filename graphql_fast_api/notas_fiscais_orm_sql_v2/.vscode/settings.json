@@ -11,6 +11,7 @@
     "--disable=broad-exception-caught",
     "--disable=C0111",
     "--disable=line-too-long",
-    "--disable=too-few-public-methods",
+    "--disable=raise-missing-from",
+    "--disable=too-few-public-methods"
   ]
 }
