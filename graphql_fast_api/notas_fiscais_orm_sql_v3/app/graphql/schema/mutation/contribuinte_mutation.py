@@ -1,12 +1,7 @@
-from typing import Optional
-from sqlalchemy import select
-from sqlalchemy.exc import SQLAlchemyError
 import strawberry
 from strawberry.types import Info
 from fastapi import HTTPException
 from app.graphql.schema.type.contribuinte_type import ContribuinteType, SingleResponseType
-from app.model.contribuinte_model import ContribuinteModel
-from app.logger import app_logger
 from app.service import contribuinte_service
 from app.fastapi.schema.contribuinte_schema import ContribuinteCreate, ContribuinteUpdate
 from app.core.exceptions import DuplicateEntryError, DatabaseError
@@ -34,7 +29,7 @@ class ContribuinteMutation:
         try:
             session = info.context["session"]
             contribuinte = ContribuinteUpdate(cnpj_contribuinte=cnpj_contribuinte, nm_fantasia=nm_fantasia)
-            result = contribuinte_service.update_contribuinte(cd_contribuinte=cd_contribuinte, updates=contribuinte, db=session)
+            result = contribuinte_service.update_contribuinte(cd_contribuinte=cd_contribuinte, contribuinte=contribuinte, db=session)
             if not result["data"]:
                 raise HTTPException(status_code=404, detail="Contribuinte não encontrado")
             data = ContribuinteType.from_orm(result['data'])

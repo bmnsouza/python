@@ -2,38 +2,69 @@ from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.model.endereco_model import EnderecoModel
 from app.fastapi.schema.endereco_schema import EnderecoCreate, EnderecoUpdate
+from app.core.exceptions import map_data_base_error
+from app.core.pagination import DEFAULT_PAGE_SIZE, calculate_offset
 
 
-async def get_enderecos(db: AsyncSession, skip: int = 0, limit: int = 100):
-    query = select(EnderecoModel).offset(skip).limit(limit)
-    result = await db.execute(query)
-    return result.scalars().all()
+async def get_enderecos(page: int, db: AsyncSession):
+    try:
+        query = (
+            select(EnderecoModel)
+            .order_by(EnderecoModel.logradouro)
+            .offset(calculate_offset(page))
+            .limit(DEFAULT_PAGE_SIZE)
+        )
+        result = await db.execute(statement=query)
+        return result.scalars().all()
+    except Exception as e:
+        map_data_base_error(e)
 
-async def get_endereco(db: AsyncSession, id_endereco: int):
-    query = select(EnderecoModel).where(EnderecoModel.id_endereco == id_endereco)
-    result = await db.execute(query)
-    return result.scalars().first()
 
-async def create_endereco(db: AsyncSession, endereco: EnderecoCreate):
-    db_endereco = EnderecoModel(**endereco.model_dump())
-    db.add(db_endereco)
-    await db.commit()
-    await db.refresh(db_endereco)
-    return db_endereco
+async def get_endereco(id_endereco: int, db: AsyncSession):
+    try:
+        query = (
+            select(EnderecoModel)
+            .where(EnderecoModel.id_endereco == id_endereco)
+        )
+        result = await db.execute(query)
+        return result.scalars().first()
+    except Exception as e:
+        map_data_base_error(e)
 
-async def update_endereco(db: AsyncSession, id_endereco: int, updates: EnderecoUpdate):
-    db_endereco = await get_endereco(db, id_endereco)
-    if not db_endereco:
-        return None
-    for key, value in updates.model_dump(exclude_unset=True).items():
-        setattr(db_endereco, key, value)
-    await db.commit()
-    await db.refresh(db_endereco)
-    return db_endereco
 
-async def delete_endereco(db: AsyncSession, id_endereco: int):
-    db_endereco = await get_endereco(db, id_endereco)
-    if db_endereco:
-        await db.delete(db_endereco)
+async def create_endereco(endereco: EnderecoCreate, db: AsyncSession):
+    try:
+        result = EnderecoModel(**endereco.model_dump())
+        db.add(result)
         await db.commit()
-    return db_endereco
+        await db.refresh(result)
+        return result
+    except Exception as e:
+        await db.rollback()
+        map_data_base_error(e)
+
+
+async def update_endereco(id_endereco: int, endereco: EnderecoUpdate, db: AsyncSession):
+    try:
+        result = await get_endereco(id_endereco=id_endereco, db=db)
+        if result:
+            for key, value in endereco.model_dump(exclude_unset=True).items():
+                setattr(result, key, value)
+            await db.commit()
+            await db.refresh(result)
+        return result
+    except Exception as e:
+        await db.rollback()
+        map_data_base_error(e)
+
+
+async def delete_endereco(id_endereco: int, db: AsyncSession):
+    try:
+        result = await get_endereco(id_endereco=id_endereco, db=db)
+        if result:
+            await db.delete(result)
+            await db.commit()
+        return result
+    except Exception as e:
+        await db.rollback()
+        map_data_base_error(e)
