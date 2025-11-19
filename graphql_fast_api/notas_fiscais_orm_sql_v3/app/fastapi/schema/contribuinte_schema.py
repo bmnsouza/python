@@ -6,8 +6,8 @@ from .endereco_schema import Endereco
 
 class ContribuinteBase(BaseModel):
     cd_contribuinte: str
-    nm_fantasia: Optional[str] = None
     cnpj_contribuinte: Optional[str] = None
+    nm_fantasia: Optional[str] = None
 
 
 class ContribuinteCreate(ContribuinteBase):
@@ -15,8 +15,8 @@ class ContribuinteCreate(ContribuinteBase):
 
 
 class ContribuinteUpdate(BaseModel):
-    nm_fantasia: Optional[str] = None
     cnpj_contribuinte: Optional[str] = None
+    nm_fantasia: Optional[str] = None
 
 
 class Contribuinte(ContribuinteBase):

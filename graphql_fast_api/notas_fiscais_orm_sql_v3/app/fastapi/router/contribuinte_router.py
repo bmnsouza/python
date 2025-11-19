@@ -11,7 +11,7 @@ router = APIRouter(prefix="/contribuinte", tags=["Contribuinte"])
 
 @router.get("/danfe-endereco", response_model=PaginatedResponse)
 async def get_contribuintes_danfe_endereco(filtro_nome: str, page: int = DEFAULT_PAGE, db: AsyncSession = Depends(get_session)):
-    result = await contribuinte_service.get_contribuintes_danfe_endereco(filtro_nome, page, db)
+    result = await contribuinte_service.get_contribuintes_danfe_endereco(filtro_nome=filtro_nome, page=page, db=db)
     if not result["data"]:
         raise HTTPException(status_code=404, detail="Contribuinte não encontrado")
     return result
@@ -19,7 +19,7 @@ async def get_contribuintes_danfe_endereco(filtro_nome: str, page: int = DEFAULT
 
 @router.get("/", response_model=PaginatedResponse)
 async def get_contribuintes(page: int = DEFAULT_PAGE, db: AsyncSession = Depends(get_session)):
-    result = await contribuinte_service.get_contribuintes(page, db)
+    result = await contribuinte_service.get_contribuintes(page=page, db=db)
     if not result["data"]:
         raise HTTPException(status_code=404, detail="Contribuinte não encontrado")
     return result
@@ -27,7 +27,7 @@ async def get_contribuintes(page: int = DEFAULT_PAGE, db: AsyncSession = Depends
 
 @router.get("/cd", response_model=SingleResponse)
 async def get_contribuinte_por_cd(cd_contribuinte: str, db: AsyncSession = Depends(get_session)):
-    result = await contribuinte_service.get_contribuinte_por_cd(cd_contribuinte, db)
+    result = await contribuinte_service.get_contribuinte_por_cd(cd_contribuinte=cd_contribuinte, db=db)
     if not result["data"]:
         raise HTTPException(status_code=404, detail="Contribuinte não encontrado")
     return result
@@ -35,7 +35,7 @@ async def get_contribuinte_por_cd(cd_contribuinte: str, db: AsyncSession = Depen
 
 @router.get("/cnpj", response_model=SingleResponse)
 async def get_contribuinte_por_cnpj(cnpj_contribuinte: str, db: AsyncSession = Depends(get_session)):
-    result = await contribuinte_service.get_contribuinte_por_cnpj(cnpj_contribuinte, db)
+    result = await contribuinte_service.get_contribuinte_por_cnpj(cnpj_contribuinte=cnpj_contribuinte, db=db)
     if not result["data"]:
         raise HTTPException(status_code=404, detail="Contribuinte não encontrado")
     return result
@@ -44,7 +44,7 @@ async def get_contribuinte_por_cnpj(cnpj_contribuinte: str, db: AsyncSession = D
 @router.post("/", response_model=SingleResponse, status_code=201)
 async def create_contribuinte(contribuinte: ContribuinteCreate, db: AsyncSession = Depends(get_session)):
     try:
-        return await contribuinte_service.create_contribuinte(contribuinte, db)
+        return await contribuinte_service.create_contribuinte(contribuinte=contribuinte, db=db)
     except DuplicateEntryError as e:
         raise HTTPException(status_code=409, detail=str(e))
     except DatabaseError as e:
@@ -54,7 +54,7 @@ async def create_contribuinte(contribuinte: ContribuinteCreate, db: AsyncSession
 @router.put("/{cd_contribuinte}", response_model=SingleResponse)
 async def update_contribuinte(cd_contribuinte: str, updates: ContribuinteUpdate, db: AsyncSession = Depends(get_session)):
     try:
-        result = await contribuinte_service.update_contribuinte(cd_contribuinte, updates, db)
+        result = await contribuinte_service.update_contribuinte(cd_contribuinte=cd_contribuinte, updates=updates, db=db)
         if not result["data"]:
             raise HTTPException(status_code=404, detail="Contribuinte não encontrado")
         return result
@@ -62,11 +62,10 @@ async def update_contribuinte(cd_contribuinte: str, updates: ContribuinteUpdate,
         raise HTTPException(status_code=500, detail=str(e))
 
 
-
 @router.delete("/{cd_contribuinte}", status_code=204)
 async def delete_contribuinte(cd_contribuinte: str, db: AsyncSession = Depends(get_session)):
     try:
-        result = await contribuinte_service.delete_contribuinte(cd_contribuinte, db)
+        result = await contribuinte_service.delete_contribuinte(cd_contribuinte=cd_contribuinte, db=db)
         if not result["data"]:
             raise HTTPException(status_code=404, detail="Contribuinte não encontrado")
         return {"ok": True, "message": "Contribuinte excluído com sucesso"}

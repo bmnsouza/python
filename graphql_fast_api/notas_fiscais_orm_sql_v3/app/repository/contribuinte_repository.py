@@ -23,7 +23,7 @@ async def get_contribuintes_danfe_endereco(filtro_nome: str, page: int, db: Asyn
         "page": calculate_offset(page),
         "page_size": DEFAULT_PAGE_SIZE   
     }
-    result = await db.execute(query, params)
+    result = await db.execute(statement=query, params=params)
     return [dict(row) for row in result.mappings().all()]
 
 
@@ -43,7 +43,7 @@ async def get_contribuinte_por_cd(cd_contribuinte: str, db: AsyncSession):
         select(ContribuinteModel)
         .where(ContribuinteModel.cd_contribuinte == cd_contribuinte)
     )
-    result = await db.execute(query)
+    result = await db.execute(statement=query)
     return result.scalars().first()
 
 
@@ -52,14 +52,14 @@ async def get_contribuinte_por_cnpj(cnpj_contribuinte: str, db: AsyncSession):
         select(ContribuinteModel)
         .where(ContribuinteModel.cnpj_contribuinte == cnpj_contribuinte)
     )
-    result = await db.execute(query)
+    result = await db.execute(statement=query)
     return result.scalars().first()
 
 
 async def create_contribuinte(contribuinte: ContribuinteCreate, db: AsyncSession):
-    result = ContribuinteModel(**contribuinte.model_dump())
-    db.add(result)
     try:
+        result = ContribuinteModel(**contribuinte.model_dump())
+        db.add(result)
         await db.commit()
         await db.refresh(result)
         return result
@@ -67,11 +67,12 @@ async def create_contribuinte(contribuinte: ContribuinteCreate, db: AsyncSession
         await db.rollback()
         map_data_base_error(e)
 
-async def update_contribuinte(cd_contribuinte: str, updates: ContribuinteUpdate, db: AsyncSession):
-    result = await get_contribuinte_por_cd(cd_contribuinte, db)
+
+async def update_contribuinte(cd_contribuinte: str, contribuinte: ContribuinteUpdate, db: AsyncSession):
+    result = await get_contribuinte_por_cd(cd_contribuinte=cd_contribuinte, db=db)
     if not result:
         return None
-    for key, value in updates.model_dump(exclude_unset=True).items():
+    for key, value in contribuinte.model_dump(exclude_unset=True).items():
         setattr(result, key, value)
     await db.commit()
     await db.refresh(result)
@@ -79,7 +80,7 @@ async def update_contribuinte(cd_contribuinte: str, updates: ContribuinteUpdate,
 
 
 async def delete_contribuinte(cd_contribuinte: str, db: AsyncSession):
-    result = await get_contribuinte_por_cd(cd_contribuinte, db)
+    result = await get_contribuinte_por_cd(cd_contribuinte=cd_contribuinte, db=db)
     if result:
         await db.delete(result)
         await db.commit()

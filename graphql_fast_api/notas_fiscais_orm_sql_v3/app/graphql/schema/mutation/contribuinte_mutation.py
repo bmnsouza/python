@@ -4,62 +4,54 @@ from sqlalchemy.exc import SQLAlchemyError
 import strawberry
 from strawberry.types import Info
 from fastapi import HTTPException
-from app.graphql.schema.type.contribuinte_type import ContribuinteType
+from app.graphql.schema.type.contribuinte_type import ContribuinteType, SingleResponseType
 from app.model.contribuinte_model import ContribuinteModel
 from app.logger import app_logger
+from app.service import contribuinte_service
+from app.fastapi.schema.contribuinte_schema import ContribuinteCreate, ContribuinteUpdate
+from app.core.exceptions import DuplicateEntryError, DatabaseError
 
 
 @strawberry.type
 class ContribuinteMutation:
-    @strawberry.mutation
-    async def create_contribuinte(self, info: Info, cd_contribuinte: str, cnpj_contribuinte: str, nm_fantasia: Optional[str] = None) -> ContribuinteType:
-        session = info.context["session"]
-        try:
-            novo = ContribuinteModel(
-                cd_contribuinte=cd_contribuinte,
-                cnpj_contribuinte=cnpj_contribuinte,
-                nm_fantasia=nm_fantasia,
-            )
-            session.add(novo)
-            await session.commit()
-            await session.refresh(novo)
-            return ContribuinteType.from_orm(novo)
-        except SQLAlchemyError as e:
-            await session.rollback()
-            app_logger.exception("Erro ao criar contribuinte %s", cd_contribuinte)
-            raise HTTPException(status_code=500, detail="Erro interno ao criar contribuinte") from e
 
     @strawberry.mutation
-    async def update_contribuinte(self, info: Info, cd_contribuinte: str, nm_fantasia: str) -> str:
-        session = info.context["session"]
+    async def create_contribuinte(self, info: Info, cd_contribuinte: str, cnpj_contribuinte: str, nm_fantasia: str) -> SingleResponseType:
         try:
-            result = await session.execute(select(ContribuinteModel).where(ContribuinteModel.cd_contribuinte == cd_contribuinte))
-            contrib = result.scalars().first()
-            if not contrib:
-                return f"Contribuinte {cd_contribuinte} não encontrado."
+            session = info.context["session"]
+            contribuinte = ContribuinteCreate(cd_contribuinte=cd_contribuinte, cnpj_contribuinte=cnpj_contribuinte, nm_fantasia=nm_fantasia)
+            result = contribuinte_service.create_contribuinte(contribuinte=contribuinte, db=session)
+            data = ContribuinteType.from_orm(result['data'])
+            return SingleResponseType(data=data)
+        except DuplicateEntryError as e:
+            raise HTTPException(status_code=409, detail=str(e))
+        except DatabaseError as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
-            contrib.nm_fantasia = nm_fantasia
-            await session.commit()
-            return f"Contribuinte {cd_contribuinte} atualizado com sucesso."
-        except SQLAlchemyError as e:
-            await session.rollback()
-            app_logger.exception("Erro ao atualizar contribuinte %s", cd_contribuinte)
-            raise HTTPException(status_code=500, detail="Erro interno ao atualizar contribuinte") from e
 
     @strawberry.mutation
-    async def delete_contribuinte(self, info: Info, cd_contribuinte: str) -> str:
-        """Exclui um contribuinte pelo código."""
-        session = info.context["session"]
+    async def update_contribuinte(self, info: Info, cd_contribuinte: str, cnpj_contribuinte: str, nm_fantasia: str) -> SingleResponseType:
         try:
-            result = await session.execute(select(ContribuinteModel).where(ContribuinteModel.cd_contribuinte == cd_contribuinte))
-            contrib = result.scalars().first()
-            if not contrib:
-                return f"Contribuinte {cd_contribuinte} não encontrado."
+            session = info.context["session"]
+            contribuinte = ContribuinteUpdate(cnpj_contribuinte=cnpj_contribuinte, nm_fantasia=nm_fantasia)
+            result = contribuinte_service.update_contribuinte(cd_contribuinte=cd_contribuinte, updates=contribuinte, db=session)
+            if not result["data"]:
+                raise HTTPException(status_code=404, detail="Contribuinte não encontrado")
+            data = ContribuinteType.from_orm(result['data'])
+            return SingleResponseType(data=data)
+        except DuplicateEntryError as e:
+            raise HTTPException(status_code=409, detail=str(e))
+        except DatabaseError as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
-            await session.delete(contrib)
-            await session.commit()
-            return f"Contribuinte {cd_contribuinte} excluído com sucesso."
-        except SQLAlchemyError as e:
-            await session.rollback()
-            app_logger.exception("Erro ao excluir contribuinte %s", cd_contribuinte)
-            raise HTTPException(status_code=500, detail="Erro interno ao excluir contribuinte") from e
+
+    @strawberry.mutation
+    async def delete_contribuinte(self, info: Info, cd_contribuinte: str) -> SingleResponseType:
+        try:
+            session = info.context["session"]
+            result = await contribuinte_service.delete_contribuinte(cd_contribuinte=cd_contribuinte, db=session)
+            if not result["data"]:
+                raise HTTPException(status_code=404, detail="Contribuinte não encontrado")
+            return {"ok": True, "message": "Contribuinte excluído com sucesso"}
+        except DatabaseError as e:
+            raise HTTPException(status_code=500, detail=str(e))
