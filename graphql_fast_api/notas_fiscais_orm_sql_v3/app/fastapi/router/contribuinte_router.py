@@ -42,7 +42,7 @@ async def get_contribuinte_por_cnpj(cnpj_contribuinte: str, db: AsyncSession = D
 
 
 @router.post("/", response_model=SingleResponse, status_code=201)
-async def criar_contribuinte(contribuinte: ContribuinteCreate, db: AsyncSession = Depends(get_session)):
+async def create_contribuinte(contribuinte: ContribuinteCreate, db: AsyncSession = Depends(get_session)):
     try:
         return await contribuinte_service.create_contribuinte(contribuinte, db)
     except DuplicateEntryError as e:
@@ -52,7 +52,7 @@ async def criar_contribuinte(contribuinte: ContribuinteCreate, db: AsyncSession 
 
 
 @router.put("/{cd_contribuinte}", response_model=SingleResponse)
-async def atualizar_contribuinte(cd_contribuinte: str, updates: ContribuinteUpdate, db: AsyncSession = Depends(get_session)):
+async def update_contribuinte(cd_contribuinte: str, updates: ContribuinteUpdate, db: AsyncSession = Depends(get_session)):
     try:
         result = await contribuinte_service.update_contribuinte(cd_contribuinte, updates, db)
         if not result["data"]:
@@ -64,7 +64,7 @@ async def atualizar_contribuinte(cd_contribuinte: str, updates: ContribuinteUpda
 
 
 @router.delete("/{cd_contribuinte}", status_code=204)
-async def excluir_contribuinte(cd_contribuinte: str, db: AsyncSession = Depends(get_session)):
+async def delete_contribuinte(cd_contribuinte: str, db: AsyncSession = Depends(get_session)):
     try:
         result = await contribuinte_service.delete_contribuinte(cd_contribuinte, db)
         if not result["data"]:

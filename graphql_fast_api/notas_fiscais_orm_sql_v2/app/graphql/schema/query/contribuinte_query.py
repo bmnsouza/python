@@ -41,7 +41,6 @@ class ContribuinteQuery:
 
     @strawberry.field
     async def get_contribuintes(self, info: Info, page: int) -> PaginatedType:
-        """Retorna contribuintes paginados (usando ORM e função paginate_query)."""
         session = info.context["session"]
 
         result = await contribuinte_service.get_contribuintes(db=session, page=page)
