@@ -41,10 +41,9 @@ def setup_sql_audit(engine: Engine):
         try:
             if isinstance(parameters, (list, tuple)):
                 return [safe_convert(p) for p in parameters]
-            elif isinstance(parameters, dict):
+            if isinstance(parameters, dict):
                 return {k: safe_convert(v) for k, v in parameters.items()}
-            else:
-                return safe_convert(parameters)
+            return safe_convert(parameters)
         except Exception:
             return "<unserializable parameters>"
 
