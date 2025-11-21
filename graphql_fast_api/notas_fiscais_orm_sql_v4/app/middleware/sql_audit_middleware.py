@@ -1,7 +1,9 @@
-import time
 import json
+import time
+
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
+
 from app.core.logger import sql_logger
 
 
@@ -33,6 +35,7 @@ def setup_sql_audit(engine: Engine):
         except Exception:
             return f"<non-serializable: {type(value).__name__}>"
 
+
     def sanitize_parameters(parameters):
         """Aplica safe_convert de forma recursiva."""
         try:
@@ -44,6 +47,7 @@ def setup_sql_audit(engine: Engine):
                 return safe_convert(parameters)
         except Exception:
             return "<unserializable parameters>"
+
 
     @event.listens_for(engine.sync_engine, "before_cursor_execute")
     def before_cursor_execute(conn, _cursor, statement, parameters, _context, _executemany):
@@ -58,6 +62,7 @@ def setup_sql_audit(engine: Engine):
         }
 
         sql_logger.debug(json.dumps(log_entry, ensure_ascii=False))
+
 
     @event.listens_for(engine.sync_engine, "after_cursor_execute")
     def after_cursor_execute(conn, _cursor, statement, parameters, _context, _executemany):

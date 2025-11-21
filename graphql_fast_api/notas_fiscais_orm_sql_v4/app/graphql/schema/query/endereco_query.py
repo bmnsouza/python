@@ -1,10 +1,11 @@
 import strawberry
 from fastapi import HTTPException
 from strawberry.types import Info
+
 from app.graphql.schema.type.endereco_type import EnderecoType, PaginatedResponseType, SingleResponseType
 from app.core.pagination import DEFAULT_PAGE, DEFAULT_PAGE_SIZE
-from app.service import endereco_service
 from app.core.exceptions import DatabaseError
+from app.service import endereco_service
 
 
 @strawberry.type

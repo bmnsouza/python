@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.fastapi.schema.endereco_schema import EnderecoCreate, EnderecoUpdate, SingleResponse, PaginatedResponse
 from app.database.session import get_session
 from app.core.pagination import DEFAULT_PAGE

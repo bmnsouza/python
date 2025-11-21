@@ -1,8 +1,10 @@
+import json
 import time
 import uuid
-import json
+
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
+
 from app.core.logger import app_logger
 
 

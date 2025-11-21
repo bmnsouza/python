@@ -1,12 +1,14 @@
-from typing import TYPE_CHECKING, List, Optional
+from typing import List, Optional, TYPE_CHECKING
+
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.database.connection import Base
+
 
 if TYPE_CHECKING:
     from app.model.danfe_model import DanfeModel
     from app.model.endereco_model import EnderecoModel
-
 
 class ContribuinteModel(Base):
     __tablename__ = "CONTRIBUINTE"

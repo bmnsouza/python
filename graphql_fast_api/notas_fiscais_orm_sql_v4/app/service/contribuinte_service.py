@@ -1,9 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.repository import contribuinte_repository
-from app.fastapi.schema.contribuinte_schema import ContribuinteCreate, ContribuinteUpdate
-from app.core.pagination import format_result
-from app.core.exceptions import DuplicateEntryError, DatabaseError
+
+from app.core.exceptions import DatabaseError, DuplicateEntryError
 from app.core.logger import app_logger
+from app.core.pagination import format_result
+from app.fastapi.schema.contribuinte_schema import ContribuinteCreate, ContribuinteUpdate
+from app.repository import contribuinte_repository
 
 
 async def get_contribuintes(page: int, session: AsyncSession):

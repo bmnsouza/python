@@ -1,9 +1,10 @@
-from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.model.endereco_model import EnderecoModel
-from app.fastapi.schema.endereco_schema import EnderecoCreate, EnderecoUpdate
+from sqlalchemy.future import select
+
 from app.core.exceptions import map_data_base_error
 from app.core.pagination import DEFAULT_PAGE_SIZE, calculate_offset
+from app.fastapi.schema.endereco_schema import EnderecoCreate, EnderecoUpdate
+from app.model.endereco_model import EnderecoModel
 
 
 async def get_enderecos(page: int, session: AsyncSession):

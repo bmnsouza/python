@@ -1,10 +1,11 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+
 from app.core.exceptions import map_data_base_error
-from app.model.contribuinte_model import ContribuinteModel
-from app.fastapi.schema.contribuinte_schema import ContribuinteCreate, ContribuinteUpdate
 from app.core.pagination import DEFAULT_PAGE_SIZE, calculate_offset
+from app.fastapi.schema.contribuinte_schema import ContribuinteCreate, ContribuinteUpdate
+from app.model.contribuinte_model import ContribuinteModel
 
 
 async def get_contribuintes(page: int, session: AsyncSession):

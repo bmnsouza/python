@@ -1,7 +1,8 @@
 import strawberry
+
 from .contribuinte_mutation import ContribuinteMutation
-from .endereco_mutation import EnderecoMutation
 from .danfe_mutation import DanfeMutation
+from .endereco_mutation import EnderecoMutation
 
 
 @strawberry.type

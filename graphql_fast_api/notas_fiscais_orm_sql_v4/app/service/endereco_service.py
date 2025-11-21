@@ -1,9 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.repository import endereco_repository
-from app.fastapi.schema.endereco_schema import EnderecoCreate, EnderecoUpdate
-from app.core.pagination import format_result
-from app.core.exceptions import DuplicateEntryError, DatabaseError
+
+from app.core.exceptions import DatabaseError, DuplicateEntryError
 from app.core.logger import app_logger
+from app.core.pagination import format_result
+from app.fastapi.schema.endereco_schema import EnderecoCreate, EnderecoUpdate
+from app.repository import endereco_repository
 
 
 async def get_enderecos(page: int, session: AsyncSession):

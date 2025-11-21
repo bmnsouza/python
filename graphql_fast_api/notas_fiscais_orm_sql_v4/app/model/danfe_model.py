@@ -1,12 +1,14 @@
-from typing import TYPE_CHECKING
 from datetime import datetime
-from sqlalchemy import Integer, String, Float, DateTime, ForeignKey
+from typing import TYPE_CHECKING
+
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.database.connection import Base
+
 
 if TYPE_CHECKING:
     from app.model.contribuinte_model import ContribuinteModel
-
 
 class DanfeModel(Base):
     __tablename__ = "DANFE"

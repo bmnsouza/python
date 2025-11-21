@@ -1,8 +1,10 @@
 from datetime import datetime
 from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.fastapi.schema.danfe_schema import  DanfeFiltro, DanfeCreate, DanfeUpdate, SingleResponse, PaginatedResponse
+
+from app.fastapi.schema.danfe_schema import DanfeFiltro, DanfeCreate, DanfeUpdate, SingleResponse, PaginatedResponse
 from app.database.session import get_session
 from app.core.pagination import DEFAULT_PAGE
 from app.service import danfe_service
@@ -30,7 +32,8 @@ async def get_danfes_filtradas(
     valor_maximo: Optional[float] = None,
     data_inicial: Optional[datetime] = None,
     data_final: Optional[datetime] = None,
-    page: int = DEFAULT_PAGE, session: AsyncSession = Depends(get_session)
+    page: int = DEFAULT_PAGE,
+    session: AsyncSession = Depends(get_session)
 ):
     try:
         danfe = DanfeFiltro(

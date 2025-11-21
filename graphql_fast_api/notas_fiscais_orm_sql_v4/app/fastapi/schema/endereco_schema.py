@@ -1,5 +1,7 @@
 from typing import List, Optional
+
 from pydantic import BaseModel
+
 
 class EnderecoBase(BaseModel):
     cd_contribuinte: str

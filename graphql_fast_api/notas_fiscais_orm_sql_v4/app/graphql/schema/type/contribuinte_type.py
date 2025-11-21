@@ -1,7 +1,10 @@
 from typing import List, Optional
+
 import strawberry
-from .danfe_type import DanfeType
-from .endereco_type import EnderecoType
+
+from app.graphql.schema.type.danfe_type import DanfeType
+from app.graphql.schema.type.endereco_type import EnderecoType
+
 
 @strawberry.type
 class ContribuinteType:

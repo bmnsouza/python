@@ -1,10 +1,11 @@
 import strawberry
-from strawberry.types import Info
 from fastapi import HTTPException
+from strawberry.types import Info
+
+from app.core.exceptions import DuplicateEntryError, DatabaseError
+from app.fastapi.schema.endereco_schema import EnderecoCreate, EnderecoUpdate
 from app.graphql.schema.type.endereco_type import EnderecoType, SingleResponseType
 from app.service import endereco_service
-from app.fastapi.schema.endereco_schema import EnderecoCreate, EnderecoUpdate
-from app.core.exceptions import DuplicateEntryError, DatabaseError
 
 
 @strawberry.type

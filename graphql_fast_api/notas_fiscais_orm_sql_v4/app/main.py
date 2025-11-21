@@ -1,23 +1,21 @@
 from contextlib import asynccontextmanager
+
+import strawberry
 from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
-import strawberry
-from app.database import config
+
+from app.core.logger import app_logger
+from app.database import config, connection
 from app.database.context import get_context
-from app.database import connection
+from app.fastapi.router import api_router
 from app.graphql.schema.mutation import Mutation
 from app.graphql.schema.query import Query
-from app.core.logger import app_logger
 from app.middleware.logging_middleware import LoggingMiddleware
-from app.fastapi.router import api_router
 
-# ==========================================================
-# CICLO DE VIDA DA APLICAÇÃO (LIFESPAN)
-# ==========================================================
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    """Gerencia o ciclo de vida da aplicação (startup/shutdown)."""
-    # --- STARTUP ---
+    # Startup
     app_logger.info("==========================================")
     app_logger.info("GraphQL API Notas Fiscais iniciada.")
     app_logger.info("Oracle User:........ %s", config.ORACLE_USER)
@@ -27,17 +25,15 @@ async def lifespan(_app: FastAPI):
     app_logger.info("==========================================")
     app_logger.info("SQLAlchemy ORM inicializado (pool interno ativo).")
 
-    yield  # mantém a aplicação rodando
+    yield  # Mantém a aplicação rodando
 
-    # --- SHUTDOWN ---
+    # Shutdown
     app_logger.info("Encerrando aplicação e liberando recursos SQLAlchemy.")
     await connection.engine.dispose()
     app_logger.info("Pool de conexões SQLAlchemy encerrado com sucesso.")
 
 
-# ==========================================================
-# CONFIGURAÇÃO PRINCIPAL DO FASTAPI
-# ==========================================================
+# Configuração Principal do FastAPI
 app = FastAPI(
     title="GraphQL API e FastAPI Notas Fiscais",
     description="API com auditoria SQL, logs e alta performance.",

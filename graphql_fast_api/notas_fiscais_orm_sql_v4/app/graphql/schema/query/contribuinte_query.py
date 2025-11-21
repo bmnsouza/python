@@ -1,10 +1,11 @@
 import strawberry
 from fastapi import HTTPException
 from strawberry.types import Info
-from app.graphql.schema.type.contribuinte_type import ContribuinteType, ContribuinteDenfeEnderecoType, PaginatedResponseType, SingleResponseType
-from app.core.pagination import DEFAULT_PAGE, DEFAULT_PAGE_SIZE
-from app.service import contribuinte_service
+
 from app.core.exceptions import DatabaseError
+from app.core.pagination import DEFAULT_PAGE, DEFAULT_PAGE_SIZE
+from app.graphql.schema.type.contribuinte_type import ContribuinteType, ContribuinteDenfeEnderecoType, PaginatedResponseType, SingleResponseType
+from app.service import contribuinte_service
 
 
 @strawberry.type

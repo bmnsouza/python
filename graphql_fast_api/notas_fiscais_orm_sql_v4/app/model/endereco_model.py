@@ -1,7 +1,10 @@
 from typing import TYPE_CHECKING
-from sqlalchemy import Integer, String, ForeignKey
+
+from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.database.connection import Base
+
 
 if TYPE_CHECKING:
     from app.model.contribuinte_model import ContribuinteModel

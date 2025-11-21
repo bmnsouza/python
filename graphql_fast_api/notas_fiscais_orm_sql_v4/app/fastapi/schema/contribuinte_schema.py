@@ -1,7 +1,9 @@
 from typing import List, Optional
+
 from pydantic import BaseModel, Field
-from .danfe_schema import Danfe
-from .endereco_schema import Endereco
+
+from app.fastapi.schema.danfe_schema import Danfe
+from app.fastapi.schema.endereco_schema import Endereco
 
 
 class ContribuinteBase(BaseModel):

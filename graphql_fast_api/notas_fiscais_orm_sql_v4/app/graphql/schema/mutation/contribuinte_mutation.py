@@ -1,10 +1,11 @@
 import strawberry
-from strawberry.types import Info
 from fastapi import HTTPException
+from strawberry.types import Info
+
+from app.core.exceptions import DuplicateEntryError, DatabaseError
+from app.fastapi.schema.contribuinte_schema import ContribuinteCreate, ContribuinteUpdate
 from app.graphql.schema.type.contribuinte_type import ContribuinteType, SingleResponseType
 from app.service import contribuinte_service
-from app.fastapi.schema.contribuinte_schema import ContribuinteCreate, ContribuinteUpdate
-from app.core.exceptions import DuplicateEntryError, DatabaseError
 
 
 @strawberry.type

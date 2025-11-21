@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
-from app.middleware.sql_audit_middleware import setup_sql_audit
 from app.database import config
+from app.middleware.sql_audit_middleware import setup_sql_audit
 
 
 class Base(DeclarativeBase):
