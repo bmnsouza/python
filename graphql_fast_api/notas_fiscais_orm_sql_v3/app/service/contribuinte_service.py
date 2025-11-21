@@ -3,16 +3,7 @@ from app.repository import contribuinte_repository
 from app.fastapi.schema.contribuinte_schema import ContribuinteCreate, ContribuinteUpdate
 from app.core.pagination import format_result
 from app.core.exceptions import DuplicateEntryError, DatabaseError
-from app.logger import app_logger
-
-
-async def get_contribuintes_danfe_endereco(filtro_nome: str, page: int, db: AsyncSession):
-    try:
-        result = await contribuinte_repository.get_contribuintes_danfe_endereco(filtro_nome, page, db)
-        return format_result(data=result, page=page)
-    except Exception as e:
-        app_logger.exception("Erro ao obter contribuintes, danfe e endereço %s", e)
-        raise DatabaseError(str(e)) from e
+from app.core.logger import app_logger
 
 
 async def get_contribuintes(page: int, db: AsyncSession):
@@ -21,6 +12,15 @@ async def get_contribuintes(page: int, db: AsyncSession):
         return format_result(data=result, page=page)
     except Exception as e:
         app_logger.exception("Erro ao obter contribuintes %s", e)
+        raise DatabaseError(str(e)) from e
+
+
+async def get_contribuintes_danfe_endereco(filtro_nome: str, page: int, db: AsyncSession):
+    try:
+        result = await contribuinte_repository.get_contribuintes_danfe_endereco(filtro_nome, page, db)
+        return format_result(data=result, page=page)
+    except Exception as e:
+        app_logger.exception("Erro ao obter contribuintes, danfe e endereço %s", e)
         raise DatabaseError(str(e)) from e
 
 

@@ -25,6 +25,15 @@ class Danfe(DanfeBase):
         from_attributes = True
 
 
+class DanfeFiltro(BaseModel):
+    cd_contribuinte: Optional[str] = None
+    numero: Optional[str] = None
+    valor_minimo: Optional[float] = None
+    valor_maximo: Optional[float] = None
+    data_inicial: Optional[datetime] = None
+    data_final: Optional[datetime] = None
+
+
 class SingleResponse(BaseModel):
     data: Danfe
 

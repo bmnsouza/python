@@ -2,7 +2,7 @@ import time
 import json
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
-from app.logger import sql_logger
+from app.core.logger import sql_logger
 
 
 # Limite em milissegundos para considerar uma query lenta

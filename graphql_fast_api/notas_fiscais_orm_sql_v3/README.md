@@ -13,12 +13,15 @@ notas_fiscais_orm_sql/
 │   ├── core/
 │   |   ├── __init__.py
 │   |   ├── constants.py
-│   |   └── pagination.py.py
+│   |   ├── exceptions.py
+│   |   ├── logger.py
+│   |   └── pagination.py
 │   ├── database/
 │   |   ├── __init__.py
-│   |   ├── contribuinte_repository.py
-│   |   ├── danfe_repository.py
-│   |   └── endereco_repository.py
+│   |   ├── config.py
+│   |   ├── connection.py
+│   |   ├── context.py
+│   |   └── session.py
 │   ├── fastapi/
 │   |   ├── router/
 │   |   |   ├── __init__.py
@@ -32,6 +35,9 @@ notas_fiscais_orm_sql/
 │   |   |   └── endereco_schema.py
 │   ├── graphql/
 │   |   ├── schema/
+│   |   |   ├── input/
+│   |   |   |   ├── __init__.py
+│   |   |   |   ├── danfe_input.py
 │   |   |   ├── mutation/
 │   |   |   |   ├── __init__.py
 │   |   |   |   ├── contribuinte_mutation.py
@@ -47,28 +53,26 @@ notas_fiscais_orm_sql/
 │   |   |   |   ├── contribuinte_type.py
 │   |   |   |   ├── danfe_type.py
 │   |   |   |   └── endereco_type.py
+│   |   |   └── __init__.py
 │   |   └── __init__.py
 │   ├── middleware/
 │   |   ├── logging_middleware.py
 │   |   └── sql_audit_middleware.py
+│   ├── model/
+│   |   ├── contribuinte_model.py
+│   |   ├── danfe_model.py
+│   |   └── endereco_model.py
 │   ├── repository/
 │   |   ├── __init__.py
 │   |   ├── contribuinte_repository.py
 │   |   ├── danfe_repository.py
 │   |   ├── endereco_repository.py
 │   ├── service/
+│   |   ├── __init__.py
 │   |   ├── contribuinte_service.py
 │   |   ├── danfe_service.py
 │   |   └── endereco_service.py
-│   ├── models/
-│   |   ├── contribuinte_model.py
-│   |   ├── danfe_model.py
-│   |   └── endereco_model.py
 │   ├── __init__.py
-│   ├── config.py
-│   ├── context.py
-│   ├── database.py
-│   ├── logger.py
 │   └── main.py
 ├── logs/
 │   ├── app.log

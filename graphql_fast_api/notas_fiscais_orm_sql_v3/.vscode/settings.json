@@ -12,6 +12,8 @@
     "--disable=C0111",
     "--disable=line-too-long",
     "--disable=raise-missing-from",
-    "--disable=too-few-public-methods"
+    "--disable=too-few-public-methods",
+    "--disable=too-many-arguments",
+    "--disable=too-many-positional-arguments"
   ]
 }

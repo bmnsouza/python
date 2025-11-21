@@ -21,6 +21,17 @@ async def get_enderecos(page: int = DEFAULT_PAGE, db: AsyncSession = Depends(get
 
 
 @router.get("/{id_endereco}", response_model=SingleResponse)
+async def get_enderecos_por_contribuinte(cd_contribuinte: str, page: int = DEFAULT_PAGE, db: AsyncSession = Depends(get_session)):
+    try:
+        result = await endereco_service.get_enderecos_por_contribuinte(cd_contribuinte=cd_contribuinte, page=page, db=db)
+        if not result["data"]:
+            raise HTTPException(status_code=404, detail="Endereço não encontrado")
+        return result
+    except DatabaseError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/{id_endereco}", response_model=SingleResponse)
 async def get_endereco(id_endereco: int, db: AsyncSession = Depends(get_session)):
     try:
         result = await endereco_service.get_endereco(id_endereco=id_endereco, db=db)

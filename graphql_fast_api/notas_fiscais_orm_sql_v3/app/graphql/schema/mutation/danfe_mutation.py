@@ -1,87 +1,53 @@
-from typing import Optional
-from sqlalchemy import select
-from sqlalchemy.exc import SQLAlchemyError
+from datetime import datetime
 import strawberry
 from strawberry.types import Info
 from fastapi import HTTPException
-from app.graphql.schema.type.danfe_type import DanfeType
-from app.model.danfe_model import DanfeModel
-from app.logger import app_logger
+from app.graphql.schema.type.danfe_type import DanfeType, SingleResponseType
+from app.service import danfe_service
+from app.fastapi.schema.danfe_schema import DanfeCreate, DanfeUpdate
+from app.core.exceptions import DuplicateEntryError, DatabaseError
 
 
 @strawberry.type
 class DanfeMutation:
-    @strawberry.mutation
-    async def criar_danfe(
-        self,
-        info: Info,
-        cd_contribuinte: str,
-        numero: str,
-        valor_total: float,
-    ) -> DanfeType:
-        """Cria uma nova DANFE vinculada a um contribuinte."""
-        session = info.context["session"]
-        try:
-            nova = DanfeModel(
-                cd_contribuinte=cd_contribuinte,
-                numero=numero,
-                valor_total=valor_total,
-            )
-            session.add(nova)
-            await session.commit()
-            await session.refresh(nova)
-            return DanfeType.from_orm(nova)
-        except SQLAlchemyError as e:
-            await session.rollback()
-            app_logger.exception("Erro ao criar Danfe %s", numero)
-            raise HTTPException(status_code=500, detail="Erro interno ao criar Danfe") from e
 
     @strawberry.mutation
-    async def atualizar_danfe(
-        self,
-        info: Info,
-        id_danfe: int,
-        numero: Optional[str] = None,
-        valor_total: Optional[float] = None,
-    ) -> str:
-        """Atualiza informações de um Danfe."""
-        session = info.context["session"]
+    async def create_danfe(self, info: Info, cd_contribuinte: str, numero: str, valor_total: float, data_emissao: datetime) -> SingleResponseType:
         try:
-            result = await session.execute(
-                select(DanfeModel).where(DanfeModel.id_danfe == id_danfe)
-            )
-            endereco = result.scalars().first()
-            if not endereco:
-                return f"Danfe {id_danfe} não encontrado."
+            session = info.context["session"]
+            danfe = DanfeCreate(cd_contribuinte=cd_contribuinte, numero=numero, valor_total=valor_total, data_emissao=data_emissao)
+            result = danfe_service.create_danfe(danfe=danfe, db=session)
+            data = DanfeType.from_orm(result['data'])
+            return SingleResponseType(data=data)
+        except DuplicateEntryError as e:
+            raise HTTPException(status_code=409, detail=str(e))
+        except DatabaseError as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
-            if numero:
-                endereco.numero = numero
-            if valor_total:
-                endereco.valor_total = valor_total
-
-            await session.commit()
-            return f"Danfe {id_danfe} atualizado com sucesso."
-        except SQLAlchemyError as e:
-            await session.rollback()
-            app_logger.exception("Erro ao atualizar Danfe %s", id_danfe)
-            raise HTTPException(status_code=500, detail="Erro interno ao atualizar Danfe") from e
 
     @strawberry.mutation
-    async def excluir_danfe(self, info: Info, id_danfe: int) -> str:
-        """Exclui uma DANFE pelo ID."""
-        session = info.context["session"]
+    async def update_danfe(self, info: Info, id_danfe: int, numero: str, valor_total: float, data_emissao: datetime) -> SingleResponseType:
         try:
-            result = await session.execute(
-                select(DanfeModel).where(DanfeModel.id_danfe == id_danfe)
-            )
-            danfe = result.scalars().first()
-            if not danfe:
-                return f"Danfe {id_danfe} não encontrado."
+            session = info.context["session"]
+            danfe = DanfeUpdate(numero=numero, valor_total=valor_total, data_emissao=data_emissao)
+            result = danfe_service.update_danfe(id_danfe=id_danfe, danfe=danfe, db=session)
+            if not result["data"]:
+                raise HTTPException(status_code=404, detail="Danfe não encontrado")
+            data = DanfeType.from_orm(result['data'])
+            return SingleResponseType(data=data)
+        except DuplicateEntryError as e:
+            raise HTTPException(status_code=409, detail=str(e))
+        except DatabaseError as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
-            await session.delete(danfe)
-            await session.commit()
-            return f"Danfe {id_danfe} excluído com sucesso."
-        except SQLAlchemyError as e:
-            await session.rollback()
-            app_logger.exception("Erro ao excluir Danfe %s", id_danfe)
-            raise HTTPException(status_code=500, detail="Erro interno ao excluir Danfe") from e
+
+    @strawberry.mutation
+    async def delete_danfe(self, info: Info, id_danfe: str) -> SingleResponseType:
+        try:
+            session = info.context["session"]
+            result = await danfe_service.delete_danfe(id_danfe=id_danfe, db=session)
+            if not result["data"]:
+                raise HTTPException(status_code=404, detail="Danfe não encontrado")
+            return {"ok": True, "message": "Danfe excluído com sucesso"}
+        except DatabaseError as e:
+            raise HTTPException(status_code=500, detail=str(e))

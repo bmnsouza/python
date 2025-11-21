@@ -3,7 +3,7 @@ import uuid
 import json
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
-from app.logger import app_logger
+from app.core.logger import app_logger
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):

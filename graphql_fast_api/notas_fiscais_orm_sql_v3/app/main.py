@@ -7,7 +7,7 @@ from app.database.context import get_context
 from app.database import connection
 from app.graphql.schema.mutation import Mutation
 from app.graphql.schema.query import Query
-from app.logger import app_logger
+from app.core.logger import app_logger
 from app.middleware.logging_middleware import LoggingMiddleware
 from app.fastapi.router import api_router
 

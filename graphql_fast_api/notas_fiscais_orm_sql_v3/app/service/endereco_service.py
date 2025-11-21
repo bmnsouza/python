@@ -3,7 +3,7 @@ from app.repository import endereco_repository
 from app.fastapi.schema.endereco_schema import EnderecoCreate, EnderecoUpdate
 from app.core.pagination import format_result
 from app.core.exceptions import DuplicateEntryError, DatabaseError
-from app.logger import app_logger
+from app.core.logger import app_logger
 
 
 async def get_enderecos(page: int, db: AsyncSession):
@@ -15,7 +15,16 @@ async def get_enderecos(page: int, db: AsyncSession):
         raise DatabaseError(str(e)) from e
 
 
-async def get_endereco(id_endereco: str, db: AsyncSession):
+async def get_enderecos_por_contribuinte(cd_contribuinte: str, page: int, db: AsyncSession):
+    try:
+        result = await endereco_repository.get_enderecos_por_contribuinte(cd_contribuinte=cd_contribuinte, page=page, db=db)
+        return format_result(data=result)
+    except Exception as e:
+        app_logger.exception("Erro ao obter endereços %s", e)
+        raise DatabaseError(str(e)) from e
+
+
+async def get_endereco(id_endereco: int, db: AsyncSession):
     try:
         result = await endereco_repository.get_endereco(id_endereco=id_endereco, db=db)
         return format_result(data=result)

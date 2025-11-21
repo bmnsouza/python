@@ -1,8 +1,9 @@
+from sqlalchemy import and_
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.model.danfe_model import DanfeModel
 from app.core.exceptions import map_data_base_error
-from app.fastapi.schema.danfe_schema import DanfeCreate, DanfeUpdate
+from app.fastapi.schema.danfe_schema import DanfeFiltro, DanfeCreate, DanfeUpdate
 from app.core.pagination import DEFAULT_PAGE_SIZE, calculate_offset
 
 
@@ -14,6 +15,40 @@ async def get_danfes(page: int, db: AsyncSession):
             .offset(calculate_offset(page))
             .limit(DEFAULT_PAGE_SIZE)
         )
+        result = await db.execute(statement=query)
+        return result.scalars().all()
+    except Exception as e:
+        map_data_base_error(e)
+
+
+async def get_danfes_filtradas(danfe: DanfeFiltro, page: int, db: AsyncSession):
+    try:
+        conditions = []
+
+        if danfe.cd_contribuinte:
+            conditions.append(DanfeModel.cd_contribuinte == danfe.cd_contribuinte)
+        if danfe.numero:
+            conditions.append(DanfeModel.numero == danfe.numero)
+        if danfe.valor_minimo is not None:
+            conditions.append(DanfeModel.valor_total >= danfe.valor_minimo)
+        if danfe.valor_maximo is not None:
+            conditions.append(DanfeModel.valor_total <= danfe.valor_maximo)
+        if danfe.data_inicial:
+            conditions.append(DanfeModel.data_emissao >= danfe.data_inicial)
+        if danfe.data_final:
+            conditions.append(DanfeModel.data_emissao <= danfe.data_final)
+
+        query = select(DanfeModel)
+
+        if conditions:
+            query = query.where(and_(*conditions))
+
+        query = (
+            query.order_by(DanfeModel.id_danfe)
+            .offset(calculate_offset(page))
+            .limit(DEFAULT_PAGE_SIZE)
+        )
+
         result = await db.execute(statement=query)
         return result.scalars().all()
     except Exception as e:

@@ -7,6 +7,20 @@ from app.fastapi.schema.contribuinte_schema import ContribuinteCreate, Contribui
 from app.core.pagination import DEFAULT_PAGE_SIZE, calculate_offset
 
 
+async def get_contribuintes(page: int, db: AsyncSession):
+    try:
+        query = (
+            select(ContribuinteModel)
+            .order_by(ContribuinteModel.nm_fantasia)
+            .offset(calculate_offset(page))
+            .limit(DEFAULT_PAGE_SIZE)
+        )
+        result = await db.execute(statement=query)
+        return result.scalars().all()
+    except Exception as e:
+        map_data_base_error(e)
+
+
 async def get_contribuintes_danfe_endereco(filtro_nome: str, page: int, db: AsyncSession):
     try:
         query = text("""
@@ -26,20 +40,6 @@ async def get_contribuintes_danfe_endereco(filtro_nome: str, page: int, db: Asyn
         }
         result = await db.execute(statement=query, params=params)
         return [dict(row) for row in result.mappings().all()]
-    except Exception as e:
-        map_data_base_error(e)
-
-
-async def get_contribuintes(page: int, db: AsyncSession):
-    try:
-        query = (
-            select(ContribuinteModel)
-            .order_by(ContribuinteModel.nm_fantasia)
-            .offset(calculate_offset(page))
-            .limit(DEFAULT_PAGE_SIZE)
-        )
-        result = await db.execute(statement=query)
-        return result.scalars().all()
     except Exception as e:
         map_data_base_error(e)
 

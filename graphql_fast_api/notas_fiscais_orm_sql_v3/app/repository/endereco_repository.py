@@ -20,6 +20,20 @@ async def get_enderecos(page: int, db: AsyncSession):
         map_data_base_error(e)
 
 
+async def get_enderecos_por_contribuinte(cd_contribuinte: str, page: int, db: AsyncSession):
+    try:
+        query = (
+            select(EnderecoModel)
+            .where(EnderecoModel.cd_contribuinte == cd_contribuinte)
+            .offset(calculate_offset(page))
+            .limit(DEFAULT_PAGE_SIZE)
+        )
+        result = await db.execute(query)
+        return result.scalars().all()
+    except Exception as e:
+        map_data_base_error(e)
+
+
 async def get_endereco(id_endereco: int, db: AsyncSession):
     try:
         query = (

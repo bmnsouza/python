@@ -1,6 +1,8 @@
+from datetime import datetime
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.fastapi.schema.danfe_schema import  DanfeCreate, DanfeUpdate, SingleResponse, PaginatedResponse
+from app.fastapi.schema.danfe_schema import  DanfeFiltro, DanfeCreate, DanfeUpdate, SingleResponse, PaginatedResponse
 from app.database.session import get_session
 from app.core.pagination import DEFAULT_PAGE
 from app.service import danfe_service
@@ -13,6 +15,33 @@ router = APIRouter(prefix="/danfe", tags=["Danfe"])
 async def get_danfes(page: int = DEFAULT_PAGE, db: AsyncSession = Depends(get_session)):
     try:
         result = await danfe_service.get_danfes(page=page, db=db)
+        if not result["data"]:
+            raise HTTPException(status_code=404, detail="Danfe não encontrado")
+        return result
+    except DatabaseError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/", response_model=PaginatedResponse)
+async def get_danfes_filtradas(
+    cd_contribuinte: Optional[str] = None,
+    numero: Optional[str] = None,
+    valor_minimo: Optional[float] = None,
+    valor_maximo: Optional[float] = None,
+    data_inicial: Optional[datetime] = None,
+    data_final: Optional[datetime] = None,
+    page: int = DEFAULT_PAGE, db: AsyncSession = Depends(get_session)
+):
+    try:
+        danfe = DanfeFiltro(
+            cd_contribuinte=cd_contribuinte, 
+            numero=numero,
+            valor_minimo=valor_minimo,
+            valor_maximo=valor_maximo,
+            data_inicial=data_inicial,
+            data_final=data_final
+        )
+        result = await danfe_service.get_danfes_filtradas(danfe=danfe, page=page, db=db)
         if not result["data"]:
             raise HTTPException(status_code=404, detail="Danfe não encontrado")
         return result

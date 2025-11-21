@@ -1,6 +1,7 @@
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 import strawberry
+
 
 @strawberry.type
 class DanfeType:
@@ -19,3 +20,15 @@ class DanfeType:
             valor_total=model.valor_total,
             data_emissao=model.data_emissao,
         )
+
+
+@strawberry.type
+class SingleResponseType:
+    data: DanfeType
+
+
+@strawberry.type
+class PaginatedResponseType:
+    page: int
+    page_size: int
+    data: List[DanfeType]

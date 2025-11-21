@@ -9,18 +9,21 @@ from app.core.exceptions import DuplicateEntryError, DatabaseError
 
 router = APIRouter(prefix="/contribuinte", tags=["Contribuinte"])
 
-@router.get("/danfe-endereco", response_model=PaginatedResponse)
-async def get_contribuintes_danfe_endereco(filtro_nome: str, page: int = DEFAULT_PAGE, db: AsyncSession = Depends(get_session)):
-    result = await contribuinte_service.get_contribuintes_danfe_endereco(filtro_nome=filtro_nome, page=page, db=db)
-    if not result["data"]:
-        raise HTTPException(status_code=404, detail="Contribuinte não encontrado")
-    return result
-
-
 @router.get("/", response_model=PaginatedResponse)
 async def get_contribuintes(page: int = DEFAULT_PAGE, db: AsyncSession = Depends(get_session)):
     try:
         result = await contribuinte_service.get_contribuintes(page=page, db=db)
+        if not result["data"]:
+            raise HTTPException(status_code=404, detail="Contribuinte não encontrado")
+        return result
+    except DatabaseError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/danfe-endereco", response_model=PaginatedResponse)
+async def get_contribuintes_danfe_endereco(filtro_nome: str, page: int = DEFAULT_PAGE, db: AsyncSession = Depends(get_session)):
+    try:
+        result = await contribuinte_service.get_contribuintes_danfe_endereco(filtro_nome=filtro_nome, page=page, db=db)
         if not result["data"]:
             raise HTTPException(status_code=404, detail="Contribuinte não encontrado")
         return result

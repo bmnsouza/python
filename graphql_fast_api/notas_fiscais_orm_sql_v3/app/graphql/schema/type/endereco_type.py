@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 import strawberry
 
 @strawberry.type
@@ -18,3 +18,14 @@ class EnderecoType:
             municipio=model.municipio,
             uf=model.uf,
         )
+
+@strawberry.type
+class SingleResponseType:
+    data: EnderecoType
+
+
+@strawberry.type
+class PaginatedResponseType:
+    page: int
+    page_size: int
+    data: List[EnderecoType]
