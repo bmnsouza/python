@@ -11,9 +11,11 @@
     "--disable=broad-exception-caught",
     "--disable=C0111",
     "--disable=line-too-long",
+    "--disable=not-callable",
     "--disable=raise-missing-from",
     "--disable=too-few-public-methods",
     "--disable=too-many-arguments",
+    "--disable=too-many-locals",
     "--disable=too-many-positional-arguments"
   ]
 }
