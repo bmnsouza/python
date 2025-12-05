@@ -1,7 +1,7 @@
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 from fastapi import Response
 
-DEFAULT_ACCEPT_RANGES = 50  # caso cliente não informe
+DEFAULT_ACCEPT_RANGES = 50
 
 
 def parse_fields_param(fields: Optional[str]) -> Optional[List[str]]:
@@ -10,29 +10,27 @@ def parse_fields_param(fields: Optional[str]) -> Optional[List[str]]:
     return [f.strip() for f in fields.split(",") if f.strip()]
 
 
-# def select_fields_from_obj(obj: Dict[str, Any], fields: Optional[List[str]]) -> Dict[str, Any]:
-#     """Retorna apenas os campos solicitados (se fields for None, retorna tudo)."""
-#     if not fields:
-#         return obj
-#     return {k: v for k, v in obj.items() if k in fields}
-
-
 def select_fields_from_obj(obj, fields: Optional[List[str]] = None):
-    if isinstance(obj, dict):
+    # Pydantic v2
+    if hasattr(obj, "model_dump"):
+        obj_dict = obj.model_dump()
+    # SQLAlchemy
+    elif hasattr(obj, "__table__"):
+        obj_dict = {c.name: getattr(obj, c.name) for c in obj.__table__.columns}
+    # Já é dict
+    else:
         obj_dict = obj
-    else:  # Pydantic model ou SQLAlchemy model
-        obj_dict = obj.dict()  # Pydantic
-        # Para SQLAlchemy: obj_dict = {c.name: getattr(obj, c.name) for c in obj.__table__.columns}
 
     if not fields:
         return obj_dict
+
     return {k: v for k, v in obj_dict.items() if k in fields}
 
 
 def build_order_by_clause(asc: Optional[str], des: Optional[str]) -> List[Tuple[str, str]]:
     """
     Retorna lista de tuplas (campo, direcao) onde direcao é 'asc' ou 'desc'.
-    Prioridade: asc (aplicada em ordem) depois des.
+    Prioridade: asc (aplicada em ordem) depois desc.
     """
     order: List[Tuple[str, str]] = []
     if asc:
@@ -42,14 +40,18 @@ def build_order_by_clause(asc: Optional[str], des: Optional[str]) -> List[Tuple[
     return order
 
 
-def set_pagination_headers(response: Response, offset: int, limit: int, total: int, accept_ranges: Optional[int]):
+def set_pagination_headers(response: Response, offset: int, limit: int, total: int, accept_ranges: Optional[int] = DEFAULT_ACCEPT_RANGES):
     """
     Define headers Content-Range e Accept-Ranges e ajusta status code:
     - se offset+limit < total -> 206 Partial Content
     - else 200
     """
-    if accept_ranges is None:
-        accept_ranges = DEFAULT_ACCEPT_RANGES
+
+    print('>>> response:', response)
+    print('>>> offset:', offset)
+    print('>>> limit:', limit)
+    print('>>> total:', total)
+    print('>>> accept_ranges:', accept_ranges)
 
     # Content-Range minimal: total (mantive compatibilidade com sua spec)
     response.headers["Content-Range"] = str(total)

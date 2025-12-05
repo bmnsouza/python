@@ -24,34 +24,6 @@ async def get_danfes(page: int = DEFAULT_PAGE, session: AsyncSession = Depends(g
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# @router.get("/", response_model=Danfe)
-# async def get_danfes_filtradas(
-#     cd_contribuinte: Optional[str] = None,
-#     numero: Optional[str] = None,
-#     valor_minimo: Optional[float] = None,
-#     valor_maximo: Optional[float] = None,
-#     data_inicial: Optional[datetime] = None,
-#     data_final: Optional[datetime] = None,
-#     page: int = DEFAULT_PAGE,
-#     session: AsyncSession = Depends(get_session)
-# ):
-#     try:
-#         danfe = DanfeFiltro(
-#             cd_contribuinte=cd_contribuinte,
-#             numero=numero,
-#             valor_minimo=valor_minimo,
-#             valor_maximo=valor_maximo,
-#             data_inicial=data_inicial,
-#             data_final=data_final
-#         )
-#         result = await danfe_service.get_danfes_filtradas(danfe=danfe, page=page, session=session)
-#         if not result["data"]:
-#             raise HTTPException(status_code=404, detail="Danfe não encontrado")
-#         return result
-#     except DatabaseError as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-
-
 @router.get("/{id_danfe}", response_model=Danfe)
 async def get_danfe(id_danfe: int, session: AsyncSession = Depends(get_session)):
     try:

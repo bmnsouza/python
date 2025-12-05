@@ -1,9 +1,11 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
-from fastapi.exceptions import RequestValidationError, HTTPException
+from fastapi import FastAPI, HTTPException
 
-from app.core.errors import http_exception_handler, validation_exception_handler
+from fastapi.exceptions import RequestValidationError
+
+from app.utils.handler_utils import http_exception_handler, validation_exception_handler
+
 from app.core.logger import app_logger
 from app.database import config, connection
 from app.fastapi.router import api_router

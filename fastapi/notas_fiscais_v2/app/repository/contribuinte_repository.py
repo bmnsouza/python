@@ -66,7 +66,7 @@ class ContribuinteRepository:
     async def create(self, payload: Dict[str, Any]):
         obj = ContribuinteModel(**payload)
         self.session.add(obj)
-        await self.session.flush()
+        await self.session.commit()
         await self.session.refresh(obj)
         return obj
 
@@ -80,7 +80,7 @@ class ContribuinteRepository:
             if hasattr(obj, k):
                 setattr(obj, k, v)
 
-        await self.session.flush()
+        await self.session.commit()
         await self.session.refresh(obj)
         return obj
 
@@ -91,4 +91,5 @@ class ContribuinteRepository:
             return None
 
         await self.session.delete(obj)
+        await self.session.commit()
         return obj
