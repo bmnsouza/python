@@ -1,5 +1,5 @@
-# GraphQL API e FastAPI Notas Fiscais
-API de consulta a dados de Notas Fiscais construída com **FastAPI**, **Strawberry GraphQL** e **Oracle** usando SQLAlchemy ORM e SQL Nativo.
+# FastAPI Notas Fiscais
+API de consulta a dados de Notas Fiscais construída com **FastAPI** e **Oracle** usando SQLAlchemy ORM e SQL Nativo.
 
 ---
 
@@ -33,28 +33,14 @@ notas_fiscais_orm_sql/
 │   |   |   ├── contribuinte_schema.py
 │   |   |   ├── danfe_schema.py
 │   |   |   └── endereco_schema.py
-│   ├── graphql/
-│   |   ├── schema/
-│   |   |   ├── input/
-│   |   |   |   ├── __init__.py
-│   |   |   |   ├── danfe_input.py
-│   |   |   ├── mutation/
-│   |   |   |   ├── __init__.py
-│   |   |   |   ├── contribuinte_mutation.py
-│   |   |   |   ├── danfe_mutation.py
-│   |   |   |   └── endereco_mutation.py
-│   |   |   ├── query/
-│   |   |   |   ├── __init__.py
-│   |   |   |   ├── contribuinte_query.py
-│   |   |   |   ├── danfe_query.py
-│   |   |   |   └── endereco_query.py
-│   |   |   ├── types/
-│   |   |   |   ├── __init__.py
-│   |   |   |   ├── contribuinte_type.py
-│   |   |   |   ├── danfe_type.py
-│   |   |   |   └── endereco_type.py
-│   |   |   └── __init__.py
-│   |   └── __init__.py
+│   |   ├── validators/
+│   |   |   ├── __init__.py
+│   |   |   ├── contribuinte_schema.py
+│   |   |   ├── danfe_schema.py
+│   |   |   └── endereco_schema.py
+|   ├── logs/
+│   |   ├── app.log
+│   |   └── sql.log
 │   ├── middleware/
 │   |   ├── logging_middleware.py
 │   |   └── sql_audit_middleware.py
@@ -72,11 +58,15 @@ notas_fiscais_orm_sql/
 │   |   ├── contribuinte_service.py
 │   |   ├── danfe_service.py
 │   |   └── endereco_service.py
+│   ├── utils/
+│   |   ├── __init__.py
+│   |   ├── error_util.py
+│   |   ├── exception_util.py
+│   |   ├── field_util.py
+│   |   ├── handler_util.py
+│   |   └── response_service.py
 │   ├── __init__.py
 │   └── main.py
-├── logs/
-│   ├── app.log
-│   └── sql.log
 ├── sql/
 │   ├── script.sql
 │   └── setup.sql
