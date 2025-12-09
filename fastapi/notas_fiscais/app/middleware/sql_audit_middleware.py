@@ -1,3 +1,4 @@
+from decimal import Decimal
 import json
 import time
 
@@ -22,7 +23,7 @@ def setup_sql_audit(engine: Engine):
         """Garante que qualquer objeto seja serializável em JSON."""
         if value is None:
             return None
-        if isinstance(value, (str, int, float, bool)):
+        if isinstance(value, (str, int, Decimal, bool)):
             return value
         if isinstance(value, (list, tuple)):
             return [safe_convert(v) for v in value]

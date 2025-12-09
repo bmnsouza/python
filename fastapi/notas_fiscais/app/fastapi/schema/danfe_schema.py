@@ -1,46 +1,32 @@
 from datetime import datetime
 from decimal import Decimal
-from typing import List, Optional
-
+from typing import Optional
 from pydantic import BaseModel
+
+from app.fastapi.validators.contribuinte_validator import CD_CONTRIBUINTE_FIELD
+from app.fastapi.validators.danfe_validator import NUMERO_FIELD, VALOR_TOTAL_FIELD, DATA_EMISSAO_FIELD
 
 
 class DanfeBase(BaseModel):
-    cd_contribuinte: str
+    cd_contribuinte: Optional[str] = None
     numero: Optional[str] = None
     valor_total: Optional[Decimal] = None
     data_emissao: Optional[datetime] = None
-
-
-class DanfeCreate(DanfeBase):
-    pass
-
-
-class DanfeUpdate(BaseModel):
-    numero: Optional[str] = None
-    valor_total: Optional[Decimal] = None
-    data_emissao: Optional[datetime] = None
-
-class Danfe(DanfeBase):
-    id_danfe: int
     class Config:
         from_attributes = True
 
 
-class DanfeFiltro(BaseModel):
-    cd_contribuinte: Optional[str] = None
-    numero: Optional[str] = None
-    valor_minimo: Optional[float] = None
-    valor_maximo: Optional[float] = None
-    data_inicial: Optional[datetime] = None
-    data_final: Optional[datetime] = None
+class Danfe(DanfeBase):
+    id_danfe: Optional[int] = None
+    class Config:
+        from_attributes = True
 
 
-class SingleResponse(BaseModel):
-    data: Danfe
+class DanfeUpdate(BaseModel):
+    numero: str = NUMERO_FIELD
+    valor_total: Decimal = VALOR_TOTAL_FIELD
+    data_emissao: datetime = DATA_EMISSAO_FIELD
 
 
-class PaginatedResponse(BaseModel):
-    page: int
-    page_size: int
-    data: List[Danfe]
+class DanfeCreate(DanfeUpdate):
+    cd_contribuinte: str = CD_CONTRIBUINTE_FIELD

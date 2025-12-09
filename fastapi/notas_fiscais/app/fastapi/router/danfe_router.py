@@ -1,94 +1,92 @@
-from datetime import datetime
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.fastapi.schema.danfe_schema import DanfeFiltro, DanfeCreate, DanfeUpdate, SingleResponse, PaginatedResponse
 from app.database.session import get_session
-from app.core.pagination import DEFAULT_PAGE
-from app.service import danfe_service
-from app.core.exceptions import DuplicateEntryError, DatabaseError
+from app.fastapi.schema.danfe_schema import Danfe, DanfeCreate, DanfeUpdate
+from app.fastapi.validators.danfe_validator import ID_DANFE_PATH
+from app.service.danfe_service import DanfeService
+from app.utils.exception_util import raise_http_exception
+from app.utils.field_util import parse_fields_param, select_fields_from_obj
+from app.utils.response_util import normalize_pagination_params, set_filters_order, set_pagination_headers
 
 
-router = APIRouter(prefix="/danfe", tags=["Danfe"])
+router = APIRouter(prefix="/v1/danfe", tags=["Danfe"])
 
-@router.get("/", response_model=PaginatedResponse)
-async def get_danfes(page: int = DEFAULT_PAGE, session: AsyncSession = Depends(get_session)):
+@router.get("/")
+async def get_list(request: Request, response: Response, asc: Optional[str] = Query(None), des: Optional[str] = Query(None),
+    offset: int = Query(None, ge=0), limit: int = Query(None, ge=1), fields: Optional[str] = Query(None), session: AsyncSession = Depends(get_session)):
+    # Normaliza parâmetros antes de chamar o service
+    final_offset, final_limit, final_accept_ranges = normalize_pagination_params(offset=offset, limit=limit)
+
+    # Monta filtros e ordenação
+    filters, order = set_filters_order(request=request, asc=asc, des=des)
+
     try:
-        result = await danfe_service.get_danfes(page=page, session=session)
-        if not result["data"]:
-            raise HTTPException(status_code=404, detail="Danfe não encontrado")
+        # Chama o service passando os valores normalizados
+        service = DanfeService(session)
+        total, items = await service.get_list(filters=filters, order=order, offset=final_offset, limit=final_limit)
+    except Exception as e:
+        raise_http_exception(exc=e)
+
+    # Aplica headers
+    set_pagination_headers(response=response, offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges)
+
+    # Transformação de campos
+    requested_fields = parse_fields_param(fields)
+    transformed = [select_fields_from_obj(i, requested_fields) for i in items]
+
+    return transformed
+
+
+@router.get("/{id_danfe}", response_model=Danfe)
+async def get_by_id(id_danfe: str = ID_DANFE_PATH, session: AsyncSession = Depends(get_session)):
+    try:
+        service = DanfeService(session)
+        result = await service.get_by_id(id_danfe)
+    except Exception as e:
+        raise_http_exception(exc=e)
+
+    if not result:
+        raise HTTPException(status_code=404, detail="Danfe não encontrado")
+
+    return result
+
+
+@router.post("/", response_model=Danfe, status_code=201)
+async def create(danfe: DanfeCreate, session: AsyncSession = Depends(get_session)):
+    try:
+        service = DanfeService(session)
+        result = await service.create(danfe.model_dump())
         return result
-    except DatabaseError as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise_http_exception(exc=e)
 
 
-@router.get("/", response_model=PaginatedResponse)
-async def get_danfes_filtradas(
-    cd_contribuinte: Optional[str] = None,
-    numero: Optional[str] = None,
-    valor_minimo: Optional[float] = None,
-    valor_maximo: Optional[float] = None,
-    data_inicial: Optional[datetime] = None,
-    data_final: Optional[datetime] = None,
-    page: int = DEFAULT_PAGE,
-    session: AsyncSession = Depends(get_session)
-):
+@router.put("/{id_danfe}", response_model=Danfe)
+async def update(id_danfe: str = ID_DANFE_PATH, danfe: DanfeUpdate = ..., session: AsyncSession = Depends(get_session)):
     try:
-        danfe = DanfeFiltro(
-            cd_contribuinte=cd_contribuinte, 
-            numero=numero,
-            valor_minimo=valor_minimo,
-            valor_maximo=valor_maximo,
-            data_inicial=data_inicial,
-            data_final=data_final
-        )
-        result = await danfe_service.get_danfes_filtradas(danfe=danfe, page=page, session=session)
-        if not result["data"]:
-            raise HTTPException(status_code=404, detail="Danfe não encontrado")
-        return result
-    except DatabaseError as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        service = DanfeService(session)
+        result = await service.update(id_danfe, danfe.model_dump(exclude_unset=True))
+    except Exception as e:
+        raise_http_exception(exc=e)
 
+    if not result:
+        raise HTTPException(status_code=404, detail="Danfe não encontrado")
 
-@router.get("/{id_danfe}", response_model=SingleResponse)
-async def get_danfe(id_danfe: int, session: AsyncSession = Depends(get_session)):
-    try:
-        result = await danfe_service.get_danfe(id_danfe=id_danfe, session=session)
-        if not result["data"]:
-            raise HTTPException(status_code=404, detail="Danfe não encontrado")
-        return result
-    except DatabaseError as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    return result
 
-
-@router.post("/", response_model=SingleResponse, status_code=201)
-async def create_danfe(danfe: DanfeCreate, session: AsyncSession = Depends(get_session)):
-    try:
-        return await danfe_service.create_danfe(danfe=danfe, session=session)
-    except DuplicateEntryError as e:
-        raise HTTPException(status_code=409, detail=str(e))
-    except DatabaseError as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.put("/{id_danfe}", response_model=SingleResponse)
-async def update_danfe(id_danfe: int, danfe: DanfeUpdate, session: AsyncSession = Depends(get_session)):
-    try:
-        result = await danfe_service.update_danfe(id_danfe=id_danfe, danfe=danfe, session=session)
-        if not result["data"]:
-            raise HTTPException(status_code=404, detail="Denfe não encontrado")
-        return result
-    except DatabaseError as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/{id_danfe}", status_code=204)
-async def delete_danfe(id_danfe: int, session: AsyncSession = Depends(get_session)):
+async def delete(id_danfe: str = ID_DANFE_PATH, session: AsyncSession = Depends(get_session)):
     try:
-        result = await danfe_service.delete_danfe(id_danfe=id_danfe, session=session)
-        if not result["data"]:
-            raise HTTPException(status_code=404, detail="Danfe não encontrado")
-        return {"ok": True, "message": "Danfe excluído com sucesso"}
-    except DatabaseError as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        service = DanfeService(session)
+        result = await service.delete(id_danfe)
+    except Exception as e:
+        raise_http_exception(exc=e)
+
+    if not result:
+        raise HTTPException(status_code=404, detail="Danfe não encontrado")
+
+    return Response(status_code=204)

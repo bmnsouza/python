@@ -1,107 +1,95 @@
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
+from typing import Any, Dict, List, Optional, Tuple
 
-from app.core.exceptions import map_data_base_error
-from app.core.pagination import DEFAULT_PAGE_SIZE, calculate_offset
-from app.fastapi.schema.contribuinte_schema import ContribuinteCreate, ContribuinteUpdate
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
 from app.model.contribuinte_model import ContribuinteModel
 
 
-async def get_contribuintes(page: int, session: AsyncSession):
-    try:
-        query = (
+class ContribuinteRepository:
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+
+    async def count(self, filters: Optional[Dict[str, Any]] = None) -> int:
+        q = select(func.count()).select_from(ContribuinteModel)
+
+        if filters:
+            for col, val in filters.items():
+                if hasattr(ContribuinteModel, col):
+                    q = q.where(getattr(ContribuinteModel, col) == val)
+
+        result = await self.session.execute(q)
+        return int(result.scalar_one())
+
+
+    async def get_list(self, filters: Optional[Dict[str, Any]] = None, order: Optional[List[Tuple[str, str]]] = None, offset: int = 0, limit: int = 50):
+        q = (
             select(ContribuinteModel)
-            .order_by(ContribuinteModel.nm_fantasia)
-            .offset(calculate_offset(page))
-            .limit(DEFAULT_PAGE_SIZE)
+            .options(
+                selectinload(ContribuinteModel.enderecos),
+                selectinload(ContribuinteModel.danfes),
+            )
         )
-        result = await session.execute(statement=query)
-        return result.scalars().all()
-    except Exception as e:
-        map_data_base_error(e)
+
+        if filters:
+            for col, val in filters.items():
+                if hasattr(ContribuinteModel, col):
+                    col_attr = getattr(ContribuinteModel, col)
+
+                    if isinstance(val, str) and "%" in val:
+                        q = q.where(col_attr.like(val))
+                    elif isinstance(val, str) and col.lower() == "nm_fantasia":
+                        q = q.where(col_attr.ilike(f"%{val}%"))
+                    else:
+                        q = q.where(col_attr == val)
+
+        if order:
+            for field, direction in order:
+                if hasattr(ContribuinteModel, field):
+                    col = getattr(ContribuinteModel, field)
+                    q = q.order_by(col.asc() if direction == "asc" else col.desc())
+
+        q = q.offset(offset).limit(limit)
+
+        res = await self.session.execute(q)
+        return res.scalars().all()
 
 
-async def get_contribuintes_danfe_endereco(filtro_nome: str, page: int, session: AsyncSession):
-    try:
-        query = text("""
-            SELECT c.CD_CONTRIBUINTE, c.CNPJ_CONTRIBUINTE, c.NM_FANTASIA,
-                d.NUMERO, TO_CHAR(d.DATA_EMISSAO, 'dd/mm/yyyy') AS DATA_EMISSAO, d.VALOR_TOTAL,
-                e.LOGRADOURO, e.MUNICIPIO, e.UF
-            FROM NOTA_FISCAL.CONTRIBUINTE c JOIN NOTA_FISCAL.DANFE d ON d.CD_CONTRIBUINTE = c.CD_CONTRIBUINTE
-            JOIN NOTA_FISCAL.ENDERECO e  ON e.CD_CONTRIBUINTE = c.CD_CONTRIBUINTE
-            WHERE c.NM_FANTASIA LIKE :filtro_nome
-            ORDER BY c.NM_FANTASIA, d.DATA_EMISSAO, d.VALOR_TOTAL
-            OFFSET :page ROWS FETCH NEXT :page_size ROWS ONLY
-        """)
-        params = {
-            "filtro_nome": f"%{filtro_nome}%",
-            "page": calculate_offset(page),
-            "page_size": DEFAULT_PAGE_SIZE   
-        }
-        result = await session.execute(statement=query, params=params)
-        return [dict(row) for row in result.mappings().all()]
-    except Exception as e:
-        map_data_base_error(e)
+    async def get_by_cd(self, cd: str):
+        q = select(ContribuinteModel).where(ContribuinteModel.cd_contribuinte == cd)
+        res = await self.session.execute(q)
+        return res.scalars().first()
 
 
-async def get_contribuinte_por_cd(cd_contribuinte: str, session: AsyncSession):
-    try:
-        query = (
-            select(ContribuinteModel)
-            .where(ContribuinteModel.cd_contribuinte == cd_contribuinte)
-        )
-        result = await session.execute(statement=query)
-        return result.scalars().first()
-    except Exception as e:
-        map_data_base_error(e)
+    async def create(self, payload: Dict[str, Any]):
+        obj = ContribuinteModel(**payload)
+        self.session.add(obj)
+        await self.session.commit()
+        await self.session.refresh(obj)
+        return obj
 
 
-async def get_contribuinte_por_cnpj(cnpj_contribuinte: str, session: AsyncSession):
-    try:
-        query = (
-            select(ContribuinteModel)
-            .where(ContribuinteModel.cnpj_contribuinte == cnpj_contribuinte)
-        )
-        result = await session.execute(statement=query)
-        return result.scalars().first()
-    except Exception as e:
-        map_data_base_error(e)
+    async def update(self, cd: str, payload: Dict[str, Any]):
+        obj = await self.get_by_cd(cd)
+        if not obj:
+            return None
+
+        for k, v in payload.items():
+            if hasattr(obj, k):
+                setattr(obj, k, v)
+
+        await self.session.commit()
+        await self.session.refresh(obj)
+        return obj
 
 
-async def create_contribuinte(contribuinte: ContribuinteCreate, session: AsyncSession):
-    try:
-        result = ContribuinteModel(**contribuinte.model_dump())
-        session.add(result)
-        await session.commit()
-        await session.refresh(result)
-        return result
-    except Exception as e:
-        await session.rollback()
-        map_data_base_error(e)
+    async def delete(self, cd: str):
+        obj = await self.get_by_cd(cd)
+        if not obj:
+            return None
 
-
-async def update_contribuinte(cd_contribuinte: str, contribuinte: ContribuinteUpdate, session: AsyncSession):
-    try:
-        result = await get_contribuinte_por_cd(cd_contribuinte=cd_contribuinte, session=session)
-        if result:
-            for key, value in contribuinte.model_dump(exclude_unset=True).items():
-                setattr(result, key, value)
-            await session.commit()
-            await session.refresh(result)
-        return result
-    except Exception as e:
-        await session.rollback()
-        map_data_base_error(e)
-
-
-async def delete_contribuinte(cd_contribuinte: str, session: AsyncSession):
-    try:
-        result = await get_contribuinte_por_cd(cd_contribuinte=cd_contribuinte, session=session)
-        if result:
-            await session.delete(result)
-            await session.commit()
-        return result
-    except Exception as e:
-        await session.rollback()
-        map_data_base_error(e)
+        await self.session.delete(obj)
+        await self.session.commit()
+        return obj

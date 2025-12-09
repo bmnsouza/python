@@ -1,38 +1,30 @@
 from typing import List, Optional
-
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from app.fastapi.schema.danfe_schema import Danfe
 from app.fastapi.schema.endereco_schema import Endereco
+from app.fastapi.validators.contribuinte_validator import CD_CONTRIBUINTE_FIELD, CNPJ_CONTRIBUINTE_FIELD, NM_FANTASIA_FIELD
 
 
 class ContribuinteBase(BaseModel):
-    cd_contribuinte: str
+    cd_contribuinte: Optional[str] = None
     cnpj_contribuinte: Optional[str] = None
     nm_fantasia: Optional[str] = None
-
-
-class ContribuinteCreate(ContribuinteBase):
-    pass
-
-
-class ContribuinteUpdate(BaseModel):
-    cnpj_contribuinte: Optional[str] = None
-    nm_fantasia: Optional[str] = None
-
-
-class Contribuinte(ContribuinteBase):
-    danfes:  List[Danfe] = Field(default_factory=list)
-    enderecos:  List[Endereco] = Field(default_factory=list)
     class Config:
         from_attributes = True
 
 
-class SingleResponse(BaseModel):
-    data: Contribuinte
+class Contribuinte(ContribuinteBase):
+    danfes: Optional[List[Danfe]] = None
+    enderecos: Optional[List[Endereco]] = None
+    class Config:
+        from_attributes = True
 
 
-class PaginatedResponse(BaseModel):
-    page: int
-    page_size: int
-    data: List[Contribuinte]
+class ContribuinteUpdate(BaseModel):
+    cnpj_contribuinte: str = CNPJ_CONTRIBUINTE_FIELD
+    nm_fantasia: str = NM_FANTASIA_FIELD
+
+
+class ContribuinteCreate(ContribuinteUpdate):
+    cd_contribuinte: str = CD_CONTRIBUINTE_FIELD

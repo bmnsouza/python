@@ -1,85 +1,88 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
+from typing import Any, Dict, List, Optional, Tuple
 
-from app.core.exceptions import map_data_base_error
-from app.core.pagination import DEFAULT_PAGE_SIZE, calculate_offset
-from app.fastapi.schema.endereco_schema import EnderecoCreate, EnderecoUpdate
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.model.endereco_model import EnderecoModel
 
 
-async def get_enderecos(page: int, session: AsyncSession):
-    try:
-        query = (
-            select(EnderecoModel)
-            .order_by(EnderecoModel.logradouro)
-            .offset(calculate_offset(page))
-            .limit(DEFAULT_PAGE_SIZE)
-        )
-        result = await session.execute(statement=query)
-        return result.scalars().all()
-    except Exception as e:
-        map_data_base_error(e)
+class EnderecoRepository:
+    def __init__(self, session: AsyncSession):
+        self.session = session
 
 
-async def get_enderecos_por_contribuinte(cd_contribuinte: str, page: int, session: AsyncSession):
-    try:
-        query = (
-            select(EnderecoModel)
-            .where(EnderecoModel.cd_contribuinte == cd_contribuinte)
-            .offset(calculate_offset(page))
-            .limit(DEFAULT_PAGE_SIZE)
-        )
-        result = await session.execute(query)
-        return result.scalars().all()
-    except Exception as e:
-        map_data_base_error(e)
+    async def count(self, filters: Optional[Dict[str, Any]] = None) -> int:
+        q = select(func.count()).select_from(EnderecoModel)
+
+        if filters:
+            for col, val in filters.items():
+                if hasattr(EnderecoModel, col):
+                    q = q.where(getattr(EnderecoModel, col) == val)
+
+        result = await self.session.execute(q)
+        return int(result.scalar_one())
 
 
-async def get_endereco(id_endereco: int, session: AsyncSession):
-    try:
-        query = (
-            select(EnderecoModel)
-            .where(EnderecoModel.id_endereco == id_endereco)
-        )
-        result = await session.execute(query)
-        return result.scalars().first()
-    except Exception as e:
-        map_data_base_error(e)
+    async def get_list(self, filters: Optional[Dict[str, Any]] = None, order: Optional[List[Tuple[str, str]]] = None, offset: int = 0, limit: int = 50):
+        q = select(EnderecoModel)
+
+        if filters:
+            for col, val in filters.items():
+                if hasattr(EnderecoModel, col):
+                    col_attr = getattr(EnderecoModel, col)
+
+                    if isinstance(val, str) and "%" in val:
+                        q = q.where(col_attr.like(val))
+                    elif isinstance(val, str) and col.lower() in ("id_endereco", "cd_contribuinte", "logradouro", "municipio", "uf"):
+                        q = q.where(col_attr.ilike(f"%{val}%"))
+                    else:
+                        q = q.where(col_attr == val)
+
+        if order:
+            for field, direction in order:
+                if hasattr(EnderecoModel, field):
+                    col = getattr(EnderecoModel, field)
+                    q = q.order_by(col.asc() if direction == "asc" else col.desc())
+
+        q = q.offset(offset).limit(limit)
+
+        res = await self.session.execute(q)
+        return res.scalars().all()
 
 
-async def create_endereco(endereco: EnderecoCreate, session: AsyncSession):
-    try:
-        result = EnderecoModel(**endereco.model_dump())
-        session.add(result)
-        await session.commit()
-        await session.refresh(result)
-        return result
-    except Exception as e:
-        await session.rollback()
-        map_data_base_error(e)
+    async def get_by_id(self, id: int):
+        q = select(EnderecoModel).where(EnderecoModel.id_endereco == id)
+        res = await self.session.execute(q)
+        return res.scalars().first()
 
 
-async def update_endereco(id_endereco: int, endereco: EnderecoUpdate, session: AsyncSession):
-    try:
-        result = await get_endereco(id_endereco=id_endereco, session=session)
-        if result:
-            for key, value in endereco.model_dump(exclude_unset=True).items():
-                setattr(result, key, value)
-            await session.commit()
-            await session.refresh(result)
-        return result
-    except Exception as e:
-        await session.rollback()
-        map_data_base_error(e)
+    async def create(self, payload: Dict[str, Any]):
+        obj = EnderecoModel(**payload)
+        self.session.add(obj)
+        await self.session.commit()
+        await self.session.refresh(obj)
+        return obj
 
 
-async def delete_endereco(id_endereco: int, session: AsyncSession):
-    try:
-        result = await get_endereco(id_endereco=id_endereco, session=session)
-        if result:
-            await session.delete(result)
-            await session.commit()
-        return result
-    except Exception as e:
-        await session.rollback()
-        map_data_base_error(e)
+    async def update(self, id: int, payload: Dict[str, Any]):
+        obj = await self.get_by_id(id)
+        if not obj:
+            return None
+
+        for k, v in payload.items():
+            if hasattr(obj, k):
+                setattr(obj, k, v)
+
+        await self.session.commit()
+        await self.session.refresh(obj)
+        return obj
+
+
+    async def delete(self, id: int):
+        obj = await self.get_by_id(id)
+        if not obj:
+            return None
+
+        await self.session.delete(obj)
+        await self.session.commit()
+        return obj

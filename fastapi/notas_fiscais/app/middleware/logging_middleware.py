@@ -9,7 +9,6 @@ from app.core.logger import app_logger
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):
-    """Middleware para auditoria e métricas de performance HTTP/GraphQL com logs estruturados."""
 
     async def dispatch(self, request: Request, call_next):
         request_id = str(uuid.uuid4())[:8]

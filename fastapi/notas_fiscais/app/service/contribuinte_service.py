@@ -1,72 +1,64 @@
+from typing import Any, Dict, List, Tuple
+
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.core.exceptions import DatabaseError, DuplicateEntryError
 from app.core.logger import app_logger
-from app.core.pagination import format_result
-from app.fastapi.schema.contribuinte_schema import ContribuinteCreate, ContribuinteUpdate
-from app.repository import contribuinte_repository
+from app.fastapi.schema.contribuinte_schema import Contribuinte
+from app.repository.contribuinte_repository import ContribuinteRepository
+from app.utils.error_util import map_data_base_error
 
 
-async def get_contribuintes(page: int, session: AsyncSession):
-    try:
-        result = await contribuinte_repository.get_contribuintes(page=page, session=session)
-        return format_result(data=result, page=page)
-    except Exception as e:
-        app_logger.exception("Erro ao obter contribuintes %s", e)
-        raise DatabaseError(str(e)) from e
+class ContribuinteService:
+    def __init__(self, session: AsyncSession):
+        self.repo = ContribuinteRepository(session)
 
 
-async def get_contribuintes_danfe_endereco(filtro_nome: str, page: int, session: AsyncSession):
-    try:
-        result = await contribuinte_repository.get_contribuintes_danfe_endereco(filtro_nome=filtro_nome, page=page, session=session)
-        return format_result(data=result, page=page)
-    except Exception as e:
-        app_logger.exception("Erro ao obter contribuintes, danfe e endereço %s", e)
-        raise DatabaseError(str(e)) from e
+    async def get_list(self, filters: Dict[str, Any], order: List, offset: int, limit: int) -> Tuple[int, List[Dict[str, Any]]]:
+        try:
+            total = await self.repo.count(filters)
+            rows = await self.repo.get_list(filters, order, offset, limit)
+
+            return total, [Contribuinte.model_validate(r) for r in rows]
+        except Exception as e:
+            app_logger.exception("Erro ao obter contribuintes %s", e)
+            map_data_base_error(e)
 
 
-async def get_contribuinte_por_cd(cd_contribuinte: str, session: AsyncSession):
-    try:
-        result = await contribuinte_repository.get_contribuinte_por_cd(cd_contribuinte=cd_contribuinte, session=session)
-        return format_result(data=result)
-    except Exception as e:
-        app_logger.exception("Erro ao obter contribuinte por cd %s", e)
-        raise DatabaseError(str(e)) from e
+    async def get_by_cd(self, cd: str):
+        try:
+            r = await self.repo.get_by_cd(cd)
+            if not r:
+                return None
+
+            return Contribuinte.model_validate(r)
+        except Exception as e:
+            app_logger.exception("Erro ao obter contribuinte por cd %s", e)
+            map_data_base_error(e)
 
 
-async def get_contribuinte_por_cnpj(cnpj_contribuinte: str, session: AsyncSession):
-    try:
-        result = await contribuinte_repository.get_contribuinte_por_cnpj(cnpj_contribuinte=cnpj_contribuinte, session=session)
-        return format_result(data=result)
-    except Exception as e:
-        app_logger.exception("Erro ao obter contribuinte por cnpj %s", e)
-        raise DatabaseError(str(e)) from e
+    async def create(self, payload: Dict[str, Any]):
+        try:
+            r = await self.repo.create(payload)
+            return Contribuinte.model_validate(r)
+        except Exception as e:
+            map_data_base_error(e)
 
 
-async def create_contribuinte(contribuinte: ContribuinteCreate, session: AsyncSession):
-    try:
-        result = await contribuinte_repository.create_contribuinte(contribuinte=contribuinte, session=session)
-        return format_result(data=result)
-    except DuplicateEntryError as e:
-        raise e
-    except Exception as e:
-        app_logger.exception("Erro ao criar contribuinte %s", e)
-        raise DatabaseError(str(e)) from e
+    async def update(self, cd: str, payload: Dict[str, Any]):
+        try:
+            r = await self.repo.update(cd, payload)
+            if not r:
+                return None
+
+            return Contribuinte.model_validate(r)
+        except Exception as e:
+            map_data_base_error(e)
 
 
-async def update_contribuinte(cd_contribuinte: str, contribuinte: ContribuinteUpdate, session: AsyncSession):
-    try:
-        result = await contribuinte_repository.update_contribuinte(cd_contribuinte=cd_contribuinte, contribuinte=contribuinte, session=session)
-        return format_result(data=result)
-    except Exception as e:
-        app_logger.exception("Erro ao atualizar contribuinte %s", e)
-        raise DatabaseError(str(e)) from e
-
-
-async def delete_contribuinte(cd_contribuinte: str, session: AsyncSession):
-    try:
-        result = await contribuinte_repository.delete_contribuinte(cd_contribuinte=cd_contribuinte, session=session)
-        return format_result(data=result)
-    except Exception as e:
-        app_logger.exception("Erro ao excluir contribuinte %s", e)
-        raise DatabaseError(str(e)) from e
+    async def delete(self, cd: str):
+        try:
+            r = await self.repo.delete(cd)
+            if not r:
+                return None
+            return {"deleted": True}
+        except Exception as e:
+            map_data_base_error(e)

@@ -9,7 +9,6 @@ from app.database.connection import Base
 if TYPE_CHECKING:
     from app.model.contribuinte_model import ContribuinteModel
 
-
 class EnderecoModel(Base):
     __tablename__ = "ENDERECO"
     __table_args__ = {"schema": "NOTA_FISCAL"}

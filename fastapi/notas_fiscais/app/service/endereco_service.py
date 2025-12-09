@@ -1,63 +1,64 @@
+from typing import Any, Dict, List, Tuple
+
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.core.exceptions import DatabaseError, DuplicateEntryError
 from app.core.logger import app_logger
-from app.core.pagination import format_result
-from app.fastapi.schema.endereco_schema import EnderecoCreate, EnderecoUpdate
-from app.repository import endereco_repository
+from app.fastapi.schema.endereco_schema import Endereco
+from app.repository.endereco_repository import EnderecoRepository
+from app.utils.error_util import map_data_base_error
 
 
-async def get_enderecos(page: int, session: AsyncSession):
-    try:
-        result = await endereco_repository.get_enderecos(page=page, session=session)
-        return format_result(data=result, page=page)
-    except Exception as e:
-        app_logger.exception("Erro ao obter endereços %s", e)
-        raise DatabaseError(str(e)) from e
+class EnderecoService:
+    def __init__(self, session: AsyncSession):
+        self.repo = EnderecoRepository(session)
 
 
-async def get_enderecos_por_contribuinte(cd_contribuinte: str, page: int, session: AsyncSession):
-    try:
-        result = await endereco_repository.get_enderecos_por_contribuinte(cd_contribuinte=cd_contribuinte, page=page, session=session)
-        return format_result(data=result)
-    except Exception as e:
-        app_logger.exception("Erro ao obter endereços %s", e)
-        raise DatabaseError(str(e)) from e
+    async def get_list(self, filters: Dict[str, Any], order: List, offset: int, limit: int) -> Tuple[int, List[Dict[str, Any]]]:
+        try:
+            total = await self.repo.count(filters)
+            rows = await self.repo.get_list(filters, order, offset, limit)
+
+            return total, [Endereco.model_validate(r) for r in rows]
+        except Exception as e:
+            app_logger.exception("Erro ao obter endereços %s", e)
+            map_data_base_error(e)
 
 
-async def get_endereco(id_endereco: int, session: AsyncSession):
-    try:
-        result = await endereco_repository.get_endereco(id_endereco=id_endereco, session=session)
-        return format_result(data=result)
-    except Exception as e:
-        app_logger.exception("Erro ao obter endereço %s", e)
-        raise DatabaseError(str(e)) from e
+    async def get_by_id(self, id: int):
+        try:
+            r = await self.repo.get_by_id(id)
+            if not r:
+                return None
+
+            return Endereco.model_validate(r)
+        except Exception as e:
+            app_logger.exception("Erro ao obter endereço por id %s", e)
+            map_data_base_error(e)
 
 
-async def create_endereco(endereco: EnderecoCreate, session: AsyncSession):
-    try:
-        result = await endereco_repository.create_endereco(endereco=endereco, session=session)
-        return format_result(data=result)
-    except DuplicateEntryError as e:
-        raise e
-    except Exception as e:
-        app_logger.exception("Erro ao criar endereço %s", e)
-        raise DatabaseError(str(e)) from e
+    async def create(self, payload: Dict[str, Any]):
+        try:
+            r = await self.repo.create(payload)
+            return Endereco.model_validate(r)
+        except Exception as e:
+            map_data_base_error(e)
 
 
-async def update_endereco(id_endereco: str, endereco: EnderecoUpdate, session: AsyncSession):
-    try:
-        result = await endereco_repository.update_endereco(id_endereco=id_endereco, endereco=endereco, session=session)
-        return format_result(data=result)
-    except Exception as e:
-        app_logger.exception("Erro ao atualizar endereço %s", e)
-        raise DatabaseError(str(e)) from e
+    async def update(self, id: int, payload: Dict[str, Any]):
+        try:
+            r = await self.repo.update(id, payload)
+            if not r:
+                return None
+
+            return Endereco.model_validate(r)
+        except Exception as e:
+            map_data_base_error(e)
 
 
-async def delete_endereco(id_endereco: str, session: AsyncSession):
-    try:
-        result = await endereco_repository.delete_endereco(id_endereco=id_endereco, session=session)
-        return format_result(data=result)
-    except Exception as e:
-        app_logger.exception("Erro ao excluir endereço %s", e)
-        raise DatabaseError(str(e)) from e
+    async def delete(self, id: int):
+        try:
+            r = await self.repo.delete(id)
+            if not r:
+                return None
+            return {"deleted": True}
+        except Exception as e:
+            map_data_base_error(e)
