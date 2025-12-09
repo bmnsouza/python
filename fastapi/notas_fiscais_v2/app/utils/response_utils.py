@@ -1,30 +1,34 @@
 from typing import List, Optional, Tuple
-from fastapi import Response
-
-DEFAULT_ACCEPT_RANGES = 50
+from fastapi import Query, Request, Response
 
 
-def parse_fields_param(fields: Optional[str]) -> Optional[List[str]]:
-    if not fields:
-        return None
-    return [f.strip() for f in fields.split(",") if f.strip()]
+# Regras do servidor
+ACCEPT_RANGES = 200
+
+def normalize_pagination_params(offset: Optional[int], limit: Optional[int]) -> tuple[int, int, int]:
+    """
+    Retorna (offset_normalized, limit_normalized, accept_ranges_effective)
+    Regras:
+    - accept_ranges default = server_max
+    - offset default = 0
+    - limit default = accept_ranges
+    - limit não pode ultrapassar accept_ranges
+    """
+    accept_ranges = ACCEPT_RANGES
+    offset = offset if offset is not None else 0
+    limit = limit if limit is not None else accept_ranges
+    limit = min(limit, accept_ranges)
+
+    return offset, limit, accept_ranges
 
 
-def select_fields_from_obj(obj, fields: Optional[List[str]] = None):
-    # Pydantic v2
-    if hasattr(obj, "model_dump"):
-        obj_dict = obj.model_dump()
-    # SQLAlchemy
-    elif hasattr(obj, "__table__"):
-        obj_dict = {c.name: getattr(obj, c.name) for c in obj.__table__.columns}
-    # Já é dict
-    else:
-        obj_dict = obj
+def set_filters_order(request: Request, asc: Optional[str] = Query(None), des: Optional[str] = Query(None)):
+    raw_params = dict(request.query_params)
+    reserved = {"asc", "des", "offset", "limit", "fields", "accept_ranges"}
+    filters = {k: v for k, v in raw_params.items() if k not in reserved}
+    order = build_order_by_clause(asc, des)
 
-    if not fields:
-        return obj_dict
-
-    return {k: v for k, v in obj_dict.items() if k in fields}
+    return filters, order
 
 
 def build_order_by_clause(asc: Optional[str], des: Optional[str]) -> List[Tuple[str, str]]:
@@ -40,30 +44,18 @@ def build_order_by_clause(asc: Optional[str], des: Optional[str]) -> List[Tuple[
     return order
 
 
-def set_pagination_headers(response: Response, offset: int, limit: int, total: int, accept_ranges: Optional[int] = DEFAULT_ACCEPT_RANGES):
+def set_pagination_headers(response: Response, offset: int, limit: int, total: int, accept_ranges: int) -> None:
     """
-    Define headers Content-Range e Accept-Ranges e ajusta status code:
-    - se offset+limit < total -> 206 Partial Content
-    - else 200
+    Recebe valores já normalizados (offset, limit, accept_ranges).
+    Define Content-Range, Accept-Ranges e response.status_code.
     """
-
-    print('>>> response:', response)
-    print('>>> offset:', offset)
-    print('>>> limit:', limit)
-    print('>>> total:', total)
-    print('>>> accept_ranges:', accept_ranges)
-
-    # Content-Range minimal: total (mantive compatibilidade com sua spec)
-    response.headers["Content-Range"] = str(total)
-    response.headers["Accept-Ranges"] = str(accept_ranges)
-
-    # detalhe opcional mais informativo
     start = offset
     end = min(offset + limit - 1, total - 1) if total > 0 else 0
-    response.headers["Content-Range-Detail"] = f"items {start}-{end}/{total}"
 
-    # status
-    if offset + limit < total:
-        response.status_code = 206
+    response.headers["Accept-Ranges"] = str(accept_ranges)
+    response.headers["Content-Range"] = f"items {start}-{end}/{total}"
+
+    if end + 1 < total:
+        response.status_code = 206  # Partial Content
     else:
-        response.status_code = 200
+        response.status_code = 200  # OK

@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,7 +7,8 @@ from app.database.session import get_session
 from app.fastapi.schema.contribuinte_schema import Contribuinte, ContribuinteCreate, ContribuinteUpdate
 from app.service.contribuinte_service import ContribuinteService
 from app.utils.exception_utils import raise_http_exception
-from app.utils.response_utils import build_order_by_clause, parse_fields_param, select_fields_from_obj, set_pagination_headers
+from app.utils.field_utils import parse_fields_param, select_fields_from_obj
+from app.utils.response_utils import normalize_pagination_params, set_filters_order, set_pagination_headers
 
 from app.fastapi.validators.contribuinte_validators import CD_CONTRIBUINTE_PATH
 
@@ -15,42 +16,33 @@ from app.fastapi.validators.contribuinte_validators import CD_CONTRIBUINTE_PATH
 router = APIRouter(prefix="/v1/contribuinte", tags=["Contribuinte"])
 
 @router.get("/")
-async def get_list(
-    request: Request,
-    response: Response,
-    asc: Optional[str] = Query(None),
-    des: Optional[str] = Query(None),
-    offset: int = Query(0, ge=0),
-    limit: int = Query(50, ge=1),
-    fields: Optional[str] = Query(None),
-    accept_ranges: Optional[int] = Query(None),
-    session: AsyncSession = Depends(get_session)
-):
-    # Filtros dinâmicos
-    raw_params: Dict[str, str] = dict(request.query_params)
-    reserved = {"asc", "des", "offset", "limit", "fields", "accept_ranges"}
-    filters = {k: v for k, v in raw_params.items() if k not in reserved}
+async def get_list(request: Request, response: Response, asc: Optional[str] = Query(None), des: Optional[str] = Query(None),
+    offset: int = Query(None, ge=0), limit: int = Query(None, ge=1), fields: Optional[str] = Query(None), session: AsyncSession = Depends(get_session)):
+    # Normaliza parâmetros antes de chamar o service
+    final_offset, final_limit, final_accept_ranges = normalize_pagination_params(offset=offset, limit=limit)
 
-    order = build_order_by_clause(asc, des)
+    # Monta filtros e ordenação
+    filters, order = set_filters_order(request=request, asc=asc, des=des)
 
     try:
+        # Chama o service passando os valores normalizados
         service = ContribuinteService(session)
-        total, items = await service.get_list(filters=filters, order=order, offset=offset, limit=limit)
+        total, items = await service.get_list(filters=filters, order=order, offset=final_offset, limit=final_limit)
     except Exception as e:
         raise_http_exception(exc=e)
 
+    # Aplica headers
+    set_pagination_headers(response=response, offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges)
+
+    # Transformação de campos
     requested_fields = parse_fields_param(fields)
     transformed = [select_fields_from_obj(i, requested_fields) for i in items]
 
-    set_pagination_headers(response, offset, limit, total, accept_ranges)
     return transformed
 
 
 @router.get("/{cd_contribuinte}", response_model=Contribuinte)
-async def get_by_cd(
-    cd_contribuinte: str = CD_CONTRIBUINTE_PATH,
-    session: AsyncSession = Depends(get_session)
-):
+async def get_by_cd(cd_contribuinte: str = CD_CONTRIBUINTE_PATH, session: AsyncSession = Depends(get_session)):
     try:
         service = ContribuinteService(session)
         result = await service.get_by_cd(cd_contribuinte)
@@ -74,17 +66,10 @@ async def create(contribuinte: ContribuinteCreate, session: AsyncSession = Depen
 
 
 @router.put("/{cd_contribuinte}", response_model=Contribuinte)
-async def update(
-    cd_contribuinte: str = CD_CONTRIBUINTE_PATH,
-    contribuinte: ContribuinteUpdate = ...,
-    session: AsyncSession = Depends(get_session)
-):
+async def update(cd_contribuinte: str = CD_CONTRIBUINTE_PATH, contribuinte: ContribuinteUpdate = ..., session: AsyncSession = Depends(get_session)):
     try:
         service = ContribuinteService(session)
-        result = await service.update(
-            cd_contribuinte,
-            contribuinte.model_dump(exclude_unset=True),
-        )
+        result = await service.update(cd_contribuinte, contribuinte.model_dump(exclude_unset=True))
     except Exception as e:
         raise_http_exception(exc=e)
 
