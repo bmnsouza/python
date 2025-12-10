@@ -53,8 +53,8 @@ class ContribuinteRepository:
 
         q = q.offset(offset).limit(limit)
 
-        res = await self.session.execute(q)
-        return res.scalars().all()
+        result = await self.session.execute(q)
+        return result.scalars().all()
 
 
     async def get_by_cd(self, cd: str):

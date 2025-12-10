@@ -6,22 +6,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.session import get_session
 from app.fastapi.schema.danfe_schema import Danfe, DanfeCreate, DanfeUpdate
 from app.fastapi.validators.danfe_validator import ID_DANFE_PATH
+from app.model.danfe_model import DanfeModel
 from app.service.danfe_service import DanfeService
 from app.utils.exception_util import raise_http_exception
 from app.utils.field_util import parse_fields_param, select_fields_from_obj
-from app.utils.response_util import normalize_pagination_params, set_filters_order, set_pagination_headers
+from app.utils.response_util import normalize_pagination_params, set_filters_params, set_order_params, set_pagination_headers
 
 
 router = APIRouter(prefix="/v1/danfe", tags=["Danfe"])
 
 @router.get("/")
-async def get_list(request: Request, response: Response, asc: Optional[str] = Query(None), des: Optional[str] = Query(None),
-    offset: int = Query(None, ge=0), limit: int = Query(None, ge=1), fields: Optional[str] = Query(None), session: AsyncSession = Depends(get_session)):
-    # Normaliza parâmetros antes de chamar o service
+async def get_list(request: Request, response: Response, offset: int = Query(None, ge=0), limit: int = Query(None, ge=1), fields: Optional[str] = Query(None), session: AsyncSession = Depends(get_session)):
+    # Monta filtros, ordenação e normaliza parâmetros
+    filters = set_filters_params(request=request)
+    order = set_order_params(request=request, model=DanfeModel)
     final_offset, final_limit, final_accept_ranges = normalize_pagination_params(offset=offset, limit=limit)
-
-    # Monta filtros e ordenação
-    filters, order = set_filters_order(request=request, asc=asc, des=des)
 
     try:
         # Chama o service passando os valores normalizados

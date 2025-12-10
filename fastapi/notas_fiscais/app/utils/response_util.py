@@ -1,9 +1,45 @@
-from typing import List, Optional, Tuple
-from fastapi import Query, Request, Response
+from typing import Optional
+from fastapi import Request, Response
+from sqlalchemy.orm import DeclarativeMeta
 
 
 # Regras do servidor
 ACCEPT_RANGES = 200
+
+
+def set_filters_params(request: Request):
+    raw_params = dict(request.query_params)
+    reserved = {"asc", "des", "offset", "limit", "fields"}
+    filters = {k: v for k, v in raw_params.items() if k not in reserved}
+    return filters
+
+
+def set_order_params(request: Request, model: DeclarativeMeta):
+    """
+    Processa asc/des na ordem exata enviada, expande imediatamente cada parâmetro, ignora campos inexistentes e mantém apenas a primeira ocorrência de cada campo.
+    """
+    order_raw = []
+    seen = set()
+
+    # Mantém a ordem exata da URL
+    for key, value in request.query_params.multi_items():
+        if key in ("asc", "des"):
+            direction = "asc" if key == "asc" else "des"
+            fields = [f.strip() for f in value.split(",") if f.strip()]
+
+            for field in fields:
+                if hasattr(model, field):
+                    order_raw.append((field, direction))
+
+    # Remove duplicados preservando a primeira ocorrência
+    order_final = []
+    for field, direction in order_raw:
+        if field not in seen:
+            seen.add(field)
+            order_final.append((field, direction))
+
+    return order_final
+
 
 def normalize_pagination_params(offset: Optional[int], limit: Optional[int]) -> tuple[int, int, int]:
     """
@@ -20,28 +56,6 @@ def normalize_pagination_params(offset: Optional[int], limit: Optional[int]) -> 
     limit = min(limit, accept_ranges)
 
     return offset, limit, accept_ranges
-
-
-def set_filters_order(request: Request, asc: Optional[str] = Query(None), des: Optional[str] = Query(None)):
-    raw_params = dict(request.query_params)
-    reserved = {"asc", "des", "offset", "limit", "fields", "accept_ranges"}
-    filters = {k: v for k, v in raw_params.items() if k not in reserved}
-    order = build_order_by_clause(asc, des)
-
-    return filters, order
-
-
-def build_order_by_clause(asc: Optional[str], des: Optional[str]) -> List[Tuple[str, str]]:
-    """
-    Retorna lista de tuplas (campo, direcao) onde direcao é 'asc' ou 'desc'.
-    Prioridade: asc (aplicada em ordem) depois desc.
-    """
-    order: List[Tuple[str, str]] = []
-    if asc:
-        order += [(f.strip(), "asc") for f in asc.split(",") if f.strip()]
-    if des:
-        order += [(f.strip(), "desc") for f in des.split(",") if f.strip()]
-    return order
 
 
 def set_pagination_headers(response: Response, offset: int, limit: int, total: int, accept_ranges: int) -> None:

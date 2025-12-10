@@ -21,5 +21,5 @@ class EnderecoModel(Base):
 
     contribuinte: Mapped["ContribuinteModel"] = relationship(
         back_populates="enderecos",
-        lazy="joined"        
+        lazy="joined"
     )

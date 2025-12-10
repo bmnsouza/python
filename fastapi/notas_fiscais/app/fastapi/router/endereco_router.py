@@ -6,22 +6,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.session import get_session
 from app.fastapi.schema.endereco_schema import Endereco, EnderecoCreate, EnderecoUpdate
 from app.fastapi.validators.endereco_validator import ID_ENDERECO_PATH
+from app.model.endereco_model import EnderecoModel
 from app.service.endereco_service import EnderecoService
 from app.utils.exception_util import raise_http_exception
 from app.utils.field_util import parse_fields_param, select_fields_from_obj
-from app.utils.response_util import normalize_pagination_params, set_filters_order, set_pagination_headers
+from app.utils.response_util import normalize_pagination_params, set_filters_params, set_order_params, set_pagination_headers
 
 
 router = APIRouter(prefix="/v1/endereco", tags=["Endereco"])
 
 @router.get("/")
-async def get_list(request: Request, response: Response, asc: Optional[str] = Query(None), des: Optional[str] = Query(None),
-    offset: int = Query(None, ge=0), limit: int = Query(None, ge=1), fields: Optional[str] = Query(None), session: AsyncSession = Depends(get_session)):
-    # Normaliza parâmetros antes de chamar o service
+async def get_list(request: Request, response: Response, offset: int = Query(None, ge=0), limit: int = Query(None, ge=1), fields: Optional[str] = Query(None), session: AsyncSession = Depends(get_session)):
+    # Monta filtros, ordenação e normaliza parâmetros
+    filters = set_filters_params(request=request)
+    order = set_order_params(request=request, model=EnderecoModel)
     final_offset, final_limit, final_accept_ranges = normalize_pagination_params(offset=offset, limit=limit)
-
-    # Monta filtros e ordenação
-    filters, order = set_filters_order(request=request, asc=asc, des=des)
 
     try:
         # Chama o service passando os valores normalizados
