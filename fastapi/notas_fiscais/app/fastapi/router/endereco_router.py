@@ -49,7 +49,7 @@ async def get_by_id(id_endereco: str = ID_ENDERECO_PATH, session: AsyncSession =
         raise_http_exception(exc=e)
 
     if not result:
-        raise HTTPException(status_code=404, detail="Endereco não encontrado")
+        raise HTTPException(status_code=404, detail="Endereço não encontrado")
 
     return result
 
@@ -73,7 +73,7 @@ async def update(id_endereco: str = ID_ENDERECO_PATH, endereco: EnderecoUpdate =
         raise_http_exception(exc=e)
 
     if not result:
-        raise HTTPException(status_code=404, detail="Endereco não encontrado")
+        raise HTTPException(status_code=404, detail="Endereço não encontrado")
 
     return result
 
@@ -87,6 +87,6 @@ async def delete(id_endereco: str = ID_ENDERECO_PATH, session: AsyncSession = De
         raise_http_exception(exc=e)
 
     if not result:
-        raise HTTPException(status_code=404, detail="Endereco não encontrado")
+        raise HTTPException(status_code=404, detail="Endereço não encontrado")
 
     return Response(status_code=204)

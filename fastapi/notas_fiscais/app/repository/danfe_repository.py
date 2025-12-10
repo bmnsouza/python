@@ -1,4 +1,3 @@
-from datetime import datetime, time
 from typing import Any, Dict, List, Optional, Tuple
 
 from sqlalchemy import func, select
@@ -39,9 +38,8 @@ class DanfeRepository:
         if "valor_total" in filters:
             q = q.where(DanfeModel.valor_total >= filters["valor_total"])
 
-        if ("data_emissao_inicio", "data_emissao_fim") in filters:
-            q = q.where(DanfeModel.data_emissao >= filters["data_emissao_inicio"])
-            q = q.where(DanfeModel.data_emissao <= filters["data_emissao_fim"])
+        if all(k in filters for k in ("data_emissao_inicio", "data_emissao_fim")):
+            q = q.where(DanfeModel.data_emissao.between(filters["data_emissao_inicio"], filters["data_emissao_fim"]))
 
         if order:
             for field, direction in order:

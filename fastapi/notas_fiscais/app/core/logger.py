@@ -1,4 +1,3 @@
-from decimal import Decimal
 import logging
 import os
 
@@ -61,7 +60,7 @@ if not sql_logger.hasHandlers():
 
 
 # Funções Auxiliares de Log
-def log_sql(sql: str, params: dict, duration_ms: Decimal):
+def log_sql(sql: str, params: dict, duration_ms: float):
     """Registra consultas SQL com parâmetros e tempo de execução."""
     msg = f"[SQL] {sql.strip()} | Params: {params} | Tempo: {duration_ms:.2f} ms"
     sql_logger.info(msg)

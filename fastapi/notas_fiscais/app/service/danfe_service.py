@@ -93,14 +93,14 @@ def validate_and_normalize_filters(filters: Dict[str, Any]) -> Dict[str, Any]:
         except ValueError as e:
             raise_http_exception(exc=e, description="O campo 'data_emissao' deve estar no formato YYYY-MM-DD.")
 
-        # criar intervalo do dia
+        # Cria intervalo do dia
         start = datetime.combine(dt, time.min)
         end = datetime.combine(dt, time.max)
 
         new_filters["data_emissao_inicio"] = start
         new_filters["data_emissao_fim"] = end
 
-        # remove o campo original
+        # Remove o campo original
         del new_filters["data_emissao"]
 
     return new_filters

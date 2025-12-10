@@ -33,7 +33,7 @@ class EnderecoRepository:
 
                     if isinstance(val, str) and "%" in val:
                         q = q.where(col_attr.like(val))
-                    elif isinstance(val, str) and col.lower() in ("id_endereco", "cd_contribuinte", "logradouro", "municipio", "uf"):
+                    elif isinstance(val, str) and col.lower() in ("logradouro", "municipio"):
                         q = q.where(col_attr.ilike(f"%{val}%"))
                     else:
                         q = q.where(col_attr == val)
