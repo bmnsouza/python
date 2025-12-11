@@ -5,7 +5,7 @@ API de consulta a dados de Notas Fiscais construída com **FastAPI** e **Oracle*
 
 ## Estrutura do Projeto
 ```bash
-notas_fiscais_orm_sql/
+notas_fiscais/
 ├── .vscode/
 │   ├── launch.json
 │   ├── settings.json
@@ -15,12 +15,10 @@ notas_fiscais_orm_sql/
 │   |   ├── constants.py
 │   |   ├── exceptions.py
 │   |   ├── logger.py
-│   |   └── pagination.py
 │   ├── database/
 │   |   ├── __init__.py
 │   |   ├── config.py
 │   |   ├── connection.py
-│   |   ├── context.py
 │   |   └── session.py
 │   ├── fastapi/
 │   |   ├── router/
@@ -35,9 +33,9 @@ notas_fiscais_orm_sql/
 │   |   |   └── endereco_schema.py
 │   |   ├── validators/
 │   |   |   ├── __init__.py
-│   |   |   ├── contribuinte_schema.py
-│   |   |   ├── danfe_schema.py
-│   |   |   └── endereco_schema.py
+│   |   |   ├── contribuinte_validator.py
+│   |   |   ├── danfe_validator.py
+│   |   |   └── endereco_validator.py
 |   ├── logs/
 │   |   ├── app.log
 │   |   └── sql.log
@@ -64,7 +62,7 @@ notas_fiscais_orm_sql/
 │   |   ├── exception_util.py
 │   |   ├── field_util.py
 │   |   ├── handler_util.py
-│   |   └── response_service.py
+│   |   └── response_util.py
 │   ├── __init__.py
 │   └── main.py
 ├── sql/
