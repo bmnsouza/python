@@ -1,5 +1,5 @@
 # FastAPI Notas Fiscais
-API de consulta a dados de Notas Fiscais construída com **FastAPI** e **Oracle** usando SQLAlchemy ORM e SQL Nativo.
+Projeto de Notas Fiscais construído com **FastAPI** e **Oracle** usando SQLAlchemy ORM.
 
 ---
 
@@ -50,7 +50,7 @@ notas_fiscais/
 │   |   ├── __init__.py
 │   |   ├── contribuinte_repository.py
 │   |   ├── danfe_repository.py
-│   |   ├── endereco_repository.py
+│   |   └── endereco_repository.py
 │   ├── service/
 │   |   ├── __init__.py
 │   |   ├── contribuinte_service.py
