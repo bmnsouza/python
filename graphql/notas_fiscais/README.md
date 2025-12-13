@@ -1,5 +1,5 @@
 # FastAPI Notas Fiscais
-Projeto de Notas Fiscais construído com **FastAPI** e **Oracle**.
+Projeto de Notas Fiscais construído com **FastAPI**, **GraphQL** e **Oracle**.
 
 ---
 
