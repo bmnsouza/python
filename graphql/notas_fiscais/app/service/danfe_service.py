@@ -9,7 +9,7 @@ from app.core.logger import app_logger
 from app.fastapi.schema.danfe_schema import Danfe
 from app.repository.danfe_repository import DanfeRepository
 from app.utils.error_util import map_data_base_error
-from app.utils.exception_util import raise_http_exception
+from app.fastapi.utils.exception_util import raise_http_exception
 
 
 class DanfeService:

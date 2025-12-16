@@ -15,9 +15,7 @@ class ContribuinteService:
 
     async def get_list(self, filters: Dict[str, Any], order: List, offset: int, limit: int) -> Tuple[int, List[Dict[str, Any]]]:
         try:
-            print(">>> filters:", filters)
             total = await self.repo.count(filters)
-            print(">>> total:", total)
             rows = await self.repo.get_list(filters, order, offset, limit)
 
             return total, [Contribuinte.model_validate(r) for r in rows]

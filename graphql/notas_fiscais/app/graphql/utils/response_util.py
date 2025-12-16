@@ -1,0 +1,62 @@
+from typing import Any, Dict, Optional
+from sqlalchemy.orm import DeclarativeMeta
+
+from app.graphql.schema.input.contribuinte_input import ContribuinteFiltersInput, OrderInput
+from app.graphql.utils.exception_util import raise_graphql_error
+
+
+# Regras do servidor
+ACCEPT_RANGES = 200
+
+
+def set_filters_params(filters: ContribuinteFiltersInput | None) -> Dict[str, Any]:
+    if not filters:
+        return {}
+
+    filters = {k: v for k, v in vars(filters).items() if v is not None}
+    return filters
+
+
+def set_order_params(order: list[OrderInput] | None, model: DeclarativeMeta) -> list[tuple[str, str]]:
+    if not order:
+        return []
+
+    seen = set()
+    result = []
+
+    for item in order:
+        field = item.field
+        direction = item.direction.value
+
+        if not hasattr(model, field):
+            continue
+
+        if field not in seen:
+            seen.add(field)
+            result.append((field, direction))
+
+    return result
+
+
+def normalize_pagination_params(offset: Optional[int], limit: Optional[int]) -> tuple[int, int, int]:
+    """
+    Retorna (offset_normalized, limit_normalized, accept_ranges_effective)
+    Regras:
+    - accept_ranges default = server_max
+    - offset default = 0
+    - limit default = accept_ranges
+    - limit não pode ultrapassar accept_ranges
+    """
+
+    if offset is not None and offset < 0:
+        raise_graphql_error(description="offset deve ser >= 0")
+
+    if limit is not None and limit < 1:
+        raise_graphql_error(description="limit deve ser >= 1")
+
+    accept_ranges = ACCEPT_RANGES
+    offset = offset if offset is not None else 0
+    limit = limit if limit is not None else accept_ranges
+    limit = min(limit, accept_ranges)
+
+    return offset, limit, accept_ranges

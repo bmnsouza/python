@@ -11,21 +11,7 @@ class EnderecoRepository:
         self.session = session
 
 
-    async def count(self, filters: Optional[Dict[str, Any]] = None) -> int:
-        q = select(func.count()).select_from(EnderecoModel)
-
-        if filters:
-            for col, val in filters.items():
-                if hasattr(EnderecoModel, col):
-                    q = q.where(getattr(EnderecoModel, col) == val)
-
-        result = await self.session.execute(q)
-        return int(result.scalar_one())
-
-
-    async def get_list(self, filters: Optional[Dict[str, Any]] = None, order: Optional[List[Tuple[str, str]]] = None, offset: int = 0, limit: int = 50):
-        q = select(EnderecoModel)
-
+    def _apply_filters(self, q, filters: Dict[str, Any]):
         if filters:
             for col, val in filters.items():
                 if hasattr(EnderecoModel, col):
@@ -37,6 +23,20 @@ class EnderecoRepository:
                         q = q.where(col_attr.ilike(f"%{val}%"))
                     else:
                         q = q.where(col_attr == val)
+        return q
+
+
+    async def count(self, filters: Optional[Dict[str, Any]] = None) -> int:
+        q = select(func.count(EnderecoModel.id_endereco))
+        q = self._apply_filters(q, filters)
+
+        result = await self.session.execute(q)
+        return result.scalar_one()
+
+
+    async def get_list(self, filters: Optional[Dict[str, Any]] = None, order: Optional[List[Tuple[str, str]]] = None, offset: int = 0, limit: int = 50):
+        q = select(EnderecoModel)
+        q = self._apply_filters(q, filters)
 
         if order:
             for field, direction in order:

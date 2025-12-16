@@ -8,9 +8,9 @@ from app.fastapi.schema.danfe_schema import Danfe, DanfeCreate, DanfeUpdate
 from app.fastapi.validators.danfe_validator import ID_DANFE_PATH
 from app.model.danfe_model import DanfeModel
 from app.service.danfe_service import DanfeService
-from app.utils.exception_util import raise_http_exception
-from app.utils.field_util import parse_fields_param, select_fields_from_obj
-from app.utils.response_util import normalize_pagination_params, set_filters_params, set_order_params, set_pagination_headers
+from app.fastapi.utils.exception_util import raise_http_exception
+from app.fastapi.utils.field_util import parse_fields_param, select_fields_from_obj
+from app.fastapi.utils.response_util import normalize_pagination_params, set_filters_params, set_order_params, set_pagination_headers
 
 
 router = APIRouter(prefix="/v1/danfe", tags=["Danfe"])

@@ -15,8 +15,8 @@ class ContribuinteModel(Base):
     __table_args__ = {"schema": "NOTA_FISCAL"}
 
     cd_contribuinte: Mapped[str] = mapped_column(String(20), primary_key=True)
-    nm_fantasia: Mapped[Optional[str]] = mapped_column(String(200), nullable=False)
     cnpj_contribuinte: Mapped[str] = mapped_column(String(14), unique=True, nullable=False)
+    nm_fantasia: Mapped[Optional[str]] = mapped_column(String(200), nullable=False)
 
     danfes: Mapped[List["DanfeModel"]] = relationship(
         back_populates="contribuinte",

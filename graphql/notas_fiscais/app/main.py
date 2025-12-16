@@ -10,9 +10,9 @@ from app.core.logger import app_logger
 from app.database import config, connection
 from app.database.context import get_context
 from app.fastapi.router import api_router
+from app.fastapi.utils.handler_util import http_exception_handler, validation_exception_handler
 from app.graphql.schema.query import Query
 from app.middleware.logging_middleware import LoggingMiddleware
-from app.utils.handler_util import http_exception_handler, validation_exception_handler
 
 
 @asynccontextmanager
@@ -50,7 +50,7 @@ app.include_router(api_router)
 
 # GraphQL
 schema = strawberry.Schema(query=Query)
-graphql_app = GraphQLRouter(schema, context_getter=get_context)
+graphql_app = GraphQLRouter(schema=schema, context_getter=get_context)
 app.include_router(graphql_app, prefix="/graphql")
 
 

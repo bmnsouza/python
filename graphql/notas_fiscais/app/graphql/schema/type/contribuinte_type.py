@@ -40,7 +40,7 @@ class ContribuinteDenfeEnderecoType:
 
 @strawberry.type
 class SingleResponseType:
-    data: ContribuinteType
+    item: ContribuinteType
 
 
 @strawberry.type
@@ -48,4 +48,5 @@ class PaginatedResponseType:
     offset: int
     limit: int
     total: int
-    data: List[ContribuinteType]
+    accept_ranges: int
+    items: List[ContribuinteType]
