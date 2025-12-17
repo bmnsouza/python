@@ -17,9 +17,9 @@ class DanfeModel(Base):
 
     id_danfe: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     cd_contribuinte: Mapped[str] = mapped_column(String(20), ForeignKey("NOTA_FISCAL.CONTRIBUINTE.cd_contribuinte"), nullable=False)
-    numero: Mapped[str] = mapped_column(String(15))
-    valor_total: Mapped[Decimal] = mapped_column(Numeric(12,2))
-    data_emissao: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+    numero: Mapped[str] = mapped_column(String(15), nullable=False)
+    valor_total: Mapped[Decimal] = mapped_column(Numeric(12,2), nullable=False)
+    data_emissao: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
 
     contribuinte: Mapped["ContribuinteModel"] = relationship(
         back_populates="danfes",

@@ -15,9 +15,9 @@ class EnderecoModel(Base):
 
     id_endereco: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     cd_contribuinte: Mapped[str] = mapped_column(String(20), ForeignKey("NOTA_FISCAL.CONTRIBUINTE.cd_contribuinte"), nullable=False)
-    logradouro: Mapped[str] = mapped_column(String(200))
-    municipio: Mapped[str] = mapped_column(String(100))
-    uf: Mapped[str] = mapped_column(String(2))
+    logradouro: Mapped[str] = mapped_column(String(200), nullable=False)
+    municipio: Mapped[str] = mapped_column(String(100), nullable=False)
+    uf: Mapped[str] = mapped_column(String(2), nullable=False)
 
     contribuinte: Mapped["ContribuinteModel"] = relationship(
         back_populates="enderecos",

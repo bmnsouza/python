@@ -1,57 +1,57 @@
 import strawberry
 from strawberry.types import Info
 
-from app.graphql.schema.input.contribuinte_input import ContribuinteFiltersInput
+from app.graphql.schema.input.danfe_input import DanfeFiltersInput
 from app.graphql.schema.input.graphql_input import OrderInput
-from app.graphql.schema.type.contribuinte_type import PaginatedResponseContribuinteType, SingleResponseContribuinteType
+from app.graphql.schema.type.danfe_type import PaginatedResponseDanfeType, SingleResponseDanfeType
 from app.graphql.utils.exception_util import raise_graphql_error
 from app.graphql.utils.response_util import normalize_pagination_params, set_filters_params, set_order_params
-from app.model.contribuinte_model import ContribuinteModel
-from app.service.contribuinte_service import ContribuinteService
+from app.model.danfe_model import DanfeModel
+from app.service.danfe_service import DanfeService
 
 
 @strawberry.type
-class ContribuinteQuery:
+class DanfeQuery:
 
     @strawberry.field
     async def get_list(
         self,
         info: Info,
-        filters: ContribuinteFiltersInput | None = None,
+        filters: DanfeFiltersInput | None = None,
         order: list[OrderInput] | None = None,
         offset: int | None = None,
         limit: int | None = None
-    ) -> PaginatedResponseContribuinteType:
+    ) -> PaginatedResponseDanfeType:
         try:
             filters = set_filters_params(filters=filters)
-            order = set_order_params(order=order, model=ContribuinteModel)
+            order = set_order_params(order=order, model=DanfeModel)
             final_offset, final_limit, final_accept_ranges = normalize_pagination_params(offset=offset, limit=limit)
 
             session = info.context["session"]
-            service = ContribuinteService(session=session)
+            service = DanfeService(session=session)
             total, items = await service.get_list(filters=filters, order=order, offset=final_offset, limit=final_limit)
 
-            result = PaginatedResponseContribuinteType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges, items=items)
+            result = PaginatedResponseDanfeType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges, items=items)
             return result
         except Exception as e:
             raise_graphql_error(exc=e)
 
 
     @strawberry.field
-    async def get_by_cd(
+    async def get_by_id(
         self,
         info: Info,
-        cd_contribuinte: str
-    ) -> SingleResponseContribuinteType:
+        id_danfe: str
+    ) -> SingleResponseDanfeType:
         try:
             session = info.context["session"]
-            service = ContribuinteService(session=session)
+            service = DanfeService(session=session)
 
-            result = await service.get_by_cd(cd=cd_contribuinte)
+            result = await service.get_by_id(id=id_danfe)
         except Exception as e:
             raise_graphql_error(exc=e)
 
         if not result:
-            raise_graphql_error(description="Contribuinte não encontrado")
+            raise_graphql_error(description="Danfe não encontrado")
 
-        return SingleResponseContribuinteType(item=result)
+        return SingleResponseDanfeType(item=result)

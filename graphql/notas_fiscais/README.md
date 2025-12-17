@@ -1,4 +1,4 @@
-# FastAPI Notas Fiscais
+# Notas Fiscais
 Projeto de Notas Fiscais construído com **FastAPI**, **GraphQL** e **Oracle**.
 
 ---
@@ -19,6 +19,7 @@ notas_fiscais/
 │   |   ├── __init__.py
 │   |   ├── config.py
 │   |   ├── connection.py
+│   |   ├── context.py
 │   |   └── session.py
 │   ├── fastapi/
 │   |   ├── router/
@@ -31,6 +32,40 @@ notas_fiscais/
 │   |   |   ├── contribuinte_schema.py
 │   |   |   ├── danfe_schema.py
 │   |   |   └── endereco_schema.py
+│   |   ├── utils/
+│   |   |   ├── __init__.py
+│   |   |   ├── exception_util.py
+│   |   |   ├── field_util.py
+│   |   |   ├── handler_util.py
+│   |   |   └── response_util.py
+│   |   ├── validators/
+│   |   |   ├── __init__.py
+│   |   |   ├── contribuinte_validator.py
+│   |   |   ├── danfe_validator.py
+│   |   |   └── endereco_validator.py
+│   ├── graphql/
+│   |   ├── schema/
+│   |   |   ├── input/
+│   |   |   |   ├── __init__.py
+│   |   |   |   ├── contribuinte_input.py
+│   |   |   |   ├── danfe_input.py
+│   |   |   |   ├── endereco_input.py
+│   |   |   |   └── graphql_input.py
+│   |   |   ├── query/
+│   |   |   |   ├── __init__.py
+│   |   |   |   ├── contribuinte_query.py
+│   |   |   |   ├── danfe_query.py
+│   |   |   |   └── endereco_query.py
+│   |   |   ├── type/
+│   |   |   |   ├── __init__.py
+│   |   |   |   ├── contribuinte_type.py
+│   |   |   |   ├── danfe_type.py
+│   |   |   |   └── endereco_type.py
+│   |   |   └── __init__.py
+│   |   ├── utils/
+│   |   |   ├── __init__.py
+│   |   |   ├── exception_util.py
+│   |   |   └── response_util.py
 │   |   ├── validators/
 │   |   |   ├── __init__.py
 │   |   |   ├── contribuinte_validator.py
@@ -58,11 +93,7 @@ notas_fiscais/
 │   |   └── endereco_service.py
 │   ├── utils/
 │   |   ├── __init__.py
-│   |   ├── error_util.py
-│   |   ├── exception_util.py
-│   |   ├── field_util.py
-│   |   ├── handler_util.py
-│   |   └── response_util.py
+│   |   └── error_util.py
 │   ├── __init__.py
 │   └── main.py
 ├── sql/

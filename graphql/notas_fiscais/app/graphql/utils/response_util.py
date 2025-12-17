@@ -1,7 +1,10 @@
 from typing import Any, Dict, Optional
 from sqlalchemy.orm import DeclarativeMeta
 
-from app.graphql.schema.input.contribuinte_input import ContribuinteFiltersInput, OrderInput
+from app.graphql.schema.input.contribuinte_input import ContribuinteFiltersInput
+from app.graphql.schema.input.danfe_input import DanfeFiltersInput
+from app.graphql.schema.input.endereco_input import EnderecoFiltersInput
+from app.graphql.schema.input.graphql_input import OrderInput
 from app.graphql.utils.exception_util import raise_graphql_error
 
 
@@ -9,7 +12,7 @@ from app.graphql.utils.exception_util import raise_graphql_error
 ACCEPT_RANGES = 200
 
 
-def set_filters_params(filters: ContribuinteFiltersInput | None) -> Dict[str, Any]:
+def set_filters_params(filters: ContribuinteFiltersInput | DanfeFiltersInput | EnderecoFiltersInput | None) -> Dict[str, Any]:
     if not filters:
         return {}
 

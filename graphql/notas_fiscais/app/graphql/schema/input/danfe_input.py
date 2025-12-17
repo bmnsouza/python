@@ -1,0 +1,13 @@
+from datetime import datetime
+from decimal import Decimal
+from typing import Optional
+
+import strawberry
+
+
+@strawberry.input
+class DanfeFiltersInput:
+    cd_contribuinte: Optional[str] = None
+    numero: Optional[str] = None
+    valor_total: Optional[Decimal] = None
+    data_emissao: Optional[datetime] = None

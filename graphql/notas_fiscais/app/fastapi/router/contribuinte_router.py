@@ -16,7 +16,14 @@ from app.fastapi.utils.response_util import normalize_pagination_params, set_fil
 router = APIRouter(prefix="/v1/contribuinte", tags=["Contribuinte"])
 
 @router.get("/")
-async def get_list(request: Request, response: Response, offset: int = Query(None, ge=0), limit: int = Query(None, ge=1), fields: Optional[str] = Query(None), session: AsyncSession = Depends(get_session)):
+async def get_list(
+    request: Request,
+    response: Response,
+    offset: int = Query(None, ge=0),
+    limit: int = Query(None, ge=1),
+    fields: Optional[str] = Query(None),
+    session: AsyncSession = Depends(get_session)
+):
     try:
         # Monta filtros, ordenação e normaliza parâmetros
         filters = set_filters_params(request=request)

@@ -11,7 +11,9 @@ from app.database import config, connection
 from app.database.context import get_context
 from app.fastapi.router import api_router
 from app.fastapi.utils.handler_util import http_exception_handler, validation_exception_handler
-from app.graphql.schema.query import Query
+from app.graphql.schema.query.contribuinte_query import ContribuinteQuery
+from app.graphql.schema.query.danfe_query import DanfeQuery
+from app.graphql.schema.query.endereco_query import EnderecoQuery
 from app.middleware.logging_middleware import LoggingMiddleware
 
 
@@ -49,9 +51,20 @@ app.include_router(api_router)
 
 
 # GraphQL
-schema = strawberry.Schema(query=Query)
-graphql_app = GraphQLRouter(schema=schema, context_getter=get_context)
-app.include_router(graphql_app, prefix="/graphql")
+# Contribuinte
+schema_contribuinte = strawberry.Schema(query=ContribuinteQuery)
+graphql_contribuinte = GraphQLRouter(schema=schema_contribuinte, context_getter=get_context)
+app.include_router(router=graphql_contribuinte, prefix="/graphql/contribuinte")
+
+# Danfe
+schema_danfe = strawberry.Schema(query=DanfeQuery)
+graphql_danfe = GraphQLRouter(schema=schema_danfe, context_getter=get_context)
+app.include_router(router=graphql_danfe, prefix="/graphql/danfe")
+
+# Endereco
+schema_endereco = strawberry.Schema(query=EnderecoQuery)
+graphql_endereco = GraphQLRouter(schema=schema_endereco, context_getter=get_context)
+app.include_router(router=graphql_endereco, prefix="/graphql/endereco")
 
 
 # Adiciona middleware global
@@ -65,4 +78,4 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 @app.get("/")
 def root():
-    return {"message": "FastAPI Notas Fiscais em execução."}
+    return {"message": "Projeto Notas Fiscais em execução."}
