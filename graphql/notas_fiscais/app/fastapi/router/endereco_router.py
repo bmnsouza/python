@@ -94,5 +94,3 @@ async def delete(id_endereco: str = ID_ENDERECO_PATH, session: AsyncSession = De
 
     if not result:
         raise HTTPException(status_code=404, detail="Endereço não encontrado")
-
-    return Response(status_code=204)

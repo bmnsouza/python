@@ -94,5 +94,3 @@ async def delete(id_danfe: str = ID_DANFE_PATH, session: AsyncSession = Depends(
 
     if not result:
         raise HTTPException(status_code=404, detail="Danfe não encontrado")
-
-    return Response(status_code=204)

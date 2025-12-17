@@ -94,5 +94,3 @@ async def delete(cd_contribuinte: str = CD_CONTRIBUINTE_PATH, session: AsyncSess
 
     if not result:
         raise HTTPException(status_code=404, detail="Contribuinte não encontrado")
-
-    return Response(status_code=204)
