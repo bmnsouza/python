@@ -11,12 +11,10 @@ notas_fiscais/
 │   ├── settings.json
 ├── app/
 │   ├── core/
-│   |   ├── __init__.py
 │   |   ├── constants.py
 │   |   ├── exceptions.py
 │   |   ├── logger.py
 │   ├── database/
-│   |   ├── __init__.py
 │   |   ├── config.py
 │   |   ├── connection.py
 │   |   ├── context.py
@@ -28,25 +26,21 @@ notas_fiscais/
 │   |   |   ├── danfe_router.py
 │   |   |   └── endereco_router.py
 │   |   ├── schema/
-│   |   |   ├── __init__.py
 │   |   |   ├── contribuinte_schema.py
 │   |   |   ├── danfe_schema.py
 │   |   |   └── endereco_schema.py
 │   |   ├── utils/
-│   |   |   ├── __init__.py
 │   |   |   ├── exception_util.py
 │   |   |   ├── field_util.py
 │   |   |   ├── handler_util.py
 │   |   |   └── response_util.py
 │   |   ├── validators/
-│   |   |   ├── __init__.py
 │   |   |   ├── contribuinte_validator.py
 │   |   |   ├── danfe_validator.py
 │   |   |   └── endereco_validator.py
 │   ├── graphql/
 │   |   ├── schema/
 │   |   |   ├── input/
-│   |   |   |   ├── __init__.py
 │   |   |   |   ├── contribuinte_input.py
 │   |   |   |   ├── danfe_input.py
 │   |   |   |   ├── endereco_input.py
@@ -57,17 +51,13 @@ notas_fiscais/
 │   |   |   |   ├── danfe_query.py
 │   |   |   |   └── endereco_query.py
 │   |   |   ├── type/
-│   |   |   |   ├── __init__.py
 │   |   |   |   ├── contribuinte_type.py
 │   |   |   |   ├── danfe_type.py
 │   |   |   |   └── endereco_type.py
-│   |   |   └── __init__.py
 │   |   ├── utils/
-│   |   |   ├── __init__.py
 │   |   |   ├── exception_util.py
 │   |   |   └── response_util.py
 │   |   ├── validators/
-│   |   |   ├── __init__.py
 │   |   |   ├── contribuinte_validator.py
 │   |   |   ├── danfe_validator.py
 │   |   |   └── endereco_validator.py
@@ -82,19 +72,15 @@ notas_fiscais/
 │   |   ├── danfe_model.py
 │   |   └── endereco_model.py
 │   ├── repository/
-│   |   ├── __init__.py
 │   |   ├── contribuinte_repository.py
 │   |   ├── danfe_repository.py
 │   |   └── endereco_repository.py
 │   ├── service/
-│   |   ├── __init__.py
 │   |   ├── contribuinte_service.py
 │   |   ├── danfe_service.py
 │   |   └── endereco_service.py
 │   ├── utils/
-│   |   ├── __init__.py
 │   |   └── error_util.py
-│   ├── __init__.py
 │   └── main.py
 ├── sql/
 │   ├── script.sql
