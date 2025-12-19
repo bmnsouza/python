@@ -38,7 +38,7 @@ class DanfeRepository:
         return result.scalar_one()
 
 
-    async def get_list(self, filters: Optional[Dict[str, Any]] = None, order: Optional[List[Tuple[str, str]]] = None, offset: int = 0, limit: int = 50):
+    async def get_list(self, offset: int, limit: int, filters: Optional[Dict[str, Any]] = None, order: Optional[List[Tuple[str, str]]] = None):
         q = select(DanfeModel)
         q = self._apply_filters(q, filters)
 

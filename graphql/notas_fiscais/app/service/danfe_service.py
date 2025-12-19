@@ -22,8 +22,8 @@ class DanfeService:
             # Valida e normaliza antes de chamar o repository
             filters = validate_and_normalize_filters(filters)
 
-            total = await self.repo.count(filters)
-            rows = await self.repo.get_list(filters, order, offset, limit)
+            total = await self.repo.count(filters=filters)
+            rows = await self.repo.get_list(offset=offset, limit=limit, filters=filters, order=order)
 
             return total, [Danfe.model_validate(r) for r in rows]
         except Exception as e:

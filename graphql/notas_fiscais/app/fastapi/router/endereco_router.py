@@ -32,7 +32,7 @@ async def get_list(
 
         # Chama o service passando os valores normalizados
         service = EnderecoService(session=session)
-        total, items = await service.get_list(filters=filters, order=order, offset=final_offset, limit=final_limit)
+        total, items = await service.get_list(offset=final_offset, limit=final_limit, filters=filters, order=order)
 
         # Aplica headers
         set_pagination_headers(response=response, offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges)

@@ -15,8 +15,8 @@ class EnderecoService:
 
     async def get_list(self, filters: Dict[str, Any], order: List, offset: int, limit: int) -> Tuple[int, List[Dict[str, Any]]]:
         try:
-            total = await self.repo.count(filters)
-            rows = await self.repo.get_list(filters, order, offset, limit)
+            total = await self.repo.count(filters=filters)
+            rows = await self.repo.get_list(offset=offset, limit=limit, filters=filters, order=order)
 
             return total, [Endereco.model_validate(r) for r in rows]
         except Exception as e:

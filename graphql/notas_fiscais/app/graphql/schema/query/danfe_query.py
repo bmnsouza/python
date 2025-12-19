@@ -29,7 +29,7 @@ class DanfeQuery:
 
             session = info.context["session"]
             service = DanfeService(session=session)
-            total, items = await service.get_list(filters=filters, order=order, offset=final_offset, limit=final_limit)
+            total, items = await service.get_list(offset=final_offset, limit=final_limit, filters=filters, order=order)
 
             result = PaginatedResponseDanfeType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges, items=items)
             return result

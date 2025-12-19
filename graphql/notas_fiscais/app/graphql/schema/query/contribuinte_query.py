@@ -29,7 +29,31 @@ class ContribuinteQuery:
 
             session = info.context["session"]
             service = ContribuinteService(session=session)
-            total, items = await service.get_list(filters=filters, order=order, offset=final_offset, limit=final_limit)
+            total, items = await service.get_list(offset=final_offset, limit=final_limit, filters=filters, order=order)
+
+            result = PaginatedResponseContribuinteType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges, items=items)
+            return result
+        except Exception as e:
+            raise_graphql_error(exc=e)
+
+
+    @strawberry.field
+    async def get_list_sql(
+        self,
+        info: Info,
+        filters: ContribuinteFiltersInput | None = None,
+        order: list[OrderInput] | None = None,
+        offset: int | None = None,
+        limit: int | None = None
+    ) -> PaginatedResponseContribuinteType:
+        try:
+            filters = set_filters_params(filters=filters)
+            order = set_order_params(order=order, model=ContribuinteModel)
+            final_offset, final_limit, final_accept_ranges = normalize_pagination_params(offset=offset, limit=limit)
+
+            session = info.context["session"]
+            service = ContribuinteService(session=session)
+            total, items = await service.get_list_sql(offset=final_offset, limit=final_limit, filters=filters, order=order)
 
             result = PaginatedResponseContribuinteType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges, items=items)
             return result

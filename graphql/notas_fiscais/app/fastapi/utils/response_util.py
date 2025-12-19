@@ -2,9 +2,7 @@ from typing import Optional
 from fastapi import Request, Response
 from sqlalchemy.orm import DeclarativeMeta
 
-
-# Regras do servidor
-ACCEPT_RANGES = 200
+from app.core.constants import ACCEPT_RANGES
 
 
 def set_filters_params(request: Request):

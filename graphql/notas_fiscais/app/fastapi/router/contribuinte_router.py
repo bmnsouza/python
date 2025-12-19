@@ -32,7 +32,38 @@ async def get_list(
 
         # Chama o service passando os valores normalizados
         service = ContribuinteService(session=session)
-        total, items = await service.get_list(filters=filters, order=order, offset=final_offset, limit=final_limit)
+        total, items = await service.get_list(offset=final_offset, limit=final_limit, filters=filters, order=order)
+
+        # Aplica headers
+        set_pagination_headers(response=response, offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges)
+
+        # Transformação de campos
+        requested_fields = parse_fields_param(fields)
+        transformed = [select_fields_from_obj(i, requested_fields) for i in items]
+
+        return transformed
+    except Exception as e:
+        raise_http_exception(exc=e)
+
+
+@router.get("/sql")
+async def get_list_sql(
+    request: Request,
+    response: Response,
+    offset: int = Query(None, ge=0),
+    limit: int = Query(None, ge=1),
+    fields: Optional[str] = Query(None),
+    session: AsyncSession = Depends(get_session)
+):
+    try:
+        # Monta filtros, ordenação e normaliza parâmetros
+        filters = set_filters_params(request=request)
+        order = set_order_params(request=request, model=ContribuinteModel)
+        final_offset, final_limit, final_accept_ranges = normalize_pagination_params(offset=offset, limit=limit)
+
+        # Chama o service passando os valores normalizados
+        service = ContribuinteService(session=session)
+        total, items = await service.get_list_sql(offset=final_offset, limit=final_limit, filters=filters, order=order)
 
         # Aplica headers
         set_pagination_headers(response=response, offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges)

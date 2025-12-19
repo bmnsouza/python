@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional, Tuple
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -18,14 +18,33 @@ class ContribuinteRepository:
                 if hasattr(ContribuinteModel, col):
                     col_attr = getattr(ContribuinteModel, col)
 
-                    if isinstance(val, str) and "%" in val:
-                        q = q.where(col_attr.like(val))
-                    elif isinstance(val, str) and col.lower() == "nm_fantasia":
+                    if isinstance(val, str) and col.lower() == "nm_fantasia":
                         q = q.where(col_attr.ilike(f"%{val}%"))
                     else:
                         q = q.where(col_attr == val)
         return q
 
+
+    def _apply_filters_sql(self, filters: Optional[Dict[str, Any]]) -> Tuple[str, Dict[str, Any]]:
+        where = []
+        params = {}
+
+        if filters:
+            for col, val in filters.items():
+                if not hasattr(ContribuinteModel, col):
+                    continue
+
+                if isinstance(val, str) and col.lower() == "nm_fantasia":
+                    where.append(f"{col} LIKE :{col}")
+                    params[col] = f"%{val}%"
+                else:
+                    where.append(f"{col} = :{col}")
+                    params[col] = val
+
+        if not where:
+            return "", params
+
+        return " WHERE " + " AND ".join(where), params
 
     async def count(self, filters: Optional[Dict[str, Any]] = None) -> int:
         q = select(func.count(ContribuinteModel.cd_contribuinte))
@@ -35,7 +54,20 @@ class ContribuinteRepository:
         return result.scalar_one()
 
 
-    async def get_list(self, filters: Optional[Dict[str, Any]] = None, order: Optional[List[Tuple[str, str]]] = None, offset: int = 0, limit: int = 50):
+    async def count_sql(self, filters: Optional[Dict[str, Any]] = None) -> int:
+        where_sql, params = self._apply_filters_sql(filters=filters)
+
+        sql = text(f"""
+            SELECT COUNT(c.CD_CONTRIBUINTE)
+            FROM NOTA_FISCAL.CONTRIBUINTE c
+            {where_sql}
+        """)
+
+        result = await self.session.execute(statement=sql, params=params)
+        return result.scalar_one()
+
+
+    async def get_list(self, offset: int, limit: int, filters: Optional[Dict[str, Any]] = None, order: Optional[List[Tuple[str, str]]] = None):
         q = (
             select(ContribuinteModel)
             .options(
@@ -56,6 +88,35 @@ class ContribuinteRepository:
 
         result = await self.session.execute(q)
         return result.scalars().all()
+
+
+    async def get_list_sql(self, offset: int, limit: int, filters: Optional[Dict[str, Any]] = None, order: Optional[List[Tuple[str, str]]] = None):
+        where_sql, params = self._apply_filters_sql(filters=filters)
+
+        order_sql = ""
+        if order:
+            order_clauses = []
+            for field, direction in order:
+                if hasattr(ContribuinteModel, field):
+                    order_sql = "ASC" if direction.lower() == "asc" else "DESC"
+                    order_clauses.append(f"{field} {order_sql}")
+
+            if order_clauses:
+                order_sql = " ORDER BY " + ", ".join(order_clauses)
+
+        sql = text(f"""
+            SELECT c.CD_CONTRIBUINTE, c.CNPJ_CONTRIBUINTE, c.NM_FANTASIA
+            FROM NOTA_FISCAL.CONTRIBUINTE c
+            {where_sql}
+            {order_sql}
+            OFFSET :offset ROWS
+            FETCH NEXT :limit ROWS ONLY
+        """)
+
+        params.update({"offset": offset, "limit": limit})
+
+        result = await self.session.execute(statement=sql, params=params)
+        return result.mappings().all()
 
 
     async def get_by_cd(self, cd: str):
