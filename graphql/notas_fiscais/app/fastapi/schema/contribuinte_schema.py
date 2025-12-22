@@ -1,9 +1,8 @@
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.fastapi.schema.danfe_schema import Danfe
 from app.fastapi.schema.endereco_schema import Endereco
-from app.fastapi.validators.contribuinte_validator import CD_CONTRIBUINTE_FIELD, CNPJ_CONTRIBUINTE_FIELD, NM_FANTASIA_FIELD
 
 
 class ContribuinteBase(BaseModel):
@@ -22,9 +21,11 @@ class Contribuinte(ContribuinteBase):
 
 
 class ContribuinteUpdate(BaseModel):
-    cnpj_contribuinte: str = CNPJ_CONTRIBUINTE_FIELD
-    nm_fantasia: str = NM_FANTASIA_FIELD
+    cnpj_contribuinte: Optional[str] = Field(default=None, min_length=14, max_length=14)
+    nm_fantasia: Optional[str] = Field(default=None, min_length=5, max_length=200)
 
 
-class ContribuinteCreate(ContribuinteUpdate):
-    cd_contribuinte: str = CD_CONTRIBUINTE_FIELD
+class ContribuinteCreate(BaseModel):
+    cd_contribuinte: str = Field(min_length=9, max_length=20)
+    cnpj_contribuinte: str = Field(min_length=14, max_length=14)
+    nm_fantasia: str = Field(min_length=5, max_length=200)

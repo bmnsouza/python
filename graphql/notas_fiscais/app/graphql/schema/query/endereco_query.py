@@ -38,6 +38,30 @@ class EnderecoQuery:
 
 
     @strawberry.field
+    async def get_list_sql(
+        self,
+        info: Info,
+        filters: EnderecoFiltersInput | None = None,
+        order: list[OrderInput] | None = None,
+        offset: int | None = None,
+        limit: int | None = None
+    ) -> PaginatedResponseEnderecoType:
+        try:
+            filters = set_filters_params(filters=filters)
+            order = set_order_params(order=order, model=EnderecoModel)
+            final_offset, final_limit, final_accept_ranges = normalize_pagination_params(offset=offset, limit=limit)
+
+            session = info.context["session"]
+            service = EnderecoService(session=session)
+            total, items = await service.get_list_sql(offset=final_offset, limit=final_limit, filters=filters, order=order)
+
+            result = PaginatedResponseEnderecoType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges, items=items)
+            return result
+        except Exception as e:
+            raise_graphql_error(exc=e)
+
+
+    @strawberry.field
     async def get_by_id(
         self,
         info: Info,

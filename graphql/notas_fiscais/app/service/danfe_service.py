@@ -17,13 +17,27 @@ class DanfeService:
         self.repo = DanfeRepository(session=session)
 
 
-    async def get_list(self, filters: Dict[str, Any], order: List, offset: int, limit: int) -> Tuple[int, List[Dict[str, Any]]]:
+    async def get_list(self, filters: dict, order: List, offset: int, limit: int) -> Tuple[int, List[Dict[str, Any]]]:
         try:
             # Valida e normaliza antes de chamar o repository
-            filters = validate_and_normalize_filters(filters)
+            filters = validate_and_normalize_filters(filters=filters)
 
             total = await self.repo.count(filters=filters)
             rows = await self.repo.get_list(offset=offset, limit=limit, filters=filters, order=order)
+
+            return total, [Danfe.model_validate(r) for r in rows]
+        except Exception as e:
+            app_logger.exception("Erro ao obter danfes %s", e)
+            map_data_base_error(e)
+
+
+    async def get_list_sql(self, filters: dict, order: List, offset: int, limit: int) -> Tuple[int, List[Dict[str, Any]]]:
+        try:
+            # Valida e normaliza antes de chamar o repository
+            filters = validate_and_normalize_filters(filters=filters)
+
+            total = await self.repo.count_sql(filters=filters)
+            rows = await self.repo.get_list_sql(offset=offset, limit=limit, filters=filters, order=order)
 
             return total, [Danfe.model_validate(r) for r in rows]
         except Exception as e:
@@ -43,17 +57,17 @@ class DanfeService:
             map_data_base_error(e)
 
 
-    async def create(self, payload: Dict[str, Any]):
+    async def create(self, data: dict):
         try:
-            r = await self.repo.create(payload)
+            r = await self.repo.create(data)
             return Danfe.model_validate(r)
         except Exception as e:
             map_data_base_error(e)
 
 
-    async def update(self, id: int, payload: Dict[str, Any]):
+    async def update(self, id: int, data: dict):
         try:
-            r = await self.repo.update(id, payload)
+            r = await self.repo.update(id, data)
             if not r:
                 return None
 
@@ -72,7 +86,7 @@ class DanfeService:
             map_data_base_error(e)
 
 
-def validate_and_normalize_filters(filters: Dict[str, Any]) -> Dict[str, Any]:
+def validate_and_normalize_filters(filters: dict) -> Dict[str, Any]:
     new_filters = filters.copy()
 
     # Valida o filtro valor_total

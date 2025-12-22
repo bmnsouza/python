@@ -13,7 +13,7 @@ class ContribuinteService:
         self.repo = ContribuinteRepository(session=session)
 
 
-    async def get_list(self, filters: Dict[str, Any], order: List, offset: int, limit: int) -> Tuple[int, List[Dict[str, Any]]]:
+    async def get_list(self, filters: dict, order: List, offset: int, limit: int) -> Tuple[int, List[Dict[str, Any]]]:
         try:
             total = await self.repo.count(filters=filters)
             rows = await self.repo.get_list(offset=offset, limit=limit, filters=filters, order=order)
@@ -24,7 +24,7 @@ class ContribuinteService:
             map_data_base_error(e)
 
 
-    async def get_list_sql(self, filters: Dict[str, Any], order: List, offset: int, limit: int) -> Tuple[int, List[Dict[str, Any]]]:
+    async def get_list_sql(self, filters: dict, order: List, offset: int, limit: int) -> Tuple[int, List[Dict[str, Any]]]:
         try:
             total = await self.repo.count_sql(filters=filters)
             rows = await self.repo.get_list_sql(offset=offset, limit=limit, filters=filters, order=order)
@@ -47,17 +47,17 @@ class ContribuinteService:
             map_data_base_error(e)
 
 
-    async def create(self, payload: Dict[str, Any]):
+    async def create(self, data: dict):
         try:
-            r = await self.repo.create(payload)
+            r = await self.repo.create(data)
             return Contribuinte.model_validate(r)
         except Exception as e:
             map_data_base_error(e)
 
 
-    async def update(self, cd: str, payload: Dict[str, Any]):
+    async def update(self, cd: str, data: dict):
         try:
-            r = await self.repo.update(cd, payload)
+            r = await self.repo.update(cd, data)
             if not r:
                 return None
 

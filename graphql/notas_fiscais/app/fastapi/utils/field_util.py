@@ -1,10 +1,30 @@
 from typing import List, Optional
 
+from fastapi import HTTPException
+from sqlalchemy.orm import DeclarativeMeta
+
 
 def parse_fields_param(fields: Optional[str]) -> Optional[List[str]]:
     if not fields:
         return None
     return [f.strip() for f in fields.split(",") if f.strip()]
+
+
+def validate_fields_param(fields: Optional[str], model: DeclarativeMeta):
+    if not fields:
+        return None
+
+    allowed = set(model.__table__.columns.keys())
+    requested = {f.strip() for f in fields.split(",")}
+
+    invalid = requested - allowed
+    if invalid:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Campos inválidos em fields: {', '.join(invalid)}"
+        )
+
+    return requested
 
 
 def select_fields_from_obj(obj, fields: Optional[List[str]] = None):

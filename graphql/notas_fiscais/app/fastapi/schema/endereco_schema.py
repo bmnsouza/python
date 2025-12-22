@@ -1,8 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel
-
-from app.fastapi.validators.contribuinte_validator import CD_CONTRIBUINTE_FIELD
-from app.fastapi.validators.endereco_validator import LOGRADOURO_FIELD, MUNICIPIO_FIELD, UF_FIELD
+from pydantic import BaseModel, Field
 
 
 class EnderecoBase(BaseModel):
@@ -21,10 +18,13 @@ class Endereco(EnderecoBase):
 
 
 class EnderecoUpdate(BaseModel):
-    logradouro: str = LOGRADOURO_FIELD
-    municipio: str = MUNICIPIO_FIELD
-    uf: str = UF_FIELD
+    logradouro: Optional[str] = Field(default=None, min_length=5, max_length=200)
+    municipio: Optional[str] = Field(default=None, min_length=5, max_length=100)
+    uf: Optional[str] = Field(default=None, min_length=2, max_length=2)
 
 
-class EnderecoCreate(EnderecoUpdate):
-    cd_contribuinte: str = CD_CONTRIBUINTE_FIELD
+class EnderecoCreate(BaseModel):
+    cd_contribuinte: str = Field(..., min_length=9, max_length=20)
+    logradouro: str = Field(..., min_length=5, max_length=200)
+    municipio: str = Field(..., min_length=5, max_length=100)
+    uf: str = Field(..., min_length=2, max_length=2)

@@ -5,12 +5,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.session import get_session
 from app.fastapi.schema.endereco_schema import Endereco, EnderecoCreate, EnderecoUpdate
-from app.fastapi.validators.endereco_validator import ID_ENDERECO_PATH
-from app.model.endereco_model import EnderecoModel
-from app.service.endereco_service import EnderecoService
+from app.fastapi.validator.endereco_validator import EnderecoPath
 from app.fastapi.utils.exception_util import raise_http_exception
 from app.fastapi.utils.field_util import parse_fields_param, select_fields_from_obj
 from app.fastapi.utils.response_util import normalize_pagination_params, set_filters_params, set_order_params, set_pagination_headers
+from app.model.endereco_model import EnderecoModel
+from app.service.endereco_service import EnderecoService
 
 
 router = APIRouter(prefix="/v1/endereco", tags=["Endereco"])
@@ -46,11 +46,42 @@ async def get_list(
         raise_http_exception(exc=e)
 
 
+@router.get("/sql")
+async def get_list_sql(
+    request: Request,
+    response: Response,
+    offset: int = Query(None, ge=0),
+    limit: int = Query(None, ge=1),
+    fields: Optional[str] = Query(None),
+    session: AsyncSession = Depends(get_session)
+):
+    try:
+        # Monta filtros, ordenação e normaliza parâmetros
+        filters = set_filters_params(request=request)
+        order = set_order_params(request=request, model=EnderecoModel)
+        final_offset, final_limit, final_accept_ranges = normalize_pagination_params(offset=offset, limit=limit)
+
+        # Chama o service passando os valores normalizados
+        service = EnderecoService(session=session)
+        total, items = await service.get_list_sql(offset=final_offset, limit=final_limit, filters=filters, order=order)
+
+        # Aplica headers
+        set_pagination_headers(response=response, offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges)
+
+        # Transformação de campos
+        requested_fields = parse_fields_param(fields)
+        transformed = [select_fields_from_obj(i, requested_fields) for i in items]
+
+        return transformed
+    except Exception as e:
+        raise_http_exception(exc=e)
+
+
 @router.get("/{id_endereco}", response_model=Endereco)
-async def get_by_id(id_endereco: str = ID_ENDERECO_PATH, session: AsyncSession = Depends(get_session)):
+async def get_by_id(path: EnderecoPath = Depends(), session: AsyncSession = Depends(get_session)):
     try:
         service = EnderecoService(session=session)
-        result = await service.get_by_id(id_endereco)
+        result = await service.get_by_id(id=path.id_endereco)
     except Exception as e:
         raise_http_exception(exc=e)
 
@@ -71,10 +102,10 @@ async def create(endereco: EnderecoCreate, session: AsyncSession = Depends(get_s
 
 
 @router.put("/{id_endereco}", response_model=Endereco)
-async def update(id_endereco: str = ID_ENDERECO_PATH, endereco: EnderecoUpdate = ..., session: AsyncSession = Depends(get_session)):
+async def update(path: EnderecoPath = Depends(), endereco: EnderecoUpdate = ..., session: AsyncSession = Depends(get_session)):
     try:
         service = EnderecoService(session=session)
-        result = await service.update(id_endereco, endereco.model_dump(exclude_unset=True))
+        result = await service.update(id=path.id_endereco, data=endereco.model_dump(exclude_unset=True))
     except Exception as e:
         raise_http_exception(exc=e)
 
@@ -85,10 +116,10 @@ async def update(id_endereco: str = ID_ENDERECO_PATH, endereco: EnderecoUpdate =
 
 
 @router.delete("/{id_endereco}", status_code=204)
-async def delete(id_endereco: str = ID_ENDERECO_PATH, session: AsyncSession = Depends(get_session)):
+async def delete(path: EnderecoPath = Depends(), session: AsyncSession = Depends(get_session)):
     try:
         service = EnderecoService(session=session)
-        result = await service.delete(id_endereco)
+        result = await service.delete(id=path.id_endereco)
     except Exception as e:
         raise_http_exception(exc=e)
 

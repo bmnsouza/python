@@ -12,7 +12,7 @@ class ContribuinteRepository:
         self.session = session
 
 
-    def _apply_filters(self, q, filters: Dict[str, Any]):
+    def _apply_filters(self, q, filters: dict):
         if filters:
             for col, val in filters.items():
                 if hasattr(ContribuinteModel, col):
@@ -46,6 +46,7 @@ class ContribuinteRepository:
 
         return " WHERE " + " AND ".join(where), params
 
+
     async def count(self, filters: Optional[Dict[str, Any]] = None) -> int:
         q = select(func.count(ContribuinteModel.cd_contribuinte))
         q = self._apply_filters(q, filters)
@@ -58,8 +59,8 @@ class ContribuinteRepository:
         where_sql, params = self._apply_filters_sql(filters=filters)
 
         sql = text(f"""
-            SELECT COUNT(c.CD_CONTRIBUINTE)
-            FROM NOTA_FISCAL.CONTRIBUINTE c
+            SELECT COUNT(CD_CONTRIBUINTE)
+            FROM NOTA_FISCAL.CONTRIBUINTE
             {where_sql}
         """)
 
@@ -105,8 +106,8 @@ class ContribuinteRepository:
                 order_sql = " ORDER BY " + ", ".join(order_clauses)
 
         sql = text(f"""
-            SELECT c.CD_CONTRIBUINTE, c.CNPJ_CONTRIBUINTE, c.NM_FANTASIA
-            FROM NOTA_FISCAL.CONTRIBUINTE c
+            SELECT CD_CONTRIBUINTE, CNPJ_CONTRIBUINTE, NM_FANTASIA
+            FROM NOTA_FISCAL.CONTRIBUINTE
             {where_sql}
             {order_sql}
             OFFSET :offset ROWS
@@ -125,20 +126,20 @@ class ContribuinteRepository:
         return res.scalars().first()
 
 
-    async def create(self, payload: Dict[str, Any]):
-        obj = ContribuinteModel(**payload)
+    async def create(self, data: dict):
+        obj = ContribuinteModel(**data)
         self.session.add(obj)
         await self.session.commit()
         await self.session.refresh(obj)
         return obj
 
 
-    async def update(self, cd: str, payload: Dict[str, Any]):
+    async def update(self, cd: str, data: dict):
         obj = await self.get_by_cd(cd)
         if not obj:
             return None
 
-        for k, v in payload.items():
+        for k, v in data.items():
             if hasattr(obj, k):
                 setattr(obj, k, v)
 
