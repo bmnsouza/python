@@ -1,6 +1,3 @@
-from datetime import datetime, time
-from decimal import Decimal, InvalidOperation
-
 from typing import Any, Dict, List, Tuple
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,7 +6,6 @@ from app.core.logger import app_logger
 from app.fastapi.schema.danfe_schema import Danfe
 from app.repository.danfe_repository import DanfeRepository
 from app.utils.error_util import map_data_base_error
-from app.fastapi.utils.exception_util import raise_http_exception
 
 
 class DanfeService:
@@ -19,9 +15,6 @@ class DanfeService:
 
     async def get_list(self, filters: dict, order: List, offset: int, limit: int) -> Tuple[int, List[Dict[str, Any]]]:
         try:
-            # Valida e normaliza antes de chamar o repository
-            filters = validate_and_normalize_filters(filters=filters)
-
             total = await self.repo.count(filters=filters)
             rows = await self.repo.get_list(offset=offset, limit=limit, filters=filters, order=order)
 
@@ -33,9 +26,6 @@ class DanfeService:
 
     async def get_list_sql(self, filters: dict, order: List, offset: int, limit: int) -> Tuple[int, List[Dict[str, Any]]]:
         try:
-            # Valida e normaliza antes de chamar o repository
-            filters = validate_and_normalize_filters(filters=filters)
-
             total = await self.repo.count_sql(filters=filters)
             rows = await self.repo.get_list_sql(offset=offset, limit=limit, filters=filters, order=order)
 
@@ -84,38 +74,3 @@ class DanfeService:
             return {"deleted": True}
         except Exception as e:
             map_data_base_error(e)
-
-
-def validate_and_normalize_filters(filters: dict) -> Dict[str, Any]:
-    new_filters = filters.copy()
-
-    # Valida o filtro valor_total
-    if "valor_total" in new_filters and new_filters["valor_total"] is not None:
-        raw = new_filters["valor_total"]
-        try:
-            valor = Decimal(str(raw))
-        except InvalidOperation as e:
-            raise_http_exception(exc=e, description="O campo 'valor_total' deve ser numérico.")
-
-        new_filters["valor_total"] = valor
-
-    # Valida o filtro data_emissao
-    if "data_emissao" in new_filters and new_filters["data_emissao"]:
-        raw = new_filters["data_emissao"]
-
-        try:
-            dt = datetime.strptime(raw, "%Y-%m-%d").date()
-        except ValueError as e:
-            raise_http_exception(exc=e, description="O campo 'data_emissao' deve estar no formato YYYY-MM-DD.")
-
-        # Cria intervalo do dia
-        start = datetime.combine(dt, time.min)
-        end = datetime.combine(dt, time.max)
-
-        new_filters["data_emissao_inicio"] = start
-        new_filters["data_emissao_fim"] = end
-
-        # Remove o campo original
-        del new_filters["data_emissao"]
-
-    return new_filters

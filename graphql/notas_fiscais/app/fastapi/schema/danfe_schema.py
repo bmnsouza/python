@@ -20,13 +20,13 @@ class Danfe(DanfeBase):
 
 
 class DanfeUpdate(BaseModel):
-    numero: Optional[str] = Field(default=None, min_length=5, max_length=25)
+    numero: Optional[str] = Field(default=None, min_length=5, max_length=15)
     valor_total: Optional[Decimal] = Field(default=None, max_digits=12, decimal_places=2)
     data_emissao: Optional[datetime] = Field(default=None)
 
 
 class DanfeCreate(BaseModel):
     cd_contribuinte: str = Field(..., min_length=9, max_length=20)
-    numero: str = Field(..., min_length=5, max_length=25)
+    numero: str = Field(..., min_length=5, max_length=15)
     valor_total: Decimal = Field(..., max_digits=12, decimal_places=2)
     data_emissao: datetime = Field(...)

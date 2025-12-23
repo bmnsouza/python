@@ -5,10 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.session import get_session
 from app.fastapi.schema.danfe_schema import Danfe, DanfeCreate, DanfeUpdate
-from app.fastapi.validator.danfe_validator import DanfePath
 from app.fastapi.utils.exception_util import raise_http_exception
-from app.fastapi.utils.field_util import parse_fields_param, select_fields_from_obj
-from app.fastapi.utils.response_util import normalize_pagination_params, set_filters_params, set_order_params, set_pagination_headers
+from app.fastapi.utils.field_util import validate_fields_param, select_fields_from_obj
+from app.fastapi.utils.response_util import set_filters_params, set_order_params, set_pagination_params, set_pagination_headers
+from app.fastapi.validator.danfe_validator import DanfeParams, DanfePath
 from app.model.danfe_model import DanfeModel
 from app.service.danfe_service import DanfeService
 
@@ -19,16 +19,18 @@ router = APIRouter(prefix="/v1/danfe", tags=["Danfe"])
 async def get_list(
     request: Request,
     response: Response,
+    params: DanfeParams = Depends(),
+    fields: Optional[str] = Query(None),
     offset: int = Query(None, ge=0),
     limit: int = Query(None, ge=1),
-    fields: Optional[str] = Query(None),
     session: AsyncSession = Depends(get_session)
 ):
     try:
         # Monta filtros, ordenação e normaliza parâmetros
-        filters = set_filters_params(request=request)
+        filters = set_filters_params(request=request, params=params)
+        requested_fields = validate_fields_param(fields=fields, model=DanfeModel)
         order = set_order_params(request=request, model=DanfeModel)
-        final_offset, final_limit, final_accept_ranges = normalize_pagination_params(offset=offset, limit=limit)
+        final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
         # Chama o service passando os valores normalizados
         service = DanfeService(session=session)
@@ -38,10 +40,11 @@ async def get_list(
         set_pagination_headers(response=response, offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges)
 
         # Transformação de campos
-        requested_fields = parse_fields_param(fields)
         transformed = [select_fields_from_obj(i, requested_fields) for i in items]
 
         return transformed
+    except HTTPException:
+        raise
     except Exception as e:
         raise_http_exception(exc=e)
 
@@ -50,16 +53,18 @@ async def get_list(
 async def get_list_sql(
     request: Request,
     response: Response,
+    params: DanfeParams = Depends(),
+    fields: Optional[str] = Query(None),
     offset: int = Query(None, ge=0),
     limit: int = Query(None, ge=1),
-    fields: Optional[str] = Query(None),
     session: AsyncSession = Depends(get_session)
 ):
     try:
         # Monta filtros, ordenação e normaliza parâmetros
-        filters = set_filters_params(request=request)
+        filters = set_filters_params(request=request, params=params)
+        requested_fields = validate_fields_param(fields=fields, model=DanfeModel)
         order = set_order_params(request=request, model=DanfeModel)
-        final_offset, final_limit, final_accept_ranges = normalize_pagination_params(offset=offset, limit=limit)
+        final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
         # Chama o service passando os valores normalizados
         service = DanfeService(session=session)
@@ -69,10 +74,11 @@ async def get_list_sql(
         set_pagination_headers(response=response, offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges)
 
         # Transformação de campos
-        requested_fields = parse_fields_param(fields)
         transformed = [select_fields_from_obj(i, requested_fields) for i in items]
 
         return transformed
+    except HTTPException:
+        raise
     except Exception as e:
         raise_http_exception(exc=e)
 
@@ -82,6 +88,8 @@ async def get_by_id(path: DanfePath = Depends(), session: AsyncSession = Depends
     try:
         service = DanfeService(session=session)
         result = await service.get_by_id(id=path.id_danfe)
+    except HTTPException:
+        raise
     except Exception as e:
         raise_http_exception(exc=e)
 
@@ -106,6 +114,8 @@ async def update(path: DanfePath = Depends(), danfe: DanfeUpdate = ..., session:
     try:
         service = DanfeService(session=session)
         result = await service.update(id=path.id_danfe, data=danfe.model_dump(exclude_unset=True))
+    except HTTPException:
+        raise
     except Exception as e:
         raise_http_exception(exc=e)
 
@@ -120,6 +130,8 @@ async def delete(path: DanfePath = Depends(), session: AsyncSession = Depends(ge
     try:
         service = DanfeService(session=session)
         result = await service.delete(id=path.id_danfe)
+    except HTTPException:
+        raise
     except Exception as e:
         raise_http_exception(exc=e)
 

@@ -1,16 +1,16 @@
 from typing import Optional
-from fastapi import Depends, HTTPException, Request, Response
+from fastapi import HTTPException, Request, Response
+from pydantic import BaseModel
 from sqlalchemy.orm import DeclarativeMeta
 
 from app.core.constants import ACCEPT_RANGES
-from app.fastapi.filter.contribuinte_filter import ContribuinteFilterParams
 
 
-def get_contribuinte_filters(request: Request, params: ContribuinteFilterParams = Depends()) -> dict:
+def set_filters_params(request: Request, params: BaseModel) -> dict:
     """
     Combina:
-    - Query params validados
-    - Ignora parâmetros reservados
+    - Query params validados via Pydantic
+    - Rejeita parâmetros não permitidos na URL
     """
     filters = params.model_dump(exclude_none=True)
 
@@ -28,62 +28,59 @@ def get_contribuinte_filters(request: Request, params: ContribuinteFilterParams 
     return filters
 
 
-def set_filters_params(request: Request) -> dict:
-    raw_params = dict(request.query_params)
-    reserved = {"asc", "des", "offset", "limit", "fields"}
-    filters = {k: v for k, v in raw_params.items() if k not in reserved}
-    return filters
-
-
-# def set_order_params(request: Request, model: DeclarativeMeta):
-#     """
-#     Processa asc/des na ordem exata enviada, expande imediatamente cada parâmetro, ignora campos inexistentes e mantém apenas a primeira ocorrência de cada campo.
-#     """
-#     order_raw = []
-#     seen = set()
-
-#     # Mantém a ordem exata da URL
-#     for key, value in request.query_params.multi_items():
-#         if key in ("asc", "des"):
-#             direction = "asc" if key == "asc" else "des"
-#             fields = [f.strip() for f in value.split(",") if f.strip()]
-
-#             for field in fields:
-#                 if hasattr(model, field):
-#                     order_raw.append((field, direction))
-
-#     # Remove duplicados preservando a primeira ocorrência
-#     order_final = []
-#     for field, direction in order_raw:
-#         if field not in seen:
-#             seen.add(field)
-#             order_final.append((field, direction))
-
-#     return order_final
-
-
 def set_order_params(request: Request, model: DeclarativeMeta):
-    order_raw = []
     seen = {}
 
+    # Campos diretos da tabela
+    table_fields = set(model.__table__.columns.keys())
+
+    # Relacionamentos
+    relationships = model.__mapper__.relationships
+
+    # Mapa completo de campos válidos
+    valid_fields = set(table_fields)
+
+    for rel_name, rel in relationships.items():
+        target_model = rel.mapper.class_
+        target_columns = target_model.__table__.columns.keys()
+
+        # permite ordenar por relacionamento direto (FK / join)
+        valid_fields.add(rel_name)
+
+        # permite relacionamento.campo
+        for col in target_columns:
+            valid_fields.add(f"{rel_name}.{col}")
+
+    # Processa query params
     for key, value in request.query_params.multi_items():
-        if key in ("asc", "des"):
-            direction = "asc" if key == "asc" else "des"
-            for field in value.split(","):
-                field = field.strip()
-                if hasattr(model, field):
-                    if field in seen and seen[field] != direction:
-                        raise HTTPException(
-                            status_code=400,
-                            detail=f"Campo '{field}' não pode ser asc e des ao mesmo tempo"
-                        )
-                    seen[field] = direction
-                    order_raw.append((field, direction))
+        if key not in ("asc", "des"):
+            continue
+
+        direction = "asc" if key == "asc" else "des"
+
+        for field in value.split(","):
+            field = field.strip()
+
+            # Validação forte
+            if field not in valid_fields:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Campo inválido para ordenação: '{field}'"
+                )
+
+            # Conflito asc + des
+            if field in seen and seen[field] != direction:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Campo '{field}' não pode ser asc e des ao mesmo tempo"
+                )
+
+            seen[field] = direction
 
     return list(seen.items())
 
 
-def normalize_pagination_params(offset: Optional[int], limit: Optional[int]) -> tuple[int, int, int]:
+def set_pagination_params(offset: Optional[int], limit: Optional[int]) -> tuple[int, int, int]:
     """
     Retorna (offset_normalized, limit_normalized, accept_ranges_effective)
     Regras:

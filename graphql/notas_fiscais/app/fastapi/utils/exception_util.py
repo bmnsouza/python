@@ -27,7 +27,7 @@ def make_error(code: str, title: str, description: str, metadata: Optional[Dict[
 def raise_http_exception(exc: Exception = None, *, status_code: int = None, code: str = None, title: str = None, description: str = None, metadata=None) -> HTTPException:
     # Exceção da aplicação
     if exc is not None:
-        if isinstance(exc, (ForeignKeyError, InvalidOperation, ValueError)):
+        if isinstance(exc, (ForeignKeyError, ValueError, InvalidOperation)):
             raise HTTPException(status_code=400, detail=str(exc))
 
         if isinstance(exc, DuplicateEntryError):

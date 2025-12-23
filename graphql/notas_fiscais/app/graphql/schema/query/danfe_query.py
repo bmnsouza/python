@@ -5,7 +5,7 @@ from app.graphql.schema.input.danfe_input import DanfeFiltersInput
 from app.graphql.schema.input.graphql_input import OrderInput
 from app.graphql.schema.type.danfe_type import PaginatedResponseDanfeType, SingleResponseDanfeType
 from app.graphql.utils.exception_util import raise_graphql_error
-from app.graphql.utils.response_util import normalize_pagination_params, set_filters_params, set_order_params
+from app.graphql.utils.response_util import set_pagination_params, set_filters_params, set_order_params
 from app.model.danfe_model import DanfeModel
 from app.service.danfe_service import DanfeService
 
@@ -25,7 +25,7 @@ class DanfeQuery:
         try:
             filters = set_filters_params(filters=filters)
             order = set_order_params(order=order, model=DanfeModel)
-            final_offset, final_limit, final_accept_ranges = normalize_pagination_params(offset=offset, limit=limit)
+            final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
             session = info.context["session"]
             service = DanfeService(session=session)
@@ -49,7 +49,7 @@ class DanfeQuery:
         try:
             filters = set_filters_params(filters=filters)
             order = set_order_params(order=order, model=DanfeModel)
-            final_offset, final_limit, final_accept_ranges = normalize_pagination_params(offset=offset, limit=limit)
+            final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
             session = info.context["session"]
             service = DanfeService(session=session)

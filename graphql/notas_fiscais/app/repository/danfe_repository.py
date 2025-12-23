@@ -1,3 +1,4 @@
+from datetime import datetime, time
 from typing import Any, Dict, List, Optional, Tuple
 
 from sqlalchemy import func, select, text
@@ -24,8 +25,12 @@ class DanfeRepository:
         if "valor_total" in filters:
             q = q.where(DanfeModel.valor_total >= filters["valor_total"])
 
-        if all(k in filters for k in ("data_emissao_inicio", "data_emissao_fim")):
-            q = q.where(DanfeModel.data_emissao.between(filters["data_emissao_inicio"], filters["data_emissao_fim"]))
+        if "data_emissao" in filters:
+            dt = filters["data_emissao"]
+            start = datetime.combine(dt, time.min)
+            end = datetime.combine(dt, time.max)
+
+            q = q.where(DanfeModel.data_emissao.between(start, end))
 
         return q
 
@@ -51,10 +56,14 @@ class DanfeRepository:
                 where.append("valor_total >= :valor_total")
                 params["valor_total"] = filters["valor_total"]
 
-            if ("data_emissao_inicio" in filters and "data_emissao_fim" in filters):
-                where.append("data_emissao BETWEEN :data_emissao_inicio AND :data_emissao_fim")
-                params["data_emissao_inicio"] = filters["data_emissao_inicio"]
-                params["data_emissao_fim"] = filters["data_emissao_fim"]
+            if "data_emissao" in filters:
+                dt = filters["data_emissao"]
+                start = datetime.combine(dt, time.min)
+                end = datetime.combine(dt, time.max)
+
+                where.append("data_emissao BETWEEN TO_DATE(:start, 'yyyy-mm-dd hh24:mi:ss') AND TO_DATE(:end, 'yyyy-mm-dd hh24:mi:ss')")
+                params["start"] = start
+                params["end"] = end
 
         if not where:
             return "", params

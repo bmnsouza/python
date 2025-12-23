@@ -5,7 +5,7 @@ from app.graphql.schema.input.endereco_input import EnderecoFiltersInput
 from app.graphql.schema.input.graphql_input import OrderInput
 from app.graphql.schema.type.endereco_type import PaginatedResponseEnderecoType, SingleResponseEnderecoType
 from app.graphql.utils.exception_util import raise_graphql_error
-from app.graphql.utils.response_util import normalize_pagination_params, set_filters_params, set_order_params
+from app.graphql.utils.response_util import set_pagination_params, set_filters_params, set_order_params
 from app.model.endereco_model import EnderecoModel
 from app.service.endereco_service import EnderecoService
 
@@ -25,7 +25,7 @@ class EnderecoQuery:
         try:
             filters = set_filters_params(filters=filters)
             order = set_order_params(order=order, model=EnderecoModel)
-            final_offset, final_limit, final_accept_ranges = normalize_pagination_params(offset=offset, limit=limit)
+            final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
             session = info.context["session"]
             service = EnderecoService(session=session)
@@ -49,7 +49,7 @@ class EnderecoQuery:
         try:
             filters = set_filters_params(filters=filters)
             order = set_order_params(order=order, model=EnderecoModel)
-            final_offset, final_limit, final_accept_ranges = normalize_pagination_params(offset=offset, limit=limit)
+            final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
             session = info.context["session"]
             service = EnderecoService(session=session)

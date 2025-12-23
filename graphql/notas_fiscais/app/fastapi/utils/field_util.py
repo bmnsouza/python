@@ -1,27 +1,39 @@
-from typing import List, Optional
+from typing import List, Optional, Set
 
 from fastapi import HTTPException
+
 from sqlalchemy.orm import DeclarativeMeta
 
 
-def parse_fields_param(fields: Optional[str]) -> Optional[List[str]]:
-    if not fields:
-        return None
-    return [f.strip() for f in fields.split(",") if f.strip()]
-
-
-def validate_fields_param(fields: Optional[str], model: DeclarativeMeta):
+def validate_fields_param(fields: Optional[str], model: DeclarativeMeta) -> Optional[Set[str]]:
     if not fields:
         return None
 
-    allowed = set(model.__table__.columns.keys())
     requested = {f.strip() for f in fields.split(",")}
 
-    invalid = requested - allowed
+    # Campos diretos da tabela
+    table_fields = set(model.__table__.columns.keys())
+
+    # Relacionamentos ORM
+    relationships = model.__mapper__.relationships
+
+    valid_fields = set(table_fields)
+
+    # Campos do tipo relacionamento.campo
+    for rel_name, rel in relationships.items():
+        target_model = rel.mapper.class_
+        target_columns = target_model.__table__.columns.keys()
+
+        valid_fields.add(rel_name)
+
+        for col in target_columns:
+            valid_fields.add(f"{rel_name}.{col}")
+
+    invalid = requested - valid_fields
     if invalid:
         raise HTTPException(
             status_code=400,
-            detail=f"Campos inválidos em fields: {', '.join(invalid)}"
+            detail=f"Campos inválidos em fields: {', '.join(sorted(invalid))}"
         )
 
     return requested

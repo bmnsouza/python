@@ -38,7 +38,7 @@ def set_order_params(order: list[OrderInput] | None, model: DeclarativeMeta) -> 
     return result
 
 
-def normalize_pagination_params(offset: Optional[int], limit: Optional[int]) -> tuple[int, int, int]:
+def set_pagination_params(offset: Optional[int], limit: Optional[int]) -> tuple[int, int, int]:
     """
     Retorna (offset_normalized, limit_normalized, accept_ranges_effective)
     Regras:
