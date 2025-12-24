@@ -8,5 +8,5 @@ class ContribuinteParams(BaseModel):
     nm_fantasia: Optional[str] = Field(default=None, min_length=5, max_length=200)
 
 
-class ContribuintePath(BaseModel):
+class ContribuinteParam(BaseModel):
     cd_contribuinte: str = Field(..., min_length=9, max_length=20)

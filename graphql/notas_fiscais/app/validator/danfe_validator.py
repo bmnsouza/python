@@ -11,5 +11,5 @@ class DanfeParams(BaseModel):
     data_emissao: Optional[date] = Field(default=None)
 
 
-class DanfePath(BaseModel):
+class DanfeParam(BaseModel):
     id_danfe: int = Field(..., max_digits=10)

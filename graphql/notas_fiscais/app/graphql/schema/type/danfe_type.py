@@ -1,6 +1,6 @@
 from datetime import datetime
 from decimal import Decimal
-from typing import List
+from typing import List, Optional
 
 import strawberry
 
@@ -16,7 +16,7 @@ class DanfeType:
 
 @strawberry.type
 class SingleResponseDanfeType:
-    item: DanfeType
+    item: Optional[DanfeType] = None
 
 
 @strawberry.type

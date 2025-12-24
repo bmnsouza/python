@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import strawberry
 
@@ -14,7 +14,7 @@ class EnderecoType:
 
 @strawberry.type
 class SingleResponseEnderecoType:
-    item: EnderecoType
+    item: Optional[EnderecoType] = None
 
 
 @strawberry.type

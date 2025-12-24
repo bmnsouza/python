@@ -49,7 +49,7 @@ class ContribuinteRepository:
 
     async def count(self, filters: Optional[Dict[str, Any]] = None) -> int:
         q = select(func.count(ContribuinteModel.cd_contribuinte))
-        q = self._apply_filters(q, filters)
+        q = self._apply_filters(q=q, filters=filters)
 
         result = await self.session.execute(q)
         return result.scalar_one()

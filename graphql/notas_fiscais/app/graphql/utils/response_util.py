@@ -1,20 +1,60 @@
-from typing import Any, Dict, Optional
+from typing import Any, Optional, Type, TypeVar
+from pydantic import BaseModel
 from sqlalchemy.orm import DeclarativeMeta
 
 from app.core.constants import ACCEPT_RANGES
-from app.graphql.schema.input.contribuinte_input import ContribuinteFiltersInput
-from app.graphql.schema.input.danfe_input import DanfeFiltersInput
-from app.graphql.schema.input.endereco_input import EnderecoFiltersInput
 from app.graphql.schema.input.graphql_input import OrderInput
 from app.graphql.utils.exception_util import raise_graphql_error
 
 
-def set_filters_params(filters: ContribuinteFiltersInput | DanfeFiltersInput | EnderecoFiltersInput | None) -> Dict[str, Any]:
-    if not filters:
-        return {}
+SchemaT = TypeVar("SchemaT", bound=BaseModel)
 
-    filters = {k: v for k, v in vars(filters).items() if v is not None}
-    return filters
+def validate_params(*,  params: Any, schema: Type[SchemaT]) -> None:
+    """
+    Valida parâmetros usando um schema Pydantic.
+
+    - Aceita Strawberry input, dict ou None
+    - Retorna dict limpo (exclude_none=True)
+    """
+
+    if params is None:
+        return
+
+    # Strawberry input → dict
+    if hasattr(params, "__dict__"):
+        data = params.__dict__
+
+    # dict direto
+    elif isinstance(params, dict):
+        data = params
+
+    else:
+        raise TypeError(
+            f"Tipo inválido para validação: {type(params)}"
+        )
+
+    schema(**data)
+
+
+def set_filters_params(params):
+    if params is None:
+        return None
+
+    # Pydantic v2
+    if isinstance(params, BaseModel):
+        return params.model_dump(exclude_none=True)
+
+    # dict
+    if isinstance(params, dict):
+        return {k: v for k, v in params.items() if v is not None}
+
+    # Strawberry input / objeto comum
+    if hasattr(params, "__dict__"):
+        return {k: v for k, v in vars(params).items() if v is not None}
+
+    raise TypeError(
+        f"Tipo inválido para parâmetros: {type(params)}"
+    )
 
 
 def set_order_params(order: list[OrderInput] | None, model: DeclarativeMeta) -> list[tuple[str, str]]:

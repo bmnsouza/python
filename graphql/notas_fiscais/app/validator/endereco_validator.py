@@ -1,4 +1,5 @@
 from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -9,5 +10,5 @@ class EnderecoParams(BaseModel):
     uf: Optional[str] = Field(default=None, min_length=2, max_length=2)
 
 
-class EnderecoPath(BaseModel):
+class EnderecoParam(BaseModel):
     id_endereco: int = Field(..., max_digits=10)

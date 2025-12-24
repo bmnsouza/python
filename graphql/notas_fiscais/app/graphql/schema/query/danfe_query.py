@@ -1,13 +1,14 @@
 import strawberry
 from strawberry.types import Info
 
-from app.graphql.schema.input.danfe_input import DanfeFiltersInput
+from app.graphql.schema.input.danfe_input import DanfeParamsInput, DanfeParamInput
 from app.graphql.schema.input.graphql_input import OrderInput
 from app.graphql.schema.type.danfe_type import PaginatedResponseDanfeType, SingleResponseDanfeType
 from app.graphql.utils.exception_util import raise_graphql_error
-from app.graphql.utils.response_util import set_pagination_params, set_filters_params, set_order_params
+from app.graphql.utils.response_util import set_pagination_params, set_filters_params, set_order_params, validate_params
 from app.model.danfe_model import DanfeModel
 from app.service.danfe_service import DanfeService
+from app.validator.danfe_validator import DanfeParam, DanfeParams
 
 
 @strawberry.type
@@ -17,19 +18,21 @@ class DanfeQuery:
     async def get_list(
         self,
         info: Info,
-        filters: DanfeFiltersInput | None = None,
+        params: DanfeParamsInput | None = None,
         order: list[OrderInput] | None = None,
         offset: int | None = None,
         limit: int | None = None
     ) -> PaginatedResponseDanfeType:
         try:
-            filters = set_filters_params(filters=filters)
+            validate_params(params=params, schema=DanfeParams)
+
+            params = set_filters_params(params=params)
             order = set_order_params(order=order, model=DanfeModel)
             final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
             session = info.context["session"]
             service = DanfeService(session=session)
-            total, items = await service.get_list(offset=final_offset, limit=final_limit, filters=filters, order=order)
+            total, items = await service.get_list(offset=final_offset, limit=final_limit, filters=params, order=order)
 
             result = PaginatedResponseDanfeType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges, items=items)
             return result
@@ -41,19 +44,21 @@ class DanfeQuery:
     async def get_list_sql(
         self,
         info: Info,
-        filters: DanfeFiltersInput | None = None,
+        params: DanfeParamsInput | None = None,
         order: list[OrderInput] | None = None,
         offset: int | None = None,
         limit: int | None = None
     ) -> PaginatedResponseDanfeType:
         try:
-            filters = set_filters_params(filters=filters)
+            validate_params(params=params, schema=DanfeParams)
+
+            params = set_filters_params(params=params)
             order = set_order_params(order=order, model=DanfeModel)
             final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
             session = info.context["session"]
             service = DanfeService(session=session)
-            total, items = await service.get_list_sql(offset=final_offset, limit=final_limit, filters=filters, order=order)
+            total, items = await service.get_list_sql(offset=final_offset, limit=final_limit, filters=params, order=order)
 
             result = PaginatedResponseDanfeType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges, items=items)
             return result
@@ -65,17 +70,16 @@ class DanfeQuery:
     async def get_by_id(
         self,
         info: Info,
-        id_danfe: str
+        param: DanfeParamInput
     ) -> SingleResponseDanfeType:
         try:
+            validate_params(params=param, schema=DanfeParam)
+
             session = info.context["session"]
             service = DanfeService(session=session)
+            item = await service.get_by_id(id=param.id_danfe)
 
-            result = await service.get_by_id(id=id_danfe)
+            result = SingleResponseDanfeType(item=item)
+            return result
         except Exception as e:
             raise_graphql_error(exc=e)
-
-        if not result:
-            raise_graphql_error(description="Danfe não encontrado")
-
-        return SingleResponseDanfeType(item=result)

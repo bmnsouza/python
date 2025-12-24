@@ -17,7 +17,7 @@ class ContribuinteType:
 
 @strawberry.type
 class SingleResponseContribuinteType:
-    item: ContribuinteType
+    item: Optional[ContribuinteType] = None
 
 
 @strawberry.type

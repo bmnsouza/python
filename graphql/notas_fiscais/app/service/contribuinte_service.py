@@ -37,7 +37,7 @@ class ContribuinteService:
 
     async def get_by_cd(self, cd: str):
         try:
-            r = await self.repo.get_by_cd(cd)
+            r = await self.repo.get_by_cd(cd=cd)
             if not r:
                 return None
 

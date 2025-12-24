@@ -12,20 +12,20 @@ def set_filters_params(request: Request, params: BaseModel) -> dict:
     - Query params validados via Pydantic
     - Rejeita parâmetros não permitidos na URL
     """
-    filters = params.model_dump(exclude_none=True)
+    params = params.model_dump(exclude_none=True)
 
     # Detecta parâmetros inválidos na URL
     reserved = {"asc", "des", "offset", "limit", "fields"}
-    allowed = set(filters.keys()) | reserved
+    allowed = set(params.keys()) | reserved
 
     for key in request.query_params:
         if key not in allowed:
             raise HTTPException(
                 status_code=400,
-                detail=f"Filtro inválido: {key}"
+                detail=f"Parâmetro inválido: {key}"
             )
 
-    return filters
+    return params
 
 
 def set_order_params(request: Request, model: DeclarativeMeta):
