@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Type
 from fastapi import HTTPException, Request, Response
 from pydantic import BaseModel
 from sqlalchemy.orm import DeclarativeMeta
@@ -28,28 +28,35 @@ def set_filters_params(request: Request, params: BaseModel) -> dict:
     return params
 
 
-def set_order_params(request: Request, model: DeclarativeMeta):
+def set_order_params(
+    request: Request,
+    *,
+    orm_model: Optional[DeclarativeMeta] = None,
+    schema: Optional[Type[BaseModel]] = None,
+):
+    if not orm_model and not schema:
+        raise ValueError("Informe orm_model ou schema")
+
     seen = {}
 
-    # Campos diretos da tabela
-    table_fields = set(model.__table__.columns.keys())
+    valid_fields = set()
 
-    # Relacionamentos
-    relationships = model.__mapper__.relationships
+    # ORM
+    if orm_model:
+        table_fields = set(orm_model.__table__.columns.keys())
+        valid_fields |= table_fields
 
-    # Mapa completo de campos válidos
-    valid_fields = set(table_fields)
+        for rel_name, rel in orm_model.__mapper__.relationships.items():
+            target_model = rel.mapper.class_
+            target_columns = target_model.__table__.columns.keys()
 
-    for rel_name, rel in relationships.items():
-        target_model = rel.mapper.class_
-        target_columns = target_model.__table__.columns.keys()
+            valid_fields.add(rel_name)
+            for col in target_columns:
+                valid_fields.add(f"{rel_name}.{col}")
 
-        # permite ordenar por relacionamento direto (FK / join)
-        valid_fields.add(rel_name)
-
-        # permite relacionamento.campo
-        for col in target_columns:
-            valid_fields.add(f"{rel_name}.{col}")
+    # Schema (SQL nativo)
+    if schema:
+        valid_fields |= set(schema.model_fields.keys())
 
     # Processa query params
     for key, value in request.query_params.multi_items():
@@ -61,14 +68,12 @@ def set_order_params(request: Request, model: DeclarativeMeta):
         for field in value.split(","):
             field = field.strip()
 
-            # Validação forte
             if field not in valid_fields:
                 raise HTTPException(
                     status_code=400,
                     detail=f"Campo inválido para ordenação: '{field}'"
                 )
 
-            # Conflito asc + des
             if field in seen and seen[field] != direction:
                 raise HTTPException(
                     status_code=400,

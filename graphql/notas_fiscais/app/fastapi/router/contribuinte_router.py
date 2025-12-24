@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.session import get_session
-from app.fastapi.schema.contribuinte_schema import Contribuinte, ContribuinteCreate, ContribuinteUpdate
+from app.fastapi.schema.contribuinte_schema import Contribuinte, ContribuinteCreate, ContribuinteListItem, ContribuinteUpdate
 from app.fastapi.utils.exception_util import raise_http_exception
 from app.fastapi.utils.field_util import select_fields_from_obj, validate_fields_param
 from app.fastapi.utils.response_util import set_filters_params, set_order_params, set_pagination_params, set_pagination_headers
@@ -27,8 +27,8 @@ async def get_list(
 ):
     try:
         params = set_filters_params(request=request, params=params)
-        requested_fields = validate_fields_param(fields=fields, model=ContribuinteModel)
-        order = set_order_params(request=request, model=ContribuinteModel)
+        requested_fields = validate_fields_param(fields=fields, orm_model=ContribuinteModel)
+        order = set_order_params(request=request, orm_model=ContribuinteModel)
         final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
         service = ContribuinteService(session=session)
@@ -36,8 +36,8 @@ async def get_list(
 
         set_pagination_headers(response=response, offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges)
 
-        transformed = [select_fields_from_obj(i, requested_fields) for i in items]
-        return transformed
+        result = [select_fields_from_obj(i, requested_fields) for i in items]
+        return result
     except HTTPException:
         raise
     except Exception as e:
@@ -56,8 +56,8 @@ async def get_list_sql(
 ):
     try:
         params = set_filters_params(request=request, params=params)
-        requested_fields = validate_fields_param(fields=fields, model=ContribuinteModel)
-        order = set_order_params(request=request, model=ContribuinteModel)
+        requested_fields = validate_fields_param(fields=fields, schema=ContribuinteListItem)
+        order = set_order_params(request=request, schema=ContribuinteListItem)
         final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
         service = ContribuinteService(session=session)
@@ -65,8 +65,8 @@ async def get_list_sql(
 
         set_pagination_headers(response=response, offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges)
 
-        transformed = [select_fields_from_obj(i, requested_fields) for i in items]
-        return transformed
+        result = [select_fields_from_obj(i, requested_fields) for i in items]
+        return result
     except HTTPException:
         raise
     except Exception as e:
@@ -75,7 +75,7 @@ async def get_list_sql(
 
 @router.get("/{cd_contribuinte}", response_model=Contribuinte)
 async def get_by_cd(
-    param: ContribuinteParam = Depends(), 
+    param: ContribuinteParam = Depends(),
     session: AsyncSession = Depends(get_session)
 ):
     try:

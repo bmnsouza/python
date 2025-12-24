@@ -30,3 +30,11 @@ class DanfeCreate(BaseModel):
     numero: str = Field(..., min_length=5, max_length=15)
     valor_total: Decimal = Field(..., max_digits=12, decimal_places=2)
     data_emissao: datetime = Field(...)
+
+
+class DanfeListItem(BaseModel):
+    id_danfe: int
+    cd_contribuinte: str
+    numero: str
+    valor_total: Decimal
+    data_emissao: datetime

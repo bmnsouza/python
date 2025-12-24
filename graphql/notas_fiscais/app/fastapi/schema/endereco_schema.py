@@ -28,3 +28,11 @@ class EnderecoCreate(BaseModel):
     logradouro: str = Field(..., min_length=5, max_length=200)
     municipio: str = Field(..., min_length=5, max_length=100)
     uf: str = Field(..., min_length=2, max_length=2)
+
+
+class EnderecoListItem(BaseModel):
+    id_endereco: int
+    cd_contribuinte: str
+    logradouro: str
+    municipio: str
+    uf: str

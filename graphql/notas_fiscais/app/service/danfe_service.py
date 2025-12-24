@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logger import app_logger
-from app.fastapi.schema.danfe_schema import Danfe
+from app.fastapi.schema.danfe_schema import Danfe, DanfeListItem
 from app.repository.danfe_repository import DanfeRepository
 from app.utils.error_util import map_data_base_error
 
@@ -29,7 +29,7 @@ class DanfeService:
             total = await self.repo.count_sql(filters=filters)
             rows = await self.repo.get_list_sql(offset=offset, limit=limit, filters=filters, order=order)
 
-            return total, [Danfe.model_validate(r) for r in rows]
+            return total, [DanfeListItem.model_validate(r) for r in rows]
         except Exception as e:
             app_logger.exception("Erro ao obter danfes %s", e)
             map_data_base_error(e)

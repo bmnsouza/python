@@ -16,6 +16,7 @@
     "--disable=redefined-builtin",
     "--disable=too-few-public-methods",
     "--disable=too-many-arguments",
+    "--disable=too-many-branches",
     "--disable=too-many-locals",
     "--disable=too-many-positional-arguments"
   ]

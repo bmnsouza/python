@@ -98,7 +98,8 @@ class ContribuinteRepository:
         if order:
             order_clauses = []
             for field, direction in order:
-                if hasattr(ContribuinteModel, field):
+                if field in ContribuinteModel.__table__.columns:
+                # if hasattr(ContribuinteModel, field):
                     order_sql = "ASC" if direction.lower() == "asc" else "DESC"
                     order_clauses.append(f"{field} {order_sql}")
 

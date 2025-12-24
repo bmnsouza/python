@@ -92,7 +92,8 @@ class EnderecoRepository:
         if order:
             order_clauses = []
             for field, direction in order:
-                if hasattr(EnderecoModel, field):
+                if field in EnderecoModel.__table__.columns:
+                # if hasattr(EnderecoModel, field):
                     order_sql = "ASC" if direction.lower() == "asc" else "DESC"
                     order_clauses.append(f"{field} {order_sql}")
 
