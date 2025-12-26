@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.logger import app_logger
 from app.fastapi.schema.contribuinte_schema import Contribuinte, ContribuinteListItem
 from app.repository.contribuinte_repository import ContribuinteRepository
-from app.utils.error_util import map_data_base_error
+from app.core.exception.exception_core import map_data_base_error
 
 
 class ContribuinteService:

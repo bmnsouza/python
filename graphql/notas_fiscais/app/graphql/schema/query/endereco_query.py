@@ -1,11 +1,12 @@
 import strawberry
 from strawberry.types import Info
 
+from app.core.exception.exception_graphql import raise_graphql_error
+from app.core.response.response_graphql import set_pagination_params, set_filters_params, set_order_params, validate_params
+from app.fastapi.schema.endereco_schema import EnderecoListItem
 from app.graphql.schema.input.endereco_input import EnderecoParamsInput, EnderecoParamInput
 from app.graphql.schema.input.graphql_input import OrderInput
 from app.graphql.schema.type.endereco_type import PaginatedResponseEnderecoType, SingleResponseEnderecoType
-from app.graphql.utils.exception_util import raise_graphql_error
-from app.graphql.utils.response_util import set_pagination_params, set_filters_params, set_order_params, validate_params
 from app.model.endereco_model import EnderecoModel
 from app.service.endereco_service import EnderecoService
 from app.validator.endereco_validator import EnderecoParam, EnderecoParams
@@ -53,7 +54,7 @@ class EnderecoQuery:
             validate_params(params=params, schema=EnderecoParams)
 
             params = set_filters_params(params=params)
-            order = set_order_params(order=order, model=EnderecoModel)
+            order = set_order_params(order=order, schema=EnderecoListItem)
             final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
             session = info.context["session"]

@@ -16,6 +16,13 @@ class ContribuinteType:
 
 
 @strawberry.type
+class ContribuinteSqlType:
+    cd_contribuinte: str
+    nm_fantasia: str
+    cnpj_contribuinte: str
+
+
+@strawberry.type
 class SingleResponseContribuinteType:
     item: Optional[ContribuinteType] = None
 
@@ -27,3 +34,12 @@ class PaginatedResponseContribuinteType:
     total: int
     accept_ranges: int
     items: List[ContribuinteType]
+
+
+@strawberry.type
+class PaginatedResponseContribuinteSqlType:
+    offset: int
+    limit: int
+    total: int
+    accept_ranges: int
+    items: List[ContribuinteSqlType]

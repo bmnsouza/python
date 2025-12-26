@@ -3,11 +3,10 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.exception.exception_rest import raise_http_exception
+from app.core.response.response_rest import set_filters_params, set_order_params, set_pagination_params, set_pagination_headers, validate_fields_param, select_fields_from_obj
 from app.database.session import get_session
 from app.fastapi.schema.endereco_schema import Endereco, EnderecoCreate, EnderecoListItem, EnderecoUpdate
-from app.fastapi.utils.exception_util import raise_http_exception
-from app.fastapi.utils.field_util import validate_fields_param, select_fields_from_obj
-from app.fastapi.utils.response_util import set_filters_params, set_order_params, set_pagination_params, set_pagination_headers
 from app.model.endereco_model import EnderecoModel
 from app.service.endereco_service import EnderecoService
 from app.validator.endereco_validator import EnderecoParams, EnderecoParam
@@ -27,8 +26,8 @@ async def get_list(
 ):
     try:
         params = set_filters_params(request=request, params=params)
-        requested_fields = validate_fields_param(fields=fields, orm_model=EnderecoModel)
-        order = set_order_params(request=request, orm_model=EnderecoModel)
+        requested_fields = validate_fields_param(fields=fields, model=EnderecoModel)
+        order = set_order_params(request=request, schema=EnderecoListItem)
         final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
         service = EnderecoService(session=session)

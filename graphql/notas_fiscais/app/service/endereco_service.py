@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.logger import app_logger
 from app.fastapi.schema.endereco_schema import Endereco, EnderecoListItem
 from app.repository.endereco_repository import EnderecoRepository
-from app.utils.error_util import map_data_base_error
+from app.core.exception.exception_core import map_data_base_error
 
 
 class EnderecoService:

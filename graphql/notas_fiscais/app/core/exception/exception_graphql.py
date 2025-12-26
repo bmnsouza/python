@@ -1,7 +1,7 @@
 from decimal import InvalidOperation
 from graphql import GraphQLError
 
-from app.utils.error_util import DuplicateEntryError, ForeignKeyError, DatabaseConnectionError
+from app.core.exception.exception_core import DuplicateEntryError, ForeignKeyError, DatabaseConnectionError
 
 
 def raise_graphql_error(exc: Exception = None, *, code: str = None, title: str = None, description: str = None) -> None:

@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.logger import app_logger
 from app.fastapi.schema.danfe_schema import Danfe, DanfeListItem
 from app.repository.danfe_repository import DanfeRepository
-from app.utils.error_util import map_data_base_error
+from app.core.exception.exception_core import map_data_base_error
 
 
 class DanfeService:

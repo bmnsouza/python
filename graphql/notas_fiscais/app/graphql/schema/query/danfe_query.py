@@ -1,11 +1,12 @@
 import strawberry
 from strawberry.types import Info
 
+from app.core.exception.exception_graphql import raise_graphql_error
+from app.core.response.response_graphql import set_pagination_params, set_filters_params, set_order_params, validate_params
+from app.fastapi.schema.danfe_schema import DanfeListItem
 from app.graphql.schema.input.danfe_input import DanfeParamsInput, DanfeParamInput
 from app.graphql.schema.input.graphql_input import OrderInput
 from app.graphql.schema.type.danfe_type import PaginatedResponseDanfeType, SingleResponseDanfeType
-from app.graphql.utils.exception_util import raise_graphql_error
-from app.graphql.utils.response_util import set_pagination_params, set_filters_params, set_order_params, validate_params
 from app.model.danfe_model import DanfeModel
 from app.service.danfe_service import DanfeService
 from app.validator.danfe_validator import DanfeParam, DanfeParams
@@ -53,7 +54,7 @@ class DanfeQuery:
             validate_params(params=params, schema=DanfeParams)
 
             params = set_filters_params(params=params)
-            order = set_order_params(order=order, model=DanfeModel)
+            order = set_order_params(order=order, schema=DanfeListItem)
             final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
             session = info.context["session"]

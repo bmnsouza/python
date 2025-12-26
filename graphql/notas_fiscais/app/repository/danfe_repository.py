@@ -116,7 +116,6 @@ class DanfeRepository:
             order_clauses = []
             for field, direction in order:
                 if field in DanfeModel.__table__.columns:
-                # if hasattr(DanfeModel, field):
                     order_sql = "ASC" if direction.lower() == "asc" else "DESC"
                     order_clauses.append(f"{field} {order_sql}")
 
