@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 from fastapi import HTTPException
 
-from app.core.exception.exception_core import DuplicateEntryError, ForeignKeyError, DatabaseConnectionError
+from app.core.exception.core_exception import DuplicateEntryError, ForeignKeyError, DatabaseConnectionError
 
 
 class ErrorItem(BaseModel):

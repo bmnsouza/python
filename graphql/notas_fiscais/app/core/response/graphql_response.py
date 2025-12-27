@@ -3,15 +3,9 @@ from typing import Optional, Type
 from graphql import GraphQLError
 from pydantic import BaseModel
 
-from app.graphql.schema.input.graphql_input import OrderInput
-from app.core.exception.exception_graphql import raise_graphql_error
-from app.core.response.response_core import (
-    ResponseValidationError,
-    get_schema_fields,
-    normalize_filters,
-    normalize_pagination,
-    validate_and_build_order
-)
+from app.core.exception.graphql_exception import raise_graphql_error
+from app.core.response.core_response import ResponseValidationError, get_schema_fields, normalize_pagination, validate_and_build_order
+from app.graphql.input.graphql_input import OrderInput
 
 
 def validate_params(*, params, schema: Type[BaseModel]) -> None:
@@ -28,13 +22,9 @@ def validate_params(*, params, schema: Type[BaseModel]) -> None:
     schema(**data)
 
 
-def set_filters_params(params):
-    return normalize_filters(params)
-
-
 def set_order_params(
-    order: list[OrderInput] | None,
-    schema: Type[BaseModel] | None = None,
+    order: list[OrderInput],
+    schema: Type[BaseModel]
 ) -> list[tuple[str, str]]:
     if not order:
         return []

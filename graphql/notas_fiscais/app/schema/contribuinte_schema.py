@@ -1,8 +1,8 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
-from app.fastapi.schema.danfe_schema import Danfe
-from app.fastapi.schema.endereco_schema import Endereco
+from app.schema.danfe_schema import Danfe
+from app.schema.endereco_schema import Endereco
 
 
 class ContribuinteBase(BaseModel):
@@ -31,7 +31,7 @@ class ContribuinteCreate(BaseModel):
     nm_fantasia: str = Field(min_length=5, max_length=200)
 
 
-class ContribuinteListItem(BaseModel):
+class ContribuinteItem(BaseModel):
     cd_contribuinte: str
     cnpj_contribuinte: str
     nm_fantasia: str

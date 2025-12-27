@@ -12,4 +12,8 @@ class DanfeParams(BaseModel):
 
 
 class DanfeParam(BaseModel):
-    id_danfe: int = Field(..., max_digits=10)
+    id_danfe: int = Field(..., ge=1, le=9_999_999_999)
+
+
+class DanfeLastSevenDaysParam(BaseModel):
+    cd_contribuinte: str = Field(..., min_length=9, max_length=20)

@@ -11,4 +11,4 @@ class EnderecoParams(BaseModel):
 
 
 class EnderecoParam(BaseModel):
-    id_endereco: int = Field(..., max_digits=10)
+    id_endereco: int = Field(..., ge=1, le=9_999_999_999)

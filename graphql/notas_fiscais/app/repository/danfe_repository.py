@@ -71,6 +71,21 @@ class DanfeRepository:
         return " WHERE " + " AND ".join(where), params
 
 
+    def _apply_filters_last_seven_days_sql(self, cd_contribuinte: str) -> Tuple[str, Dict[str, Any]]:
+        where = []
+        params = {}
+
+        if cd_contribuinte:
+            where.append("cd_contribuinte = :cd_contribuinte")
+            params["cd_contribuinte"] = cd_contribuinte
+            where.append("TRUNC(DATA_EMISSAO) >= TRUNC(SYSDATE) - 7")
+
+        if not where:
+            return "", params
+
+        return " WHERE " + " AND ".join(where), params
+
+
     async def count(self, filters: Optional[Dict[str, Any]] = None) -> int:
         q = select(func.count(DanfeModel.id_danfe))
         q = self._apply_filters(q, filters)
@@ -81,6 +96,19 @@ class DanfeRepository:
 
     async def count_sql(self, filters: Optional[Dict[str, Any]] = None) -> int:
         where_sql, params = self._apply_filters_sql(filters=filters)
+
+        sql = text(f"""
+            SELECT COUNT(ID_DANFE)
+            FROM NOTA_FISCAL.DANFE
+            {where_sql}
+        """)
+
+        result = await self.session.execute(statement=sql, params=params)
+        return result.scalar_one()
+
+
+    async def count_last_seven_days_sql(self, cd_contribuinte: str) -> int:
+        where_sql, params = self._apply_filters_last_seven_days_sql(cd_contribuinte=cd_contribuinte)
 
         sql = text(f"""
             SELECT COUNT(ID_DANFE)
@@ -127,6 +155,23 @@ class DanfeRepository:
             FROM NOTA_FISCAL.DANFE
             {where_sql}
             {order_sql}
+            OFFSET :offset ROWS
+            FETCH NEXT :limit ROWS ONLY
+        """)
+
+        params.update({"offset": offset, "limit": limit})
+
+        result = await self.session.execute(statement=sql, params=params)
+        return result.mappings().all()
+
+
+    async def get_last_seven_days_sql(self, offset: int, limit: int, cd_contribuinte: str):
+        where_sql, params = self._apply_filters_last_seven_days_sql(cd_contribuinte=cd_contribuinte)
+
+        sql = text(f"""
+            SELECT CD_CONTRIBUINTE, NUMERO, VALOR_TOTAL, DATA_EMISSAO
+            FROM NOTA_FISCAL.DANFE
+            {where_sql}
             OFFSET :offset ROWS
             FETCH NEXT :limit ROWS ONLY
         """)

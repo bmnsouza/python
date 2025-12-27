@@ -30,7 +30,7 @@ class EnderecoCreate(BaseModel):
     uf: str = Field(..., min_length=2, max_length=2)
 
 
-class EnderecoListItem(BaseModel):
+class EnderecoItem(BaseModel):
     id_endereco: int
     cd_contribuinte: str
     logradouro: str

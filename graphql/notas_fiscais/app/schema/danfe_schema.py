@@ -32,8 +32,15 @@ class DanfeCreate(BaseModel):
     data_emissao: datetime = Field(...)
 
 
-class DanfeListItem(BaseModel):
+class DanfeItem(BaseModel):
     id_danfe: int
+    cd_contribuinte: str
+    numero: str
+    valor_total: Decimal
+    data_emissao: datetime
+
+
+class DanfeLastSevenDaysItem(BaseModel):
     cd_contribuinte: str
     numero: str
     valor_total: Decimal

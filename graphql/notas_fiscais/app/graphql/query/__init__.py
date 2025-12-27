@@ -1,8 +1,8 @@
 import strawberry
 
-from app.graphql.schema.query.contribuinte_query import ContribuinteQuery
-from app.graphql.schema.query.danfe_query import DanfeQuery
-from app.graphql.schema.query.endereco_query import EnderecoQuery
+from app.graphql.query.contribuinte_query import ContribuinteQuery
+from app.graphql.query.danfe_query import DanfeQuery
+from app.graphql.query.endereco_query import EnderecoQuery
 
 
 @strawberry.type

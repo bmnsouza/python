@@ -3,9 +3,9 @@ from typing import Any, Dict, List, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logger import app_logger
-from app.fastapi.schema.endereco_schema import Endereco, EnderecoListItem
+from app.schema.endereco_schema import Endereco, EnderecoItem
 from app.repository.endereco_repository import EnderecoRepository
-from app.core.exception.exception_core import map_data_base_error
+from app.core.exception.core_exception import map_data_base_error
 
 
 class EnderecoService:
@@ -29,7 +29,7 @@ class EnderecoService:
             total = await self.repo.count_sql(filters=filters)
             rows = await self.repo.get_list_sql(offset=offset, limit=limit, filters=filters, order=order)
 
-            return total, [EnderecoListItem.model_validate(r) for r in rows]
+            return total, [EnderecoItem.model_validate(r) for r in rows]
         except Exception as e:
             app_logger.exception("Erro ao obter endereços %s", e)
             map_data_base_error(e)

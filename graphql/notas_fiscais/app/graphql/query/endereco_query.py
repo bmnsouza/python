@@ -1,13 +1,12 @@
 import strawberry
 from strawberry.types import Info
 
-from app.core.exception.exception_graphql import raise_graphql_error
-from app.core.response.response_graphql import set_pagination_params, set_filters_params, set_order_params, validate_params
-from app.fastapi.schema.endereco_schema import EnderecoListItem
-from app.graphql.schema.input.endereco_input import EnderecoParamsInput, EnderecoParamInput
-from app.graphql.schema.input.graphql_input import OrderInput
-from app.graphql.schema.type.endereco_type import PaginatedResponseEnderecoType, SingleResponseEnderecoType
-from app.model.endereco_model import EnderecoModel
+from app.core.exception.graphql_exception import raise_graphql_error
+from app.core.response.graphql_response import set_pagination_params, set_order_params, validate_params
+from app.graphql.input.endereco_input import EnderecoParamsInput, EnderecoParamInput
+from app.graphql.input.graphql_input import OrderInput
+from app.graphql.type.endereco_type import PaginatedResponseEnderecoType, SingleResponseEnderecoType
+from app.schema.endereco_schema import EnderecoItem
 from app.service.endereco_service import EnderecoService
 from app.validator.endereco_validator import EnderecoParam, EnderecoParams
 
@@ -27,8 +26,7 @@ class EnderecoQuery:
         try:
             validate_params(params=params, schema=EnderecoParams)
 
-            params = set_filters_params(params=params)
-            order = set_order_params(order=order, model=EnderecoModel)
+            order = set_order_params(order=order, schema=EnderecoItem)
             final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
             session = info.context["session"]
@@ -53,8 +51,7 @@ class EnderecoQuery:
         try:
             validate_params(params=params, schema=EnderecoParams)
 
-            params = set_filters_params(params=params)
-            order = set_order_params(order=order, schema=EnderecoListItem)
+            order = set_order_params(order=order, schema=EnderecoItem)
             final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
             session = info.context["session"]

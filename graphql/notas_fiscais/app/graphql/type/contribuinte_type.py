@@ -2,8 +2,8 @@ from typing import List, Optional
 
 import strawberry
 
-from app.graphql.schema.type.danfe_type import DanfeType
-from app.graphql.schema.type.endereco_type import EnderecoType
+from app.graphql.type.danfe_type import DanfeType
+from app.graphql.type.endereco_type import EnderecoType
 
 
 @strawberry.type

@@ -6,14 +6,14 @@ from strawberry.fastapi import GraphQLRouter
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 
-from app.core.handler.handler_rest import http_exception_handler, validation_exception_handler
+from app.core.handler.rest_handler import http_exception_handler, validation_exception_handler
 from app.core.logger import app_logger
 from app.database import config, connection
 from app.database.context import get_context
 from app.fastapi.router import api_router
-from app.graphql.schema.query.contribuinte_query import ContribuinteQuery
-from app.graphql.schema.query.danfe_query import DanfeQuery
-from app.graphql.schema.query.endereco_query import EnderecoQuery
+from app.graphql.query.contribuinte_query import ContribuinteQuery
+from app.graphql.query.danfe_query import DanfeQuery
+from app.graphql.query.endereco_query import EnderecoQuery
 from app.middleware.logging_middleware import LoggingMiddleware
 
 

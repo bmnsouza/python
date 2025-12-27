@@ -11,8 +11,17 @@ notas_fiscais/
 │   ├── settings.json
 ├── app/
 │   ├── core/
+│   |   ├── exception/
+│   |   |   ├── core_exception.py
+│   |   |   ├── graphql_exception.py
+│   |   |   └── rest_exception.py
+│   |   ├── handler/
+│   |   |   └── core_handler.py
+│   |   ├── response/
+│   |   |   ├── core_response.py
+│   |   |   ├── graphql_response.py
+│   |   |   └── rest_response.py
 │   |   ├── constants.py
-│   |   ├── exceptions.py
 │   |   ├── logger.py
 │   ├── database/
 │   |   ├── config.py
@@ -25,42 +34,24 @@ notas_fiscais/
 │   |   |   ├── contribuinte_router.py
 │   |   |   ├── danfe_router.py
 │   |   |   └── endereco_router.py
-│   |   ├── schema/
-│   |   |   ├── contribuinte_schema.py
-│   |   |   ├── danfe_schema.py
-│   |   |   └── endereco_schema.py
-│   |   ├── utils/
-│   |   |   ├── exception_util.py
-│   |   |   ├── field_util.py
-│   |   |   ├── handler_util.py
-│   |   |   └── response_util.py
-│   |   ├── validators/
-│   |   |   ├── contribuinte_validator.py
-│   |   |   ├── danfe_validator.py
-│   |   |   └── endereco_validator.py
 │   ├── graphql/
-│   |   ├── schema/
-│   |   |   ├── input/
-│   |   |   |   ├── contribuinte_input.py
-│   |   |   |   ├── danfe_input.py
-│   |   |   |   ├── endereco_input.py
-│   |   |   |   └── graphql_input.py
-│   |   |   ├── query/
-│   |   |   |   ├── __init__.py
-│   |   |   |   ├── contribuinte_query.py
-│   |   |   |   ├── danfe_query.py
-│   |   |   |   └── endereco_query.py
-│   |   |   ├── type/
-│   |   |   |   ├── contribuinte_type.py
-│   |   |   |   ├── danfe_type.py
-│   |   |   |   └── endereco_type.py
+│   |   ├── input/
+│   |   |   ├── contribuinte_input.py
+│   |   |   ├── danfe_input.py
+│   |   |   ├── endereco_input.py
+│   |   |   └── graphql_input.py
+│   |   ├── query/
+│   |   |   ├── __init__.py
+│   |   |   ├── contribuinte_query.py
+│   |   |   ├── danfe_query.py
+│   |   |   └── endereco_query.py
+│   |   ├── type/
+│   |   |   ├── contribuinte_type.py
+│   |   |   ├── danfe_type.py
+│   |   |   └── endereco_type.py
 │   |   ├── utils/
 │   |   |   ├── exception_util.py
 │   |   |   └── response_util.py
-│   |   ├── validators/
-│   |   |   ├── contribuinte_validator.py
-│   |   |   ├── danfe_validator.py
-│   |   |   └── endereco_validator.py
 |   ├── logs/
 │   |   ├── app.log
 │   |   └── sql.log
@@ -75,12 +66,18 @@ notas_fiscais/
 │   |   ├── contribuinte_repository.py
 │   |   ├── danfe_repository.py
 │   |   └── endereco_repository.py
+│   ├── schema/
+│   |   ├── contribuinte_schema.py
+│   |   ├── danfe_schema.py
+│   |   └── endereco_schema.py
 │   ├── service/
 │   |   ├── contribuinte_service.py
 │   |   ├── danfe_service.py
 │   |   └── endereco_service.py
-│   ├── utils/
-│   |   └── error_util.py
+│   ├── validator/
+│   |   ├── contribuinte_validator.py
+│   |   ├── danfe_validator.py
+│   |   └── endereco_validator.py
 │   └── main.py
 ├── sql/
 │   ├── script.sql

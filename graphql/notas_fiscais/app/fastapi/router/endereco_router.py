@@ -3,10 +3,10 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exception.exception_rest import raise_http_exception
-from app.core.response.response_rest import set_filters_params, set_order_params, set_pagination_params, set_pagination_headers, validate_fields_param, select_fields_from_obj
+from app.core.exception.rest_exception import raise_http_exception
+from app.core.response.rest_response import set_filters_params, set_order_params, set_pagination_params, set_pagination_headers, validate_fields_param, select_fields_from_obj
 from app.database.session import get_session
-from app.fastapi.schema.endereco_schema import Endereco, EnderecoCreate, EnderecoListItem, EnderecoUpdate
+from app.schema.endereco_schema import Endereco, EnderecoCreate, EnderecoItem, EnderecoUpdate
 from app.model.endereco_model import EnderecoModel
 from app.service.endereco_service import EnderecoService
 from app.validator.endereco_validator import EnderecoParams, EnderecoParam
@@ -27,7 +27,7 @@ async def get_list(
     try:
         params = set_filters_params(request=request, params=params)
         requested_fields = validate_fields_param(fields=fields, model=EnderecoModel)
-        order = set_order_params(request=request, schema=EnderecoListItem)
+        order = set_order_params(request=request, schema=EnderecoItem)
         final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
         service = EnderecoService(session=session)
@@ -55,8 +55,8 @@ async def get_list_sql(
 ):
     try:
         params = set_filters_params(request=request, params=params)
-        requested_fields = validate_fields_param(fields=fields, schema=EnderecoListItem)
-        order = set_order_params(request=request, schema=EnderecoListItem)
+        requested_fields = validate_fields_param(fields=fields, schema=EnderecoItem)
+        order = set_order_params(request=request, schema=EnderecoItem)
         final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
         service = EnderecoService(session=session)

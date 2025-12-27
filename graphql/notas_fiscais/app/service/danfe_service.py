@@ -3,9 +3,9 @@ from typing import Any, Dict, List, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logger import app_logger
-from app.fastapi.schema.danfe_schema import Danfe, DanfeListItem
+from app.schema.danfe_schema import Danfe, DanfeLastSevenDaysItem, DanfeItem
 from app.repository.danfe_repository import DanfeRepository
-from app.core.exception.exception_core import map_data_base_error
+from app.core.exception.core_exception import map_data_base_error
 
 
 class DanfeService:
@@ -29,7 +29,18 @@ class DanfeService:
             total = await self.repo.count_sql(filters=filters)
             rows = await self.repo.get_list_sql(offset=offset, limit=limit, filters=filters, order=order)
 
-            return total, [DanfeListItem.model_validate(r) for r in rows]
+            return total, [DanfeItem.model_validate(r) for r in rows]
+        except Exception as e:
+            app_logger.exception("Erro ao obter danfes %s", e)
+            map_data_base_error(e)
+
+
+    async def get_last_seven_days_sql(self, cd_contribuinte: str, offset: int, limit: int) -> Tuple[int, List[Dict[str, Any]]]:
+        try:
+            total = await self.repo.count_last_seven_days_sql(cd_contribuinte=cd_contribuinte)
+            rows = await self.repo.get_last_seven_days_sql(offset=offset, limit=limit, cd_contribuinte=cd_contribuinte)
+
+            return total, [DanfeLastSevenDaysItem.model_validate(r) for r in rows]
         except Exception as e:
             app_logger.exception("Erro ao obter danfes %s", e)
             map_data_base_error(e)

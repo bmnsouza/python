@@ -15,6 +15,14 @@ class DanfeType:
 
 
 @strawberry.type
+class DanfeLastSevenDaysType:
+    cd_contribuinte: str
+    numero: str
+    valor_total: Decimal
+    data_emissao: datetime
+
+
+@strawberry.type
 class SingleResponseDanfeType:
     item: Optional[DanfeType] = None
 
@@ -26,3 +34,12 @@ class PaginatedResponseDanfeType:
     total: int
     accept_ranges: int
     items: List[DanfeType]
+
+
+@strawberry.type
+class PaginatedResponseDanfeLastSevenDaysType:
+    offset: int
+    limit: int
+    total: int
+    accept_ranges: int
+    items: List[DanfeLastSevenDaysType]

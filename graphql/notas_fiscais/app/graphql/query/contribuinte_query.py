@@ -1,13 +1,12 @@
 import strawberry
 from strawberry.types import Info
 
-from app.core.exception.exception_graphql import raise_graphql_error
-from app.core.response.response_graphql import set_pagination_params, set_filters_params, set_order_params, validate_params
-from app.fastapi.schema.contribuinte_schema import ContribuinteListItem
-from app.graphql.schema.input.contribuinte_input import ContribuinteParamInput, ContribuinteParamsInput
-from app.graphql.schema.input.graphql_input import OrderInput
-from app.graphql.schema.type.contribuinte_type import PaginatedResponseContribuinteSqlType, PaginatedResponseContribuinteType, SingleResponseContribuinteType
-from app.model.contribuinte_model import ContribuinteModel
+from app.core.exception.graphql_exception import raise_graphql_error
+from app.core.response.graphql_response import set_pagination_params, set_order_params, validate_params
+from app.graphql.input.contribuinte_input import ContribuinteParamInput, ContribuinteParamsInput
+from app.graphql.input.graphql_input import OrderInput
+from app.graphql.type.contribuinte_type import PaginatedResponseContribuinteSqlType, PaginatedResponseContribuinteType, SingleResponseContribuinteType
+from app.schema.contribuinte_schema import ContribuinteItem
 from app.service.contribuinte_service import ContribuinteService
 from app.validator.contribuinte_validator import ContribuinteParam, ContribuinteParams
 
@@ -27,8 +26,7 @@ class ContribuinteQuery:
         try:
             validate_params(params=params, schema=ContribuinteParams)
 
-            params = set_filters_params(params=params)
-            order = set_order_params(order=order, model=ContribuinteModel)
+            order = set_order_params(order=order, schema=ContribuinteItem)
             final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
             session = info.context["session"]
@@ -53,8 +51,7 @@ class ContribuinteQuery:
         try:
             validate_params(params=params, schema=ContribuinteParams)
 
-            params = set_filters_params(params=params)
-            order = set_order_params(order=order, schema=ContribuinteListItem)
+            order = set_order_params(order=order, schema=ContribuinteItem)
             final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
             session = info.context["session"]

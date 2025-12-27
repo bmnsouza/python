@@ -3,10 +3,10 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exception.exception_rest import raise_http_exception
-from app.core.response.response_rest import set_filters_params, set_order_params, set_pagination_params, set_pagination_headers, select_fields_from_obj, validate_fields_param
+from app.core.exception.rest_exception import raise_http_exception
+from app.core.response.rest_response import set_filters_params, set_order_params, set_pagination_params, set_pagination_headers, select_fields_from_obj, validate_fields_param
 from app.database.session import get_session
-from app.fastapi.schema.contribuinte_schema import Contribuinte, ContribuinteCreate, ContribuinteListItem, ContribuinteUpdate
+from app.schema.contribuinte_schema import Contribuinte, ContribuinteCreate, ContribuinteItem, ContribuinteUpdate
 from app.model.contribuinte_model import ContribuinteModel
 from app.service.contribuinte_service import ContribuinteService
 from app.validator.contribuinte_validator import ContribuinteParams, ContribuinteParam
@@ -27,7 +27,7 @@ async def get_list(
     try:
         params = set_filters_params(request=request, params=params)
         requested_fields = validate_fields_param(fields=fields, model=ContribuinteModel)
-        order = set_order_params(request=request, schema=ContribuinteListItem)
+        order = set_order_params(request=request, schema=ContribuinteItem)
         final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
         service = ContribuinteService(session=session)
@@ -55,8 +55,8 @@ async def get_list_sql(
 ):
     try:
         params = set_filters_params(request=request, params=params)
-        requested_fields = validate_fields_param(fields=fields, schema=ContribuinteListItem)
-        order = set_order_params(request=request, schema=ContribuinteListItem)
+        requested_fields = validate_fields_param(fields=fields, schema=ContribuinteItem)
+        order = set_order_params(request=request, schema=ContribuinteItem)
         final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
         service = ContribuinteService(session=session)

@@ -3,13 +3,13 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exception.exception_rest import raise_http_exception
-from app.core.response.response_rest import set_filters_params, set_order_params, set_pagination_params, set_pagination_headers, validate_fields_param, select_fields_from_obj
+from app.core.exception.rest_exception import raise_http_exception
+from app.core.response.rest_response import set_filters_params, set_order_params, set_pagination_params, set_pagination_headers, validate_fields_param, select_fields_from_obj
 from app.database.session import get_session
-from app.fastapi.schema.danfe_schema import Danfe, DanfeCreate, DanfeListItem, DanfeUpdate
+from app.schema.danfe_schema import Danfe, DanfeCreate, DanfeItem, DanfeUpdate
 from app.model.danfe_model import DanfeModel
 from app.service.danfe_service import DanfeService
-from app.validator.danfe_validator import DanfeParams, DanfeParam
+from app.validator.danfe_validator import DanfeLastSevenDaysParam, DanfeParams, DanfeParam
 
 
 router = APIRouter(prefix="/v1/danfe", tags=["Danfe"])
@@ -27,7 +27,7 @@ async def get_list(
     try:
         params = set_filters_params(request=request, params=params)
         requested_fields = validate_fields_param(fields=fields, model=DanfeModel)
-        order = set_order_params(request=request, schema=DanfeListItem)
+        order = set_order_params(request=request, schema=DanfeItem)
         final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
         service = DanfeService(session=session)
@@ -55,8 +55,8 @@ async def get_list_sql(
 ):
     try:
         params = set_filters_params(request=request, params=params)
-        requested_fields = validate_fields_param(fields=fields, schema=DanfeListItem)
-        order = set_order_params(request=request, schema=DanfeListItem)
+        requested_fields = validate_fields_param(fields=fields, schema=DanfeItem)
+        order = set_order_params(request=request, schema=DanfeItem)
         final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
         service = DanfeService(session=session)
@@ -72,7 +72,33 @@ async def get_list_sql(
         raise_http_exception(exc=e)
 
 
-@router.get("/{id_danfe}", response_model=Danfe)
+@router.get("/last-seven-days-sql/{cd_contribuinte}")
+async def get_last_seven_days_sql(
+    request: Request,
+    response: Response,
+    param: DanfeLastSevenDaysParam = Depends(),
+    offset: int = Query(None, ge=0),
+    limit: int = Query(None, ge=1),
+    session: AsyncSession = Depends(get_session)
+):
+    try:
+        set_filters_params(request=request, params=param, allow_order=False, allow_fields=False)
+
+        final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
+
+        service = DanfeService(session=session)
+        total, items = await service.get_last_seven_days_sql(offset=final_offset, limit=final_limit, cd_contribuinte=param.cd_contribuinte)
+
+        set_pagination_headers(response=response, offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges)
+
+        return items
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise_http_exception(exc=e)
+
+
+@router.get("/{id_danfe}", response_model=DanfeItem)
 async def get_by_id(
     param: DanfeParam = Depends(),
     session: AsyncSession = Depends(get_session)

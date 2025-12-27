@@ -16,3 +16,8 @@ class DanfeParamsInput:
 @strawberry.input
 class DanfeParamInput:
     id_danfe: int
+
+
+@strawberry.input
+class DanfeParamLastSevenDaysInput:
+    cd_contribuinte: str

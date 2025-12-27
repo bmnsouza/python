@@ -5,7 +5,7 @@ from fastapi import HTTPException, Request, Response
 from pydantic import BaseModel
 from sqlalchemy.orm import DeclarativeMeta
 
-from app.core.response.response_core import (
+from app.core.response.core_response import (
     ResponseValidationError,
     get_orm_fields,
     get_schema_fields,
@@ -95,10 +95,23 @@ def select_fields_from_obj(obj, fields: Optional[Iterable[str]] = None):
     return result
 
 
-def set_filters_params(request: Request, params: BaseModel) -> dict:
+def set_filters_params(
+    request: Request,
+    params: BaseModel,
+    *,
+    allow_order: bool = True,
+    allow_fields: bool = True,
+) -> dict:
     data = normalize_filters(params) or {}
 
-    reserved = {"asc", "des", "offset", "limit", "fields"}
+    reserved = {"offset", "limit"}
+
+    if allow_order:
+        reserved |= {"asc", "des"}
+
+    if allow_fields:
+        reserved |= {"fields"}
+
     allowed = set(data.keys()) | reserved
 
     try:
@@ -112,9 +125,10 @@ def set_filters_params(request: Request, params: BaseModel) -> dict:
     return data
 
 
+
 def set_order_params(
     request: Request,
-    schema: Optional[Type[BaseModel]] = None,
+    schema: Type[BaseModel],
 ):
     if not request:
         return []
