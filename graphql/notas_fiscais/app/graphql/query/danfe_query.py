@@ -24,14 +24,14 @@ class DanfeQuery:
         limit: int | None = None
     ) -> PaginatedResponseDanfeType:
         try:
-            validate_params(params=params, schema=DanfeParams)
+            filters = validate_params(params=params, schema=DanfeParams)
 
             order = set_order_params(order=order, schema=DanfeItem)
             final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
             session = info.context["session"]
             service = DanfeService(session=session)
-            total, items = await service.get_list(offset=final_offset, limit=final_limit, filters=params, order=order)
+            total, items = await service.get_list(offset=final_offset, limit=final_limit, filters=filters, order=order)
 
             result = PaginatedResponseDanfeType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges, items=items)
             return result
@@ -49,14 +49,14 @@ class DanfeQuery:
         limit: int | None = None
     ) -> PaginatedResponseDanfeType:
         try:
-            validate_params(params=params, schema=DanfeParams)
+            filters = validate_params(params=params, schema=DanfeParams)
 
             order = set_order_params(order=order, schema=DanfeItem)
             final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
             session = info.context["session"]
             service = DanfeService(session=session)
-            total, items = await service.get_list_sql(offset=final_offset, limit=final_limit, filters=params, order=order)
+            total, items = await service.get_list_sql(offset=final_offset, limit=final_limit, filters=filters, order=order)
 
             result = PaginatedResponseDanfeType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges, items=items)
             return result

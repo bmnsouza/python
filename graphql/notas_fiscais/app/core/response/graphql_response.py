@@ -1,4 +1,4 @@
-from typing import Optional, Type
+from typing import Any, Optional, Type
 
 from graphql import GraphQLError
 from pydantic import BaseModel
@@ -8,18 +8,40 @@ from app.core.response.core_response import ResponseValidationError, get_schema_
 from app.graphql.input.graphql_input import OrderInput
 
 
-def validate_params(*, params, schema: Type[BaseModel]) -> None:
+def validate_params(
+    *,
+    params: Any,
+    schema: Type[BaseModel]
+) -> dict:
     if params is None:
-        return
+        return {}
 
-    if hasattr(params, "__dict__"):
-        data = params.__dict__
+    # Converte Input GraphQL / objeto em dict
+    if isinstance(params, BaseModel):
+        data = params.model_dump(exclude_none=True)
+
+    elif hasattr(params, "__dict__"):
+        data = {
+            k: v
+            for k, v in vars(params).items()
+            if v is not None
+        }
+
     elif isinstance(params, dict):
-        data = params
+        data = {
+            k: v
+            for k, v in params.items()
+            if v is not None
+        }
+
     else:
         raise TypeError(f"Tipo inválido para validação: {type(params)}")
 
-    schema(**data)
+    # Validação (lança exceção se inválido)
+    validated = schema(**data)
+
+    # Retorno normalizado
+    return validated.model_dump(exclude_none=True)
 
 
 def set_order_params(

@@ -24,14 +24,14 @@ class ContribuinteQuery:
         limit: int | None = None
     ) -> PaginatedResponseContribuinteType:
         try:
-            validate_params(params=params, schema=ContribuinteParams)
+            filters = validate_params(params=params, schema=ContribuinteParams)
 
             order = set_order_params(order=order, schema=ContribuinteItem)
             final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
             session = info.context["session"]
             service = ContribuinteService(session=session)
-            total, items = await service.get_list(offset=final_offset, limit=final_limit, filters=params, order=order)
+            total, items = await service.get_list(offset=final_offset, limit=final_limit, filters=filters, order=order)
 
             result = PaginatedResponseContribuinteType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges, items=items)
             return result
@@ -49,14 +49,14 @@ class ContribuinteQuery:
         limit: int | None = None
     ) -> PaginatedResponseContribuinteSqlType:
         try:
-            validate_params(params=params, schema=ContribuinteParams)
+            filters = validate_params(params=params, schema=ContribuinteParams)
 
             order = set_order_params(order=order, schema=ContribuinteItem)
             final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
             session = info.context["session"]
             service = ContribuinteService(session=session)
-            total, items = await service.get_list_sql(offset=final_offset, limit=final_limit, filters=params, order=order)
+            total, items = await service.get_list_sql(offset=final_offset, limit=final_limit, filters=filters, order=order)
 
             result = PaginatedResponseContribuinteSqlType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges, items=items)
             return result

@@ -24,14 +24,14 @@ class EnderecoQuery:
         limit: int | None = None
     ) -> PaginatedResponseEnderecoType:
         try:
-            validate_params(params=params, schema=EnderecoParams)
+            filters = validate_params(params=params, schema=EnderecoParams)
 
             order = set_order_params(order=order, schema=EnderecoItem)
             final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
             session = info.context["session"]
             service = EnderecoService(session=session)
-            total, items = await service.get_list(offset=final_offset, limit=final_limit, filters=params, order=order)
+            total, items = await service.get_list(offset=final_offset, limit=final_limit, filters=filters, order=order)
 
             result = PaginatedResponseEnderecoType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges, items=items)
             return result
@@ -49,14 +49,14 @@ class EnderecoQuery:
         limit: int | None = None
     ) -> PaginatedResponseEnderecoType:
         try:
-            validate_params(params=params, schema=EnderecoParams)
+            filters = validate_params(params=params, schema=EnderecoParams)
 
             order = set_order_params(order=order, schema=EnderecoItem)
             final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
 
             session = info.context["session"]
             service = EnderecoService(session=session)
-            total, items = await service.get_list_sql(offset=final_offset, limit=final_limit, filters=params, order=order)
+            total, items = await service.get_list_sql(offset=final_offset, limit=final_limit, filters=filters, order=order)
 
             result = PaginatedResponseEnderecoType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges, items=items)
             return result
