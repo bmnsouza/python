@@ -15,10 +15,17 @@ DATABASE_URL = (
 )
 
 
+
 engine = create_async_engine(
     DATABASE_URL,
-    echo=True,
-    future=True
+    echo=False,
+
+    # Pool
+    pool_size=10, # Conexões abertas simultaneamente
+    max_overflow=20, # Conexões extras em pico
+    pool_timeout=30, # Tempo máximo de espera por conexão
+    pool_recycle=1800, # Recicla conexões antigas (segundos)
+    pool_pre_ping=True, # Testa conexão antes de usar
 )
 
 
