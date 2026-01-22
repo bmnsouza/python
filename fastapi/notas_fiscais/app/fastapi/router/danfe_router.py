@@ -3,60 +3,127 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.exception.rest_exception import raise_http_exception
+from app.core.response.rest_response import set_filters_params, set_order_params, set_pagination_params, set_pagination_headers, validate_fields_param, select_fields_from_obj
 from app.database.session import get_session
-from app.fastapi.schema.danfe_schema import Danfe, DanfeCreate, DanfeUpdate
-from app.fastapi.validators.danfe_validator import ID_DANFE_PATH
+from app.schema.danfe_schema import Danfe, DanfeCreate, DanfeItem, DanfeUpdate
 from app.model.danfe_model import DanfeModel
 from app.service.danfe_service import DanfeService
-from app.utils.exception_util import raise_http_exception
-from app.utils.field_util import parse_fields_param, select_fields_from_obj
-from app.utils.response_util import normalize_pagination_params, set_filters_params, set_order_params, set_pagination_headers
+from app.validator.danfe_validator import DanfeLastSevenDaysParam, DanfeParams, DanfeParam
 
 
 router = APIRouter(prefix="/v1/danfe", tags=["Danfe"])
 
 @router.get("/")
-async def get_list(request: Request, response: Response, offset: int = Query(None, ge=0), limit: int = Query(None, ge=1), fields: Optional[str] = Query(None), session: AsyncSession = Depends(get_session)):
-    # Monta filtros, ordenação e normaliza parâmetros
-    filters = set_filters_params(request=request)
-    order = set_order_params(request=request, model=DanfeModel)
-    final_offset, final_limit, final_accept_ranges = normalize_pagination_params(offset=offset, limit=limit)
-
+async def get_list(
+    request: Request,
+    response: Response,
+    params: DanfeParams = Depends(),
+    fields: Optional[str] = Query(None),
+    offset: int = Query(None, ge=0),
+    limit: int = Query(None, ge=1),
+    session: AsyncSession = Depends(get_session)
+):
     try:
-        # Chama o service passando os valores normalizados
-        service = DanfeService(session)
-        total, items = await service.get_list(filters=filters, order=order, offset=final_offset, limit=final_limit)
+        params = set_filters_params(request=request, params=params)
+        requested_fields = validate_fields_param(fields=fields, model=DanfeModel)
+        order = set_order_params(request=request, schema=DanfeItem)
+        final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
+
+        service = DanfeService(session=session)
+        total, items = await service.get_list(offset=final_offset, limit=final_limit, filters=params, order=order)
+
+        set_pagination_headers(response=response, offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges)
+
+        result = [select_fields_from_obj(i, requested_fields) for i in items]
+        return result
+    except HTTPException:
+        raise
     except Exception as e:
         raise_http_exception(exc=e)
 
-    # Aplica headers
-    set_pagination_headers(response=response, offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges)
 
-    # Transformação de campos
-    requested_fields = parse_fields_param(fields)
-    transformed = [select_fields_from_obj(i, requested_fields) for i in items]
-
-    return transformed
-
-
-@router.get("/{id_danfe}", response_model=Danfe)
-async def get_by_id(id_danfe: str = ID_DANFE_PATH, session: AsyncSession = Depends(get_session)):
+@router.get("/sql")
+async def get_list_sql(
+    request: Request,
+    response: Response,
+    params: DanfeParams = Depends(),
+    fields: Optional[str] = Query(None),
+    offset: int = Query(None, ge=0),
+    limit: int = Query(None, ge=1),
+    session: AsyncSession = Depends(get_session)
+):
     try:
-        service = DanfeService(session)
-        result = await service.get_by_id(id_danfe)
+        params = set_filters_params(request=request, params=params)
+        requested_fields = validate_fields_param(fields=fields, schema=DanfeItem)
+        order = set_order_params(request=request, schema=DanfeItem)
+        final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
+
+        service = DanfeService(session=session)
+        total, items = await service.get_list_sql(offset=final_offset, limit=final_limit, filters=params, order=order)
+
+        set_pagination_headers(response=response, offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges)
+
+        result = [select_fields_from_obj(i, requested_fields) for i in items]
+        return result
+    except HTTPException:
+        raise
     except Exception as e:
         raise_http_exception(exc=e)
 
-    if not result:
-        raise HTTPException(status_code=404, detail="Danfe não encontrado")
 
-    return result
+@router.get("/last-seven-days-sql/{cd_contribuinte}")
+async def get_last_seven_days_sql(
+    request: Request,
+    response: Response,
+    param: DanfeLastSevenDaysParam = Depends(),
+    offset: int = Query(None, ge=0),
+    limit: int = Query(None, ge=1),
+    session: AsyncSession = Depends(get_session)
+):
+    try:
+        set_filters_params(request=request, params=param, allow_order=False, allow_fields=False)
+
+        final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
+
+        service = DanfeService(session=session)
+        total, items = await service.get_last_seven_days_sql(offset=final_offset, limit=final_limit, cd_contribuinte=param.cd_contribuinte)
+
+        set_pagination_headers(response=response, offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges)
+
+        return items
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise_http_exception(exc=e)
+
+
+@router.get("/{id_danfe}", response_model=DanfeItem)
+async def get_by_id(
+    param: DanfeParam = Depends(),
+    session: AsyncSession = Depends(get_session)
+):
+    try:
+        service = DanfeService(session=session)
+        result = await service.get_by_id(id=param.id_danfe)
+
+        if not result:
+            raise HTTPException(status_code=404, detail="Danfe não encontrado")
+
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise_http_exception(exc=e)
 
 
 @router.post("/", response_model=Danfe, status_code=201)
-async def create(danfe: DanfeCreate, session: AsyncSession = Depends(get_session)):
+async def create(
+    danfe: DanfeCreate,
+    session: AsyncSession = Depends(get_session)
+):
     try:
-        service = DanfeService(session)
+        service = DanfeService(session=session)
         result = await service.create(danfe.model_dump())
         return result
     except Exception as e:
@@ -64,28 +131,37 @@ async def create(danfe: DanfeCreate, session: AsyncSession = Depends(get_session
 
 
 @router.put("/{id_danfe}", response_model=Danfe)
-async def update(id_danfe: str = ID_DANFE_PATH, danfe: DanfeUpdate = ..., session: AsyncSession = Depends(get_session)):
+async def update(
+    param: DanfeParam = Depends(),
+    danfe: DanfeUpdate = ...,
+    session: AsyncSession = Depends(get_session)
+):
     try:
-        service = DanfeService(session)
-        result = await service.update(id_danfe, danfe.model_dump(exclude_unset=True))
+        service = DanfeService(session=session)
+        result = await service.update(id=param.id_danfe, data=danfe.model_dump(exclude_unset=True))
+
+        if not result:
+            raise HTTPException(status_code=404, detail="Danfe não encontrado")
+
+        return result
+    except HTTPException:
+        raise
     except Exception as e:
         raise_http_exception(exc=e)
-
-    if not result:
-        raise HTTPException(status_code=404, detail="Danfe não encontrado")
-
-    return result
 
 
 @router.delete("/{id_danfe}", status_code=204)
-async def delete(id_danfe: str = ID_DANFE_PATH, session: AsyncSession = Depends(get_session)):
+async def delete(
+    param: DanfeParam = Depends(),
+    session: AsyncSession = Depends(get_session)
+):
     try:
-        service = DanfeService(session)
-        result = await service.delete(id_danfe)
+        service = DanfeService(session=session)
+        result = await service.delete(id=param.id_danfe)
+
+        if not result:
+            raise HTTPException(status_code=404, detail="Danfe não encontrado")
+    except HTTPException:
+        raise
     except Exception as e:
         raise_http_exception(exc=e)
-
-    if not result:
-        raise HTTPException(status_code=404, detail="Danfe não encontrado")
-
-    return Response(status_code=204)

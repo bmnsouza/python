@@ -1,11 +1,9 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
-
 from fastapi.exceptions import RequestValidationError
 
-from app.utils.handler_util import http_exception_handler, validation_exception_handler
-
+from app.core.handler.rest_handler import http_exception_handler, validation_exception_handler
 from app.core.logger import app_logger
 from app.database import config, connection
 from app.fastapi.router import api_router
@@ -44,8 +42,10 @@ app = FastAPI(
 # REST
 app.include_router(api_router)
 
+
 # Adiciona middleware global
 app.add_middleware(LoggingMiddleware)
+
 
 # Adiciona handler global
 app.add_exception_handler(HTTPException, http_exception_handler)
@@ -54,4 +54,4 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 @app.get("/")
 def root():
-    return {"message": "FastAPI Notas Fiscais em execução."}
+    return {"message": "Projeto Notas Fiscais em execução."}

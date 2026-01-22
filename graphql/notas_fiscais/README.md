@@ -1,5 +1,5 @@
 # Notas Fiscais
-Projeto de Notas Fiscais construído com **FastAPI**, **GraphQL** e **Oracle**.
+Projeto de Notas Fiscais construído com **GraphQL** e **Oracle**.
 
 ---
 
@@ -15,12 +15,9 @@ notas_fiscais/
 │   |   |   ├── core_exception.py
 │   |   |   ├── graphql_exception.py
 │   |   |   └── rest_exception.py
-│   |   ├── handler/
-│   |   |   └── core_handler.py
 │   |   ├── response/
 │   |   |   ├── core_response.py
 │   |   |   ├── graphql_response.py
-│   |   |   └── rest_response.py
 │   |   ├── constants.py
 │   |   ├── logger.py
 │   ├── database/
@@ -28,12 +25,6 @@ notas_fiscais/
 │   |   ├── connection.py
 │   |   ├── context.py
 │   |   └── session.py
-│   ├── fastapi/
-│   |   ├── router/
-│   |   |   ├── __init__.py
-│   |   |   ├── contribuinte_router.py
-│   |   |   ├── danfe_router.py
-│   |   |   └── endereco_router.py
 │   ├── graphql/
 │   |   ├── input/
 │   |   |   ├── contribuinte_input.py

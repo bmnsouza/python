@@ -3,14 +3,11 @@ from contextlib import asynccontextmanager
 import strawberry
 from strawberry.fastapi import GraphQLRouter
 
-from fastapi import FastAPI, HTTPException
-from fastapi.exceptions import RequestValidationError
+from fastapi import FastAPI
 
-from app.core.handler.rest_handler import http_exception_handler, validation_exception_handler
 from app.core.logger import app_logger
 from app.database import config, connection
 from app.database.context import get_context
-from app.fastapi.router import api_router
 from app.graphql.query.contribuinte_query import ContribuinteQuery
 from app.graphql.query.danfe_query import DanfeQuery
 from app.graphql.query.endereco_query import EnderecoQuery
@@ -46,10 +43,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# REST
-app.include_router(api_router)
-
-
 # GraphQL
 # Contribuinte
 schema_contribuinte = strawberry.Schema(query=ContribuinteQuery)
@@ -69,11 +62,6 @@ app.include_router(router=graphql_endereco, prefix="/graphql/endereco")
 
 # Adiciona middleware global
 app.add_middleware(LoggingMiddleware)
-
-
-# Adiciona handler global
-app.add_exception_handler(HTTPException, http_exception_handler)
-app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 
 @app.get("/")

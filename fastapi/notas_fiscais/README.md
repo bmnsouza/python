@@ -1,4 +1,4 @@
-# FastAPI Notas Fiscais
+# Notas Fiscais
 Projeto de Notas Fiscais construído com **FastAPI** e **Oracle**.
 
 ---
@@ -11,12 +11,17 @@ notas_fiscais/
 │   ├── settings.json
 ├── app/
 │   ├── core/
-│   |   ├── __init__.py
+│   |   ├── exception/
+│   |   |   ├── core_exception.py
+│   |   |   └── rest_exception.py
+│   |   ├── handler/
+│   |   |   └── rest_handler.py
+│   |   ├── response/
+│   |   |   ├── core_response.py
+│   |   |   └── rest_response.py
 │   |   ├── constants.py
-│   |   ├── exceptions.py
 │   |   ├── logger.py
 │   ├── database/
-│   |   ├── __init__.py
 │   |   ├── config.py
 │   |   ├── connection.py
 │   |   └── session.py
@@ -26,16 +31,6 @@ notas_fiscais/
 │   |   |   ├── contribuinte_router.py
 │   |   |   ├── danfe_router.py
 │   |   |   └── endereco_router.py
-│   |   ├── schema/
-│   |   |   ├── __init__.py
-│   |   |   ├── contribuinte_schema.py
-│   |   |   ├── danfe_schema.py
-│   |   |   └── endereco_schema.py
-│   |   ├── validators/
-│   |   |   ├── __init__.py
-│   |   |   ├── contribuinte_validator.py
-│   |   |   ├── danfe_validator.py
-│   |   |   └── endereco_validator.py
 |   ├── logs/
 │   |   ├── app.log
 │   |   └── sql.log
@@ -47,23 +42,21 @@ notas_fiscais/
 │   |   ├── danfe_model.py
 │   |   └── endereco_model.py
 │   ├── repository/
-│   |   ├── __init__.py
 │   |   ├── contribuinte_repository.py
 │   |   ├── danfe_repository.py
 │   |   └── endereco_repository.py
+│   ├── schema/
+│   |   ├── contribuinte_schema.py
+│   |   ├── danfe_schema.py
+│   |   └── endereco_schema.py
 │   ├── service/
-│   |   ├── __init__.py
 │   |   ├── contribuinte_service.py
 │   |   ├── danfe_service.py
 │   |   └── endereco_service.py
-│   ├── utils/
-│   |   ├── __init__.py
-│   |   ├── error_util.py
-│   |   ├── exception_util.py
-│   |   ├── field_util.py
-│   |   ├── handler_util.py
-│   |   └── response_util.py
-│   ├── __init__.py
+│   ├── validator/
+│   |   ├── contribuinte_validator.py
+│   |   ├── danfe_validator.py
+│   |   └── endereco_validator.py
 │   └── main.py
 ├── sql/
 │   ├── script.sql
