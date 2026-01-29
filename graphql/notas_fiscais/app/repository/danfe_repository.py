@@ -61,7 +61,7 @@ class DanfeRepository:
                 start = datetime.combine(dt, time.min)
                 end = datetime.combine(dt, time.max)
 
-                where.append("data_emissao BETWEEN TO_DATE(:start, 'yyyy-mm-dd hh24:mi:ss') AND TO_DATE(:end, 'yyyy-mm-dd hh24:mi:ss')")
+                where.append("data_emissao BETWEEN :start AND :end")
                 params["start"] = start
                 params["end"] = end
 
