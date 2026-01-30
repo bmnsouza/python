@@ -1,44 +1,33 @@
-# ================================
-# PYTHON
-# ================================
-__pycache__/
-*.py[cod]
-*$py.class
+# Ambiente virtual
+venv/
+
+# Ignorar arquivos compilados do Python
+*.pyc
 *.pyo
+__pycache__/
+**/__pycache__/
 
-# ================================
-# LOGS
-# ================================
-*.log
-*.out
-*.err
-logs/
-app/logs/
-*.sqlite3
+# Ignorar arquivos de configuração do PyCharm
+.idea/
 
-# ================================
-# TESTES
-# ================================
-.coverage
-htmlcov/
-.cache/
-pytest_cache/
-.tox/
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
+# Arquivos de ambiente
+# .env
 
-# ================================
-# BUILD / DIST / TEMP
-# ================================
-build/
-dist/
-*.egg-info/
-.eggs/
-pip-wheel-metadata/
+# Cache do MyPy
 .mypy_cache/
-.pyre/
-.pytype/
-__pypackages__/
+
+# Cache do Pytest
+.pytest_cache/
+
+# Cobertura HTML
+htmlcov/
+.coverage
+
+# Logs
+logs/
+
+# Ambiente virtual alternativo
+.venv/
+
+# Dados de notas fiscais (evitar subir dados sensíveis)
+data/

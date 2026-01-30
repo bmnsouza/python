@@ -7,7 +7,7 @@
       "request": "launch",
       "module": "uvicorn",
       "args": [
-        "app.main:app",
+        "main:app",
         "--reload",
         "--lifespan", "on",
         "--host", "0.0.0.0",
