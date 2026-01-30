@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Tuple
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.schemas.danfe_schema import Danfe
+from app.application.dto.danfe_dto import DanfeDTO
 from app.core.exception import map_data_base_error
 from app.domain.repositories.danfe_repository import DanfeRepository
 
@@ -21,7 +21,7 @@ class DanfeService:
             total = await self.repo.count_list(filters=filters)
             rows = await self.repo.get_list(offset=offset, limit=limit, filters=filters, order=order)
 
-            return total, [Danfe.model_validate(r) for r in rows]
+            return total, [DanfeDTO.model_validate(r) for r in rows]
         except Exception as e:
             logger.exception("Erro ao obter danfes %s", e)
             map_data_base_error(e)
@@ -32,7 +32,7 @@ class DanfeService:
             total = await self.repo.count_last_seven_days(cd_contribuinte=cd_contribuinte)
             rows = await self.repo.get_last_seven_days(offset=offset, limit=limit, cd_contribuinte=cd_contribuinte)
 
-            return total, [Danfe.model_validate(r) for r in rows]
+            return total, [DanfeDTO.model_validate(r) for r in rows]
         except Exception as e:
             logger.exception("Erro ao obter danfes %s", e)
             map_data_base_error(e)
@@ -43,7 +43,7 @@ class DanfeService:
             total = await self.repo.count_monthly(filters=filters)
             rows = await self.repo.get_monthly(offset=offset, limit=limit, filters=filters)
 
-            return total, [Danfe.model_validate(r) for r in rows]
+            return total, [DanfeDTO.model_validate(r) for r in rows]
         except Exception as e:
             logger.exception("Erro ao obter danfes %s", e)
             map_data_base_error(e)

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class Endereco(BaseModel):
+class EnderecoDTO(BaseModel):
     id_endereco: int
     cd_contribuinte: str
     logradouro: str

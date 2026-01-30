@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class Contribuinte(BaseModel):
+class ContribuinteDTO(BaseModel):
     cd_contribuinte: str
     cnpj_contribuinte: str
     nm_fantasia: str

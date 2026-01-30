@@ -4,7 +4,7 @@ from strawberry.types import Info
 from app.application.schemas.danfe_schema import Danfe
 from app.application.schemas.validators.danfe_validator import DanfeLastSevenDaysParam, DanfeParamMonthlyParam, DanfeParams
 from app.core.exception import raise_graphql_error
-from app.core.response import set_pagination_params, set_order_params, validate_params
+from app.presentation.graphql.mappers.pagination_mapper import map_pagination, set_order_params, validate_params
 from app.domain.services.danfe_service import DanfeService
 from app.presentation.graphql.inputs.danfe_input import DanfeParamLastSevenDaysInput, DanfeParamMonthlyInput, DanfeParamsInput
 from app.presentation.graphql.inputs.order_input import OrderInput
@@ -27,7 +27,7 @@ class DanfeQuery:
             filters = validate_params(params=params, schema=DanfeParams)
 
             order = set_order_params(order=order, schema=Danfe)
-            final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
+            final_offset, final_limit, final_accept_ranges = map_pagination(offset=offset, limit=limit)
 
             session = info.context["session"]
             service = DanfeService(session=session)
@@ -50,7 +50,7 @@ class DanfeQuery:
         try:
             validate_params(params=param, schema=DanfeLastSevenDaysParam)
 
-            final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
+            final_offset, final_limit, final_accept_ranges = map_pagination(offset=offset, limit=limit)
 
             session = info.context["session"]
             service = DanfeService(session=session)
@@ -73,7 +73,7 @@ class DanfeQuery:
         try:
             filters = validate_params(params=params, schema=DanfeParamMonthlyParam)
 
-            final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
+            final_offset, final_limit, final_accept_ranges = map_pagination(offset=offset, limit=limit)
 
             session = info.context["session"]
             service = DanfeService(session=session)

@@ -1,13 +1,12 @@
 import strawberry
 from strawberry.types import Info
 
-from app.application.schemas.contribuinte_schema import Contribuinte
-from app.application.schemas.validators.contribuinte_validator import ContribuinteParams
+from app.presentation.graphql.schemas.contribuinte_schema import ContribuinteFilterSchema
 from app.core.exception import raise_graphql_error
-from app.core.response import set_pagination_params, set_order_params, validate_params
 from app.domain.services.contribuinte_service import ContribuinteService
-from app.presentation.graphql.inputs.contribuinte_input import ContribuinteParamsInput
-from app.presentation.graphql.inputs.order_input import OrderInput
+from app.presentation.graphql.inputs.contribuinte_input import ContribuinteOrderInput, ContribuinteFilterInput
+from app.presentation.graphql.mappers.pagination_mapper import map_pagination
+from app.presentation.graphql.mappers.schema_mapper import map_to_schema
 from app.presentation.graphql.types.contribuinte_type import PaginatedResponseContribuinteType
 
 
@@ -18,20 +17,18 @@ class ContribuinteQuery:
     async def get_list(
         self,
         info: Info,
-        params: ContribuinteParamsInput | None = None,
-        order: list[OrderInput] | None = None,
+        filter: ContribuinteFilterInput | None = None,
+        order: ContribuinteOrderInput | None = None,
         offset: int | None = None,
         limit: int | None = None
     ) -> PaginatedResponseContribuinteType:
         try:
-            filters = validate_params(params=params, schema=ContribuinteParams)
-
-            order = set_order_params(order=order, schema=Contribuinte)
-            final_offset, final_limit, final_accept_ranges = set_pagination_params(offset=offset, limit=limit)
+            filter_schema = map_to_schema(data=filter, schema=ContribuinteFilterSchema)
+            final_offset, final_limit, final_accept_ranges = map_pagination(offset=offset, limit=limit)
 
             session = info.context["session"]
             service = ContribuinteService(session=session)
-            total, items = await service.get_list(offset=final_offset, limit=final_limit, filters=filters, order=order)
+            total, items = await service.get_list(offset=final_offset, limit=final_limit, filter=filter_schema, order=order)
 
             result = PaginatedResponseContribuinteType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges, items=items)
             return result
