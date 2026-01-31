@@ -4,8 +4,9 @@ from typing import Any, Dict, Optional, Tuple
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.infraestructure.database.query.order_by_builder import build_order_by
+from app.infraestructure.database.query.pagination_builder import build_pagination
 from app.presentation.graphql.inputs.danfe_input import DanfeFilterInput, DanfeFilterLastSevenDaysInput, DanfeFilterMonthlyInput, DanfeOrderInput
-from app.presentation.graphql.inputs.order_input import OrderDirection
 
 
 class DanfeRepository:
@@ -43,25 +44,6 @@ class DanfeRepository:
         return " WHERE " + " AND ".join(where_clauses), params
 
 
-    def _apply_order_by_list(self, order: Optional[DanfeOrderInput]) -> str:
-        if not order:
-            return ""
-
-        order_clauses = []
-
-        for field, direction in vars(order).items():
-            if direction is None:
-                continue
-
-            sql_direction = "ASC" if direction == OrderDirection.ASC else "DESC"
-            order_clauses.append(f"c.{field} {sql_direction}")
-
-        if not order_clauses:
-            return ""
-
-        return " ORDER BY " + ", ".join(order_clauses)
-
-
     async def count_list(self, filter: Optional[DanfeFilterInput] = None) -> int:
         where_sql, params = self._apply_filter_list(filter=filter)
 
@@ -77,18 +59,17 @@ class DanfeRepository:
 
     async def get_list(self, offset: int, limit: int, filter: Optional[DanfeFilterInput] = None, order: Optional[DanfeOrderInput] = None):
         where_sql, params = self._apply_filter_list(filter=filter)
-        order_sql = self._apply_order_by_list(order=order)
+        order_sql = build_order_by(order=order)
+        pagination_sql, pagination_params = build_pagination(offset=offset, limit=limit)
+        params.update(pagination_params)
 
         sql = text(f"""
             SELECT d.ID_DANFE, d.CD_CONTRIBUINTE, d.NUMERO, d.VALOR_TOTAL, d.DATA_EMISSAO
             FROM NOTA_FISCAL.DANFE d
             {where_sql}
             {order_sql}
-            OFFSET :offset ROWS
-            FETCH NEXT :limit ROWS ONLY
+            {pagination_sql}
         """)
-
-        params.update({"offset": offset, "limit": limit})
 
         result = await self.session.execute(statement=sql, params=params)
         return result.mappings().all()
@@ -122,17 +103,16 @@ class DanfeRepository:
 
     async def get_last_seven_days(self, offset: int, limit: int, filter: DanfeFilterLastSevenDaysInput):
         where_sql, params = self._apply_filter_last_seven_days(filter=filter)
+        pagination_sql, pagination_params = build_pagination(offset=offset, limit=limit)
+        params.update(pagination_params)
 
         sql = text(f"""
             SELECT d.CD_CONTRIBUINTE, d.NUMERO, d.VALOR_TOTAL, d.DATA_EMISSAO
             FROM NOTA_FISCAL.DANFE d
             {where_sql}
             ORDER BY d.DATA_EMISSAO DESC
-            OFFSET :offset ROWS
-            FETCH NEXT :limit ROWS ONLY
+            {pagination_sql}
         """)
-
-        params.update({"offset": offset, "limit": limit})
 
         result = await self.session.execute(statement=sql, params=params)
         return result.mappings().all()
@@ -182,17 +162,16 @@ class DanfeRepository:
 
     async def get_monthly(self, offset: int, limit: int, filter: DanfeFilterMonthlyInput):
         where_sql, params = self._apply_filter_monthly(filter=filter)
+        pagination_sql, pagination_params = build_pagination(offset=offset, limit=limit)
+        params.update(pagination_params)
 
         sql = text(f"""
             SELECT d.NUMERO, d.VALOR_TOTAL, d.DATA_EMISSAO
             FROM NOTA_FISCAL.DANFE d
             {where_sql}
             ORDER BY d.DATA_EMISSAO DESC
-            OFFSET :offset ROWS
-            FETCH NEXT :limit ROWS ONLY
+            {pagination_sql}
         """)
-
-        params.update({"offset": offset, "limit": limit})
 
         result = await self.session.execute(statement=sql, params=params)
         return result.mappings().all()
