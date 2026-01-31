@@ -12,20 +12,20 @@ class ContribuinteRepository:
         self.session = session
 
 
-    def _apply_filters_list(self, filter: Optional[ContribuinteFilterInput]) -> Tuple[str, Dict[str, Any]]:
+    def _apply_filter_list(self, filter: Optional[ContribuinteFilterInput]) -> Tuple[str, Dict[str, Any]]:
         if not filter:
             return "", {}
 
-        where_clauses = []
+        where_clauses: list[str] = []
         params: Dict[str, Any] = {}
 
         for field, value in vars(filter).items():
             if value is None:
                 continue
 
-            if field == "nm_fantasia" and isinstance(value, str):
-                where_clauses.append(f"c.{field} LIKE :{field}")
-                params[field] = f"%{value}%"
+            if field == "nm_fantasia":
+                where_clauses.append("c.NM_FANTASIA LIKE :nm_fantasia")
+                params["nm_fantasia"] = f"%{value}%"
             else:
                 where_clauses.append(f"c.{field} = :{field}")
                 params[field] = value
@@ -34,6 +34,7 @@ class ContribuinteRepository:
             return "", {}
 
         return " WHERE " + " AND ".join(where_clauses), params
+
 
     def _apply_order_by_list(self, order: Optional[ContribuinteOrderInput]) -> str:
         if not order:
@@ -55,7 +56,7 @@ class ContribuinteRepository:
 
 
     async def count_list(self, filter: Optional[ContribuinteFilterInput] = None) -> int:
-        where_sql, params = self._apply_filters_list(filter=filter)
+        where_sql, params = self._apply_filter_list(filter=filter)
 
         sql = text(f"""
             SELECT COUNT(c.CD_CONTRIBUINTE)
@@ -68,7 +69,7 @@ class ContribuinteRepository:
 
 
     async def get_list(self, offset: int, limit: int, filter: Optional[ContribuinteFilterInput] = None, order: Optional[ContribuinteOrderInput] = None):
-        where_sql, params = self._apply_filters_list(filter=filter)
+        where_sql, params = self._apply_filter_list(filter=filter)
         order_sql = self._apply_order_by_list(order=order)
 
         sql = text(f"""

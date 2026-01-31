@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
-class EnderecoFilterSchema(BaseModel):
+class EnderecoSchema(BaseModel):
     cd_contribuinte: Optional[str] = Field(default=None, min_length=9, max_length=20)
     logradouro: Optional[str] = Field(default=None, min_length=5, max_length=200)
     municipio: Optional[str] = Field(default=None, min_length=5, max_length=100)

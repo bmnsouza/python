@@ -1,10 +1,11 @@
 from datetime import datetime, time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.infraestructure.database.models.danfe_model import DanfeModel
+from app.presentation.graphql.inputs.danfe_input import DanfeFilterInput, DanfeFilterLastSevenDaysInput, DanfeFilterMonthlyInput, DanfeOrderInput
+from app.presentation.graphql.inputs.order_input import OrderDirection
 
 
 class DanfeRepository:
@@ -12,107 +13,60 @@ class DanfeRepository:
         self.session = session
 
 
-    def _apply_filters_list(self, filters: Optional[Dict[str, Any]]) -> Tuple[str, Dict[str, Any]]:
-        where = []
-        params = {}
+    def _apply_filter_list(self, filter: Optional[DanfeFilterInput]) -> Tuple[str, Dict[str, Any]]:
+        if not filter:
+            return "", {}
 
-        if filters:
-            if "cd_contribuinte" in filters:
-                where.append("cd_contribuinte = :cd_contribuinte")
-                params["cd_contribuinte"] = filters["cd_contribuinte"]
+        where_clauses: list[str] = []
+        params: Dict[str, Any] = {}
 
-            if "numero" in filters:
-                where.append("numero = :numero")
-                params["numero"] = filters["numero"]
+        for field, value in vars(filter).items():
+            if value is None:
+                continue
 
-            if "valor_total" in filters:
-                where.append("valor_total >= :valor_total")
-                params["valor_total"] = filters["valor_total"]
+            if field in ("cd_contribuinte", "numero"):
+                where_clauses.append(f"d.{field} = :{field}")
+                params[field] = value
 
-            if "data_emissao" in filters:
-                dt = filters["data_emissao"]
-                start = datetime.combine(dt, time.min)
-                end = datetime.combine(dt, time.max)
+            elif field == "valor_total":
+                where_clauses.append("d.VALOR_TOTAL >= :valor_total")
+                params["valor_total"] = value
 
-                where.append("data_emissao BETWEEN :start AND :end")
-                params["start"] = start
-                params["end"] = end
+            elif field == "data_emissao":
+                where_clauses.append("d.DATA_EMISSAO BETWEEN :data_inicio AND :data_fim")
+                params["data_inicio"] = datetime.combine(value, time.min)
+                params["data_fim"] = datetime.combine(value, time.max)
 
-        if not where:
-            return "", params
+        if not where_clauses:
+            return "", {}
 
-        return " WHERE " + " AND ".join(where), params
+        return " WHERE " + " AND ".join(where_clauses), params
 
 
-    def _apply_filters_last_seven_days(self, cd_contribuinte: str) -> Tuple[str, Dict[str, Any]]:
-        where = []
-        params = {}
+    def _apply_order_by_list(self, order: Optional[DanfeOrderInput]) -> str:
+        if not order:
+            return ""
 
-        if cd_contribuinte:
-            where.append("cd_contribuinte = :cd_contribuinte")
-            params["cd_contribuinte"] = cd_contribuinte
-            where.append("TRUNC(DATA_EMISSAO) >= TRUNC(SYSDATE) - 7")
+        order_clauses = []
 
-        if not where:
-            return "", params
+        for field, direction in vars(order).items():
+            if direction is None:
+                continue
 
-        return " WHERE " + " AND ".join(where), params
+            sql_direction = "ASC" if direction == OrderDirection.ASC else "DESC"
+            order_clauses.append(f"c.{field} {sql_direction}")
 
+        if not order_clauses:
+            return ""
 
-    def _apply_filters_monthly(self, filters: Optional[Dict[str, Any]]) -> Tuple[str, Dict[str, Any]]:
-        where = []
-        params = {}
-
-        if filters:
-            if "cd_contribuinte" in filters:
-                where.append("d.cd_contribuinte = :cd_contribuinte")
-                params["cd_contribuinte"] = filters["cd_contribuinte"]
-
-            if "year" in filters:
-                where.append("EXTRACT(YEAR FROM d.DATA_EMISSAO) = :year")
-                params["year"] = filters["year"]
-
-            if "month" in filters:
-                where.append("EXTRACT(MONTH FROM d.DATA_EMISSAO) = :month")
-                params["month"] = filters["month"]
-
-        if not where:
-            return "", params
-
-        return " WHERE " + " AND ".join(where), params
+        return " ORDER BY " + ", ".join(order_clauses)
 
 
-    async def count_list(self, filters: Optional[Dict[str, Any]] = None) -> int:
-        where_sql, params = self._apply_filters_list(filters=filters)
+    async def count_list(self, filter: Optional[DanfeFilterInput] = None) -> int:
+        where_sql, params = self._apply_filter_list(filter=filter)
 
         sql = text(f"""
-            SELECT COUNT(ID_DANFE)
-            FROM NOTA_FISCAL.DANFE
-            {where_sql}
-        """)
-
-        result = await self.session.execute(statement=sql, params=params)
-        return result.scalar_one()
-
-
-    async def count_last_seven_days(self, cd_contribuinte: str) -> int:
-        where_sql, params = self._apply_filters_last_seven_days(cd_contribuinte=cd_contribuinte)
-
-        sql = text(f"""
-            SELECT COUNT(ID_DANFE)
-            FROM NOTA_FISCAL.DANFE
-            {where_sql}
-        """)
-
-        result = await self.session.execute(statement=sql, params=params)
-        return result.scalar_one()
-
-
-    async def count_monthly(self, filters: Optional[Dict[str, Any]] = None) -> int:
-        where_sql, params = self._apply_filters_monthly(filters=filters)
-
-        sql = text(f"""
-            SELECT COUNT(ID_DANFE)
+            SELECT COUNT(d.ID_DANFE)
             FROM NOTA_FISCAL.DANFE d
             {where_sql}
         """)
@@ -121,23 +75,13 @@ class DanfeRepository:
         return result.scalar_one()
 
 
-    async def get_list(self, offset: int, limit: int, filters: Optional[Dict[str, Any]] = None, order: Optional[List[Tuple[str, str]]] = None):
-        where_sql, params = self._apply_filters_list(filters=filters)
-
-        order_sql = ""
-        if order:
-            order_clauses = []
-            for field, direction in order:
-                if field in DanfeModel.__table__.columns:
-                    order_sql = "ASC" if direction.lower() == "asc" else "DESC"
-                    order_clauses.append(f"{field} {order_sql}")
-
-            if order_clauses:
-                order_sql = " ORDER BY " + ", ".join(order_clauses)
+    async def get_list(self, offset: int, limit: int, filter: Optional[DanfeFilterInput] = None, order: Optional[DanfeOrderInput] = None):
+        where_sql, params = self._apply_filter_list(filter=filter)
+        order_sql = self._apply_order_by_list(order=order)
 
         sql = text(f"""
-            SELECT ID_DANFE, CD_CONTRIBUINTE, NUMERO, VALOR_TOTAL, DATA_EMISSAO
-            FROM NOTA_FISCAL.DANFE
+            SELECT d.ID_DANFE, d.CD_CONTRIBUINTE, d.NUMERO, d.VALOR_TOTAL, d.DATA_EMISSAO
+            FROM NOTA_FISCAL.DANFE d
             {where_sql}
             {order_sql}
             OFFSET :offset ROWS
@@ -150,14 +94,40 @@ class DanfeRepository:
         return result.mappings().all()
 
 
-    async def get_last_seven_days(self, offset: int, limit: int, cd_contribuinte: str):
-        where_sql, params = self._apply_filters_last_seven_days(cd_contribuinte=cd_contribuinte)
+    def _apply_filter_last_seven_days(self, filter: DanfeFilterLastSevenDaysInput) -> Tuple[str, Dict[str, Any]]:
+        where_clauses: list[str] = []
+        params: Dict[str, Any] = {}
+
+        if filter.cd_contribuinte:
+            where_clauses.append("d.CD_CONTRIBUINTE = :cd_contribuinte")
+            params["cd_contribuinte"] = filter.cd_contribuinte
+
+        where_clauses.append("TRUNC(d.DATA_EMISSAO) >= TRUNC(SYSDATE) - 7")
+
+        return " WHERE " + " AND ".join(where_clauses), params
+
+
+    async def count_last_seven_days(self, filter: DanfeFilterLastSevenDaysInput) -> int:
+        where_sql, params = self._apply_filter_last_seven_days(filter=filter)
 
         sql = text(f"""
-            SELECT ID_DANFE, CD_CONTRIBUINTE, NUMERO, VALOR_TOTAL, DATA_EMISSAO
-            FROM NOTA_FISCAL.DANFE
+            SELECT COUNT(d.ID_DANFE)
+            FROM NOTA_FISCAL.DANFE d
             {where_sql}
-            ORDER BY DATA_EMISSAO
+        """)
+
+        result = await self.session.execute(statement=sql, params=params)
+        return result.scalar_one()
+
+
+    async def get_last_seven_days(self, offset: int, limit: int, filter: DanfeFilterLastSevenDaysInput):
+        where_sql, params = self._apply_filter_last_seven_days(filter=filter)
+
+        sql = text(f"""
+            SELECT d.CD_CONTRIBUINTE, d.NUMERO, d.VALOR_TOTAL, d.DATA_EMISSAO
+            FROM NOTA_FISCAL.DANFE d
+            {where_sql}
+            ORDER BY d.DATA_EMISSAO DESC
             OFFSET :offset ROWS
             FETCH NEXT :limit ROWS ONLY
         """)
@@ -168,14 +138,56 @@ class DanfeRepository:
         return result.mappings().all()
 
 
-    async def get_monthly(self, offset: int, limit: int, filters: Optional[Dict[str, Any]] = None):
-        where_sql, params = self._apply_filters_monthly(filters=filters)
+    def _apply_filter_monthly(self, filter: DanfeFilterMonthlyInput) -> Tuple[str, Dict[str, Any]]:
+        if not filter:
+            return "", {}
+
+        where_clauses: list[str] = []
+        params: Dict[str, Any] = {}
+
+        for field, value in vars(filter).items():
+            if value is None:
+                continue
+
+            if field == "cd_contribuinte":
+                where_clauses.append("d.CD_CONTRIBUINTE = :cd_contribuinte")
+                params["cd_contribuinte"] = value
+
+            elif field == "year":
+                where_clauses.append("EXTRACT(YEAR FROM d.DATA_EMISSAO) = :year")
+                params["year"] = value
+
+            elif field == "month":
+                where_clauses.append("EXTRACT(MONTH FROM d.DATA_EMISSAO) = :month")
+                params["month"] = value
+
+        if not where_clauses:
+            return "", {}
+
+        return " WHERE " + " AND ".join(where_clauses), params
+
+
+    async def count_monthly(self, filter: DanfeFilterMonthlyInput) -> int:
+        where_sql, params = self._apply_filter_monthly(filter=filter)
 
         sql = text(f"""
-            SELECT d.ID_DANFE, d.CD_CONTRIBUINTE, d.NUMERO, d.VALOR_TOTAL, d.DATA_EMISSAO
+            SELECT COUNT(d.ID_DANFE)
             FROM NOTA_FISCAL.DANFE d
             {where_sql}
-            ORDER BY d.DATA_EMISSAO
+        """)
+
+        result = await self.session.execute(statement=sql, params=params)
+        return result.scalar_one()
+
+
+    async def get_monthly(self, offset: int, limit: int, filter: DanfeFilterMonthlyInput):
+        where_sql, params = self._apply_filter_monthly(filter=filter)
+
+        sql = text(f"""
+            SELECT d.NUMERO, d.VALOR_TOTAL, d.DATA_EMISSAO
+            FROM NOTA_FISCAL.DANFE d
+            {where_sql}
+            ORDER BY d.DATA_EMISSAO DESC
             OFFSET :offset ROWS
             FETCH NEXT :limit ROWS ONLY
         """)

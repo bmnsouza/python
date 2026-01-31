@@ -1,9 +1,10 @@
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.infraestructure.database.models.endereco_model import EnderecoModel
+from app.presentation.graphql.inputs.endereco_input import EnderecoFilterInput, EnderecoOrderInput
+from app.presentation.graphql.inputs.order_input import OrderDirection
 
 
 class EnderecoRepository:
@@ -11,34 +12,55 @@ class EnderecoRepository:
         self.session = session
 
 
-    def _apply_filters_list(self, filters: Optional[Dict[str, Any]]) -> Tuple[str, Dict[str, Any]]:
-        where = []
-        params = {}
+    def _apply_filter_list(self, filter: Optional[EnderecoFilterInput]) -> Tuple[str, Dict[str, Any]]:
+        if not filter:
+            return "", {}
 
-        if filters:
-            for col, val in filters.items():
-                if not hasattr(EnderecoModel, col):
-                    continue
+        where_clauses: list[str] = []
+        params: Dict[str, Any] = {}
 
-                if isinstance(val, str) and col.lower() in ("logradouro", "municipio"):
-                    where.append(f"{col} LIKE :{col}")
-                    params[col] = f"%{val}%"
-                else:
-                    where.append(f"{col} = :{col}")
-                    params[col] = val
+        for field, value in vars(filter).items():
+            if value is None:
+                continue
 
-        if not where:
-            return "", params
+            if field in ("logradouro", "municipio"):
+                where_clauses.append(f"e.{field} LIKE :{field}")
+                params[field] = f"%{value}%"
+            else:
+                where_clauses.append(f"e.{field} = :{field}")
+                params[field] = value
 
-        return " WHERE " + " AND ".join(where), params
+        if not where_clauses:
+            return "", {}
+
+        return " WHERE " + " AND ".join(where_clauses), params
 
 
-    async def count_list(self, filters: Optional[Dict[str, Any]] = None) -> int:
-        where_sql, params = self._apply_filters_list(filters=filters)
+    def _apply_order_by_list(self, order: Optional[EnderecoOrderInput]) -> str:
+        if not order:
+            return ""
+
+        order_clauses = []
+
+        for field, direction in vars(order).items():
+            if direction is None:
+                continue
+
+            sql_direction = "ASC" if direction == OrderDirection.ASC else "DESC"
+            order_clauses.append(f"e.{field} {sql_direction}")
+
+        if not order_clauses:
+            return ""
+
+        return " ORDER BY " + ", ".join(order_clauses)
+
+
+    async def count_list(self, filter: Optional[EnderecoFilterInput] = None) -> int:
+        where_sql, params = self._apply_filter_list(filter=filter)
 
         sql = text(f"""
-            SELECT COUNT(ID_ENDERECO)
-            FROM NOTA_FISCAL.ENDERECO
+            SELECT COUNT(e.ID_ENDERECO)
+            FROM NOTA_FISCAL.ENDERECO e
             {where_sql}
         """)
 
@@ -46,23 +68,13 @@ class EnderecoRepository:
         return result.scalar_one()
 
 
-    async def get_list(self, offset: int, limit: int, filters: Optional[Dict[str, Any]] = None, order: Optional[List[Tuple[str, str]]] = None):
-        where_sql, params = self._apply_filters_list(filters=filters)
-
-        order_sql = ""
-        if order:
-            order_clauses = []
-            for field, direction in order:
-                if field in EnderecoModel.__table__.columns:
-                    order_sql = "ASC" if direction.lower() == "asc" else "DESC"
-                    order_clauses.append(f"{field} {order_sql}")
-
-            if order_clauses:
-                order_sql = " ORDER BY " + ", ".join(order_clauses)
+    async def get_list(self, offset: int, limit: int, filter: Optional[EnderecoFilterInput] = None, order: Optional[EnderecoOrderInput] = None):
+        where_sql, params = self._apply_filter_list(filter=filter)
+        order_sql = self._apply_order_by_list(order=order)
 
         sql = text(f"""
-            SELECT ID_ENDERECO, CD_CONTRIBUINTE, LOGRADOURO, MUNICIPIO, UF
-            FROM NOTA_FISCAL.ENDERECO
+            SELECT e.ID_ENDERECO, e.CD_CONTRIBUINTE, e.LOGRADOURO, e.MUNICIPIO, e.UF
+            FROM NOTA_FISCAL.ENDERECO e
             {where_sql}
             {order_sql}
             OFFSET :offset ROWS

@@ -6,7 +6,7 @@ from app.domain.services.endereco_service import EnderecoService
 from app.presentation.graphql.inputs.endereco_input import EnderecoFilterInput, EnderecoOrderInput
 from app.presentation.graphql.mappers.pagination_mapper import map_pagination
 from app.presentation.graphql.mappers.schema_mapper import map_to_schema
-from app.presentation.graphql.schemas.endereco_schema import EnderecoFilterSchema
+from app.presentation.graphql.schemas.endereco_schema import EnderecoSchema
 from app.presentation.graphql.types.endereco_type import PaginatedResponseEnderecoType
 
 
@@ -23,7 +23,7 @@ class EnderecoQuery:
         limit: int | None = None
     ) -> PaginatedResponseEnderecoType:
         try:
-            filter_schema = map_to_schema(data=filter, schema=EnderecoFilterSchema)
+            filter_schema = map_to_schema(data=filter, schema=EnderecoSchema)
             final_offset, final_limit, final_accept_ranges = map_pagination(offset=offset, limit=limit)
 
             session = info.context["session"]

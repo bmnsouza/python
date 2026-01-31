@@ -1,13 +1,14 @@
 from typing import List
 
 import strawberry
+from strawberry.experimental.pydantic import type as pydantic_type
+
+from app.application.dto.contribuinte_dto import ContribuinteDTO
 
 
-@strawberry.type
+@pydantic_type(model=ContribuinteDTO, all_fields=True)
 class ContribuinteType:
-    cd_contribuinte: str
-    nm_fantasia: str
-    cnpj_contribuinte: str
+    pass
 
 
 @strawberry.type

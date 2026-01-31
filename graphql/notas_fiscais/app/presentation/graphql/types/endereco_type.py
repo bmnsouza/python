@@ -1,15 +1,14 @@
 from typing import List
 
 import strawberry
+from strawberry.experimental.pydantic import type as pydantic_type
+
+from app.application.dto.endereco_dto import EnderecoDTO
 
 
-@strawberry.type
+@pydantic_type(model=EnderecoDTO, all_fields=True)
 class EnderecoType:
-    id_endereco: int
-    cd_contribuinte: str
-    logradouro: str
-    municipio: str
-    uf: str
+    pass
 
 
 @strawberry.type
