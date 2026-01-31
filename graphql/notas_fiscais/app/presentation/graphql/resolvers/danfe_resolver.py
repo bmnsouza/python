@@ -8,6 +8,7 @@ from app.presentation.graphql.mappers.pagination_mapper import map_pagination
 from app.presentation.graphql.mappers.schema_mapper import map_to_schema
 from app.presentation.graphql.schemas.danfe_schema import DanfeLastSevenDaysSchema, DanfeMonthlySchema, DanfeSchema
 from app.presentation.graphql.types.danfe_type import PaginatedResponseDanfeLastSevenDaysType, PaginatedResponseDanfeMonthlyType, PaginatedResponseDanfeType
+from app.presentation.graphql.types.pagination_type import PaginationType
 
 
 @strawberry.type
@@ -30,7 +31,7 @@ class DanfeQuery:
             service = DanfeService(session=session)
             total, items = await service.get_list(offset=final_offset, limit=final_limit, filter=filter_schema, order=order)
 
-            result = PaginatedResponseDanfeType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges, items=items)
+            result = PaginatedResponseDanfeType(pagination=PaginationType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges), items=items)
             return result
         except Exception as e:
             raise_graphql_error(exc=e)
@@ -52,7 +53,7 @@ class DanfeQuery:
             service = DanfeService(session=session)
             total, items = await service.get_last_seven_days(offset=final_offset, limit=final_limit, filter=filter_schema)
 
-            result = PaginatedResponseDanfeLastSevenDaysType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges, items=items)
+            result = PaginatedResponseDanfeLastSevenDaysType(pagination=PaginationType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges), items=items)
             return result
         except Exception as e:
             raise_graphql_error(exc=e)
@@ -74,7 +75,7 @@ class DanfeQuery:
             service = DanfeService(session=session)
             total, items = await service.get_monthly(offset=final_offset, limit=final_limit, filter=filter_schema)
 
-            result = PaginatedResponseDanfeMonthlyType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges, items=items)
+            result = PaginatedResponseDanfeMonthlyType(pagination=PaginationType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges), items=items)
             return result
         except Exception as e:
             raise_graphql_error(exc=e)

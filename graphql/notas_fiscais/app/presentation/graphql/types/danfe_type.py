@@ -4,7 +4,7 @@ import strawberry
 from strawberry.experimental.pydantic import type as pydantic_type
 
 from app.application.dto.danfe_dto import DanfeDTO, DanfeLastSevenDaysDTO, DanfeMonthlyDTO
-
+from app.presentation.graphql.types.pagination_type import PaginationType
 
 @pydantic_type(model=DanfeDTO, all_fields=True)
 class DanfeType:
@@ -13,10 +13,7 @@ class DanfeType:
 
 @strawberry.type
 class PaginatedResponseDanfeType:
-    offset: int
-    limit: int
-    total: int
-    accept_ranges: int
+    pagination: PaginationType
     items: List[DanfeType]
 
 
@@ -27,10 +24,7 @@ class DanfeLastSevenDaysType:
 
 @strawberry.type
 class PaginatedResponseDanfeLastSevenDaysType:
-    offset: int
-    limit: int
-    total: int
-    accept_ranges: int
+    pagination: PaginationType
     items: List[DanfeLastSevenDaysType]
 
 
@@ -41,8 +35,5 @@ class DanfeMonthlyType:
 
 @strawberry.type
 class PaginatedResponseDanfeMonthlyType:
-    offset: int
-    limit: int
-    total: int
-    accept_ranges: int
+    pagination: PaginationType
     items: List[DanfeMonthlyType]

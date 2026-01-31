@@ -4,6 +4,7 @@ import strawberry
 from strawberry.experimental.pydantic import type as pydantic_type
 
 from app.application.dto.endereco_dto import EnderecoDTO
+from app.presentation.graphql.types.pagination_type import PaginationType
 
 
 @pydantic_type(model=EnderecoDTO, all_fields=True)
@@ -13,8 +14,5 @@ class EnderecoType:
 
 @strawberry.type
 class PaginatedResponseEnderecoType:
-    offset: int
-    limit: int
-    total: int
-    accept_ranges: int
+    pagination: PaginationType
     items: List[EnderecoType]

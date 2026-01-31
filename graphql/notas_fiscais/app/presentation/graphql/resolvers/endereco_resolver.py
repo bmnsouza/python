@@ -8,6 +8,7 @@ from app.presentation.graphql.mappers.pagination_mapper import map_pagination
 from app.presentation.graphql.mappers.schema_mapper import map_to_schema
 from app.presentation.graphql.schemas.endereco_schema import EnderecoSchema
 from app.presentation.graphql.types.endereco_type import PaginatedResponseEnderecoType
+from app.presentation.graphql.types.pagination_type import PaginationType
 
 
 @strawberry.type
@@ -30,7 +31,7 @@ class EnderecoQuery:
             service = EnderecoService(session=session)
             total, items = await service.get_list(offset=final_offset, limit=final_limit, filter=filter_schema, order=order)
 
-            result = PaginatedResponseEnderecoType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges, items=items)
+            result = PaginatedResponseEnderecoType(pagination=PaginationType(offset=final_offset, limit=final_limit, total=total, accept_ranges=final_accept_ranges), items=items)
             return result
         except Exception as e:
             raise_graphql_error(exc=e)
