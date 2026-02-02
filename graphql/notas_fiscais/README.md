@@ -60,10 +60,12 @@ notas_fiscais/
 │   |   |   ├── contribuinte_repository.py
 │   |   |   ├── danfe_repository.py
 │   |   |   └── endereco_repository.py
-│   |   └── services/
-│   |       ├── contribuinte_service.py
-│   |       ├── danfe_service.py
-│   |       └── endereco_service.py
+│   |   ├── services/
+│   |   |   ├── contribuinte_service.py
+│   |   |   ├── danfe_service.py
+│   |   |   └── endereco_service.py
+│   |   └── values/
+│   |       └── contribuinte_value.py
 │   ├── infraestructure/
 │   |   └── database/
 │   |       ├── models.py
