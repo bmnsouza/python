@@ -1,17 +1,11 @@
 from contextlib import asynccontextmanager
 
 import logging
-import strawberry
-
-from strawberry.fastapi import GraphQLRouter
 
 from fastapi import FastAPI
 
 from app.infraestructure.database import connection
-from app.infraestructure.database.context import get_context
-from app.presentation.graphql.resolvers.contribuinte_resolver import ContribuinteQuery
-from app.presentation.graphql.resolvers.danfe_resolver import DanfeQuery
-from app.presentation.graphql.resolvers.endereco_resolver import EnderecoQuery
+from app.presentation.graphql.graphql_router import get_graphql_routers
 
 logger = logging.getLogger(__name__)
 
@@ -41,21 +35,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# GraphQL
-# Contribuinte
-schema_contribuinte = strawberry.Schema(query=ContribuinteQuery)
-graphql_contribuinte = GraphQLRouter(schema=schema_contribuinte, context_getter=get_context)
-app.include_router(router=graphql_contribuinte, prefix="/graphql/contribuinte")
 
-# Danfe
-schema_danfe = strawberry.Schema(query=DanfeQuery)
-graphql_danfe = GraphQLRouter(schema=schema_danfe, context_getter=get_context)
-app.include_router(router=graphql_danfe, prefix="/graphql/danfe")
-
-# Endereco
-schema_endereco = strawberry.Schema(query=EnderecoQuery)
-graphql_endereco = GraphQLRouter(schema=schema_endereco, context_getter=get_context)
-app.include_router(router=graphql_endereco, prefix="/graphql/endereco")
+# Registrando todos os routers GraphQL dinamicamente
+for prefix, router in get_graphql_routers():
+    app.include_router(router=router, prefix=prefix)
 
 
 @app.get("/")

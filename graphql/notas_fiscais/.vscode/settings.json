@@ -18,6 +18,7 @@
     "--disable=too-many-arguments",
     "--disable=too-many-branches",
     "--disable=too-many-locals",
-    "--disable=too-many-positional-arguments"
+    "--disable=too-many-positional-arguments",
+    "--disable=unused-argument"
   ]
 }

@@ -44,6 +44,7 @@ notas_fiscais/
 ├── app/
 │   ├── application/
 │   |   ├── dto/
+│   |   |   ├── contribuinte_danfe_dto.py
 │   |   |   ├── contribuinte_dto.py
 │   |   |   ├── danfe_dto.py
 │   |   |   └── endereco_dto.py
@@ -57,15 +58,18 @@ notas_fiscais/
 │   |   └── exception.py
 │   ├── domain/
 │   |   ├── repositories/
+│   |   |   ├── contribuinte_danfe_repository.py
 │   |   |   ├── contribuinte_repository.py
 │   |   |   ├── danfe_repository.py
 │   |   |   └── endereco_repository.py
 │   |   ├── services/
+│   |   |   ├── contribuinte_danfe_service.py
 │   |   |   ├── contribuinte_service.py
 │   |   |   ├── danfe_service.py
 │   |   |   └── endereco_service.py
 │   |   └── values/
-│   |       └── contribuinte_value.py
+│   |       ├── contribuinte_value.py
+│   |       └── data_value.py
 │   ├── infraestructure/
 │   |   └── database/
 │   |       ├── models.py
@@ -76,6 +80,7 @@ notas_fiscais/
 │   |       |   ├── order_by_builder.py
 │   |       |   └── pagination_builder.py
 │   |       ├── repositories.py
+│   |       |   ├── contribuinte_danfe_repository_impl.py
 │   |       |   ├── contribuinte_repository_impl.py
 │   |       |   ├── danfe_repository_impl.py
 │   |       |   └── endereco_repository_impl.py
@@ -85,6 +90,7 @@ notas_fiscais/
 │   └── presentation/
 │       └── graphql/
 │           ├── inputs/
+│           |   ├── contribuinte_danfe_input.py
 │           |   ├── contribuinte_input.py
 │           |   ├── danfe_input.py
 │           |   ├── endereco_input.py
@@ -92,19 +98,22 @@ notas_fiscais/
 │           ├── mappers/
 │           |   └── pagination_mapper.py
 │           ├── resolvers/
-│           |   ├── __init__.py
+│           |   ├── contribuinte_danfe_resolver.py
 │           |   ├── contribuinte_resolver.py
 │           |   ├── danfe_resolver.py
 │           |   └── endereco_resolver.py
 │           ├── types/
+│           |   ├── contribuinte_danfe_type.py
 │           |   ├── contribuinte_type.py
 │           |   ├── danfe_type.py
 │           |   ├── endereco_type.py
 │           |   └── pagination_type.py
-│           └── validators/
-│               ├── contribuinte_validator.py
-│               ├── danfe_validator.py
-│               └── endereco_validator.py
+│           ├── validators/
+│           |   ├── contribuinte_danfe_validator.py
+│           |   ├── contribuinte_validator.py
+│           |   ├── danfe_validator.py
+│           |   └── endereco_validator.py
+│           └── graphql_router.py
 ├── sql/
 │   ├── script.sql
 │   └── setup.sql
