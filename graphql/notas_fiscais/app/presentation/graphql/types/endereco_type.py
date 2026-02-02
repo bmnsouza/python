@@ -3,16 +3,16 @@ from typing import List
 import strawberry
 from strawberry.experimental.pydantic import type as pydantic_type
 
-from app.application.dto.endereco_dto import EnderecoDTO
+from app.application.dto.endereco_dto import EnderecoListDTO
 from app.presentation.graphql.types.pagination_type import PaginationType
 
 
-@pydantic_type(model=EnderecoDTO, all_fields=True)
-class EnderecoType:
+@pydantic_type(model=EnderecoListDTO, all_fields=True)
+class EnderecoListType:
     pass
 
 
 @strawberry.type
-class PaginatedResponseEnderecoType:
+class PaginatedResponseEnderecoListType:
     pagination: PaginationType
-    items: List[EnderecoType]
+    items: List[EnderecoListType]

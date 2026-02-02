@@ -1,28 +1,41 @@
 import logging
 
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.application.dto.contribuinte_dto import ContribuinteDTO
+from app.application.dto.contribuinte_dto import ContribuinteListDTO
 from app.core.exception import map_data_base_error
 from app.domain.repositories.contribuinte_repository import ContribuinteRepository
-from app.presentation.graphql.inputs.contribuinte_input import ContribuinteFilterInput, ContribuinteOrderInput
+from app.presentation.graphql.mappers.pagination_mapper import Pagination
 
 logger = logging.getLogger(__name__)
 
 
 class ContribuinteService:
-    def __init__(self, session: AsyncSession):
-        self.repo = ContribuinteRepository(session=session)
+
+    def __init__(self, repo: ContribuinteRepository):
+        self.repo = repo
 
 
-    async def get_list(self, offset: int, limit: int, filter: Optional[ContribuinteFilterInput], order: Optional[ContribuinteOrderInput]) -> Tuple[int, List[ContribuinteDTO]]:
+    async def get_list(
+        self,
+        *,
+        pagination: Pagination,
+        filter: dict | None,
+        order: dict | None
+    ) -> Tuple[int, List[ContribuinteListDTO]]:
         try:
             total = await self.repo.count_list(filter=filter)
-            rows = await self.repo.get_list(offset=offset, limit=limit, filter=filter, order=order)
+            rows = await self.repo.get_list(
+                pagination=pagination,
+                filter=filter,
+                order=order
+            )
 
-            return total, [ContribuinteDTO.model_validate(r) for r in rows]
+            return total, [
+                ContribuinteListDTO.model_validate(row)
+                for row in rows
+            ]
+
         except Exception as e:
             logger.exception("Erro ao obter contribuintes %s", e)
             map_data_base_error(e)

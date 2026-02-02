@@ -1,10 +1,11 @@
 from typing import Dict, Tuple
 
+from app.presentation.graphql.mappers.pagination_mapper import Pagination
+
 
 def build_pagination(
     *,
-    offset: int,
-    limit: int,
+    pagination: Pagination
 ) -> Tuple[str, Dict[str, int]]:
     sql = """
     OFFSET :offset ROWS
@@ -12,8 +13,8 @@ def build_pagination(
     """
 
     params = {
-        "offset": offset,
-        "limit": limit,
+        "offset": pagination.offset,
+        "limit": pagination.limit,
     }
 
     return sql, params

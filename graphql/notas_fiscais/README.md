@@ -43,10 +43,14 @@ notas_fiscais/
 │   └── settings.json
 ├── app/
 │   ├── application/
-│   |   └── dto/
-│   |       ├── contribuinte_dto.py
-│   |       ├── danfe_dto.py
-│   |       └── endereco_dto.py
+│   |   ├── dto/
+│   |   |   ├── contribuinte_dto.py
+│   |   |   ├── danfe_dto.py
+│   |   |   └── endereco_dto.py
+│   |   ├── mappers/
+│   |   |   └── neutral_mapper.py
+│   |   └── validators/
+│   |       └── schema_validator.py
 │   ├── core/
 │   |   ├── config.py
 │   |   ├── constants.py
@@ -70,6 +74,10 @@ notas_fiscais/
 │   |       ├── query.py
 │   |       |   ├── order_by_builder.py
 │   |       |   └── pagination_builder.py
+│   |       ├── repositories.py
+│   |       |   ├── contribuinte_repository_impl.py
+│   |       |   ├── danfe_repository_impl.py
+│   |       |   └── endereco_repository_impl.py
 │   |       ├── connection.py
 │   |       ├── context.py
 │   |       └── session.py
@@ -81,8 +89,7 @@ notas_fiscais/
 │           |   ├── endereco_input.py
 │           |   └── order_input.py
 │           ├── mappers/
-│           |   ├── pagination_mapper.py
-│           |   └── schema_mapper.py
+│           |   └── pagination_mapper.py
 │           ├── resolvers/
 │           |   ├── __init__.py
 │           |   ├── contribuinte_resolver.py

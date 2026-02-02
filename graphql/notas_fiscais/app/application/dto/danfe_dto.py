@@ -3,7 +3,7 @@ from decimal import Decimal
 from pydantic import BaseModel
 
 
-class DanfeDTO(BaseModel):
+class DanfeListDTO(BaseModel):
     id_danfe: int
     cd_contribuinte: str
     numero: str
