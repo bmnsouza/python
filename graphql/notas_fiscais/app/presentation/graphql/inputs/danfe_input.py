@@ -5,6 +5,7 @@ import strawberry
 
 from app.presentation.graphql.inputs.order_input import OrderDirection
 
+
 @strawberry.input
 class DanfeListFilterInput:
     cd_contribuinte: str | None = None

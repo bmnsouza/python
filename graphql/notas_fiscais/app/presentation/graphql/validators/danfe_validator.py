@@ -1,8 +1,9 @@
 from datetime import date
 from decimal import Decimal
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field
 
 from app.domain.values.contribuinte_value import CdContribuinte
+from app.domain.values.data_value import field_date_validator_not_future, year_month_validator_not_future
 from app.presentation.graphql.inputs.order_input import OrderDirection
 
 
@@ -12,19 +13,7 @@ class DanfeListFilterInputValidator(BaseModel):
     valor_total: Decimal | None = Field(default=None, max_digits=12, decimal_places=2)
     data_emissao: date | None = Field(default=None)
 
-    @field_validator("data_emissao")
-    @classmethod
-    def validate_data_emissao_not_future(cls, value: date | None):
-        if value is None:
-            return value
-
-        if value < date(1900, 1, 1):
-            raise ValueError("Data de emissão deve ser ≥ 1900-01-01")
-
-        if value > date.today():
-            raise ValueError("Data de emissão não pode ser futura")
-
-        return value
+    _validate_data_emissao = field_date_validator_not_future("data_emissao")
 
 
 class DanfeListOrderInputValidator(BaseModel):
@@ -43,11 +32,4 @@ class DanfeMonthlyFilterInputValidator(BaseModel):
     year: int = Field(..., ge=1900)
     month: int = Field(..., ge=1, le=12)
 
-    @model_validator(mode="after")
-    def validate_year_month_not_future(self):
-        today = date.today()
-
-        if (self.year, self.month) > (today.year, today.month):
-            raise ValueError("O ano e o mês informados não podem ser posteriores ao mês atual")
-
-        return self
+    _validate_year_month = year_month_validator_not_future("year", "month")
