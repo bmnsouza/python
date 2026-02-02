@@ -6,7 +6,7 @@ import strawberry
 from app.presentation.graphql.inputs.order_input import OrderDirection
 
 @strawberry.input
-class DanfeFilterInput:
+class DanfeListFilterInput:
     cd_contribuinte: str | None = None
     numero: str | None = None
     valor_total: Decimal | None = None
@@ -14,19 +14,19 @@ class DanfeFilterInput:
 
 
 @strawberry.input
-class DanfeFilterLastSevenDaysInput:
-    cd_contribuinte: str
-
-
-@strawberry.input
-class DanfeFilterMonthlyInput:
-    cd_contribuinte: str
-    year: int
-    month: int
-
-
-@strawberry.input
-class DanfeOrderInput:
+class DanfeListOrderInput:
     cd_contribuinte: OrderDirection | None = None
     cnpj_contribuinte: OrderDirection | None = None
     nm_fantasia: OrderDirection | None = None
+
+
+@strawberry.input
+class DanfeLastSevenDaysFilterInput:
+    cd_contribuinte: str
+
+
+@strawberry.input
+class DanfeMonthlyFilterInput:
+    cd_contribuinte: str
+    year: int
+    month: int

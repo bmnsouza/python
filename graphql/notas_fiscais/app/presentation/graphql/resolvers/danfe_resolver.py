@@ -2,15 +2,15 @@ import strawberry
 from strawberry.types import Info
 
 from app.application.mappers.neutral_mapper import to_neutral_dict
-from app.application.validators.schema_validator import validate_schema
+from app.application.validators.input_validator import validate_input
 from app.core.exception import raise_graphql_error
 from app.domain.services.danfe_service import DanfeService
 from app.infraestructure.database.repositories.danfe_repository_impl import DanfeRepositoryImpl
-from app.presentation.graphql.inputs.danfe_input import DanfeFilterInput, DanfeFilterLastSevenDaysInput, DanfeFilterMonthlyInput, DanfeOrderInput
+from app.presentation.graphql.inputs.danfe_input import DanfeListFilterInput, DanfeLastSevenDaysFilterInput, DanfeMonthlyFilterInput, DanfeListOrderInput
 from app.presentation.graphql.mappers.pagination_mapper import map_pagination
-from app.presentation.graphql.schemas.danfe_schema import DanfeInputSchema, DanfeLastSevenDaysInputSchema, DanfeMonthlyInputSchema, DanfeOrderSchema
 from app.presentation.graphql.types.danfe_type import PaginatedResponseDanfeLastSevenDaysType, PaginatedResponseDanfeMonthlyType, PaginatedResponseDanfeListType
 from app.presentation.graphql.types.pagination_type import PaginationType
+from app.presentation.graphql.validators.danfe_validator import DanfeLastSevenDaysFilterInputValidator, DanfeListFilterInputValidator, DanfeListOrderInputValidator, DanfeMonthlyFilterInputValidator
 
 
 @strawberry.type
@@ -23,20 +23,20 @@ class DanfeQuery:
         *,
         offset: int | None = None,
         limit: int | None = None,
-        filter: DanfeFilterInput | None = None,
-        order: DanfeOrderInput | None = None
+        filter: DanfeListFilterInput | None = None,
+        order: DanfeListOrderInput | None = None
     ) -> PaginatedResponseDanfeListType:
         try:
             neutral_filter = to_neutral_dict(obj=filter)
-            validate_schema(
+            validate_input(
                 data=filter,
-                schema=DanfeInputSchema
+                schema=DanfeListFilterInputValidator
             )
 
             neutral_order = to_neutral_dict(obj=order)
-            validate_schema(
+            validate_input(
                 data=neutral_order,
-                schema=DanfeOrderSchema
+                schema=DanfeListOrderInputValidator
             )
 
             pagination = map_pagination(offset=offset, limit=limit)
@@ -79,13 +79,13 @@ class DanfeQuery:
         *,
         offset: int | None = None,
         limit: int | None = None,
-        filter: DanfeFilterLastSevenDaysInput
+        filter: DanfeLastSevenDaysFilterInput
     ) -> PaginatedResponseDanfeLastSevenDaysType:
         try:
             neutral_filter = to_neutral_dict(obj=filter)
-            validate_schema(
+            validate_input(
                 data=filter,
-                schema=DanfeLastSevenDaysInputSchema
+                schema=DanfeLastSevenDaysFilterInputValidator
             )
 
             pagination = map_pagination(offset=offset, limit=limit)
@@ -121,13 +121,13 @@ class DanfeQuery:
         *,
         offset: int | None = None,
         limit: int | None = None,
-        filter: DanfeFilterMonthlyInput
+        filter: DanfeMonthlyFilterInput
     ) -> PaginatedResponseDanfeMonthlyType:
         try:
             neutral_filter = to_neutral_dict(obj=filter)
-            validate_schema(
+            validate_input(
                 data=filter,
-                schema=DanfeMonthlyInputSchema
+                schema=DanfeMonthlyFilterInputValidator
             )
 
             pagination = map_pagination(offset=offset, limit=limit)

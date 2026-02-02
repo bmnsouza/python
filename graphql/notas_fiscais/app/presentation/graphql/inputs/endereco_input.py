@@ -4,7 +4,7 @@ from app.presentation.graphql.inputs.order_input import OrderDirection
 
 
 @strawberry.input
-class EnderecoFilterInput:
+class EnderecoListFilterInput:
     cd_contribuinte: str | None = None
     logradouro: str | None = None
     municipio: str | None = None
@@ -12,7 +12,7 @@ class EnderecoFilterInput:
 
 
 @strawberry.input
-class EnderecoOrderInput:
+class EnderecoListOrderInput:
     cd_contribuinte: OrderDirection | None = None
     logradouro: OrderDirection | None = None
     municipio: OrderDirection | None = None

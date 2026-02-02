@@ -94,15 +94,15 @@ notas_fiscais/
 │           |   ├── contribuinte_resolver.py
 │           |   ├── danfe_resolver.py
 │           |   └── endereco_resolver.py
-│           ├── schemas/
-│           |   ├── contribuinte_schema.py
-│           |   ├── danfe_schema.py
-│           |   └── endereco_schema.py
-│           └── types/
-│               ├── contribuinte_type.py
-│               ├── danfe_type.py
-│               ├── endereco_type.py
-│               └── pagination_type.py
+│           ├── types/
+│           |   ├── contribuinte_type.py
+│           |   ├── danfe_type.py
+│           |   ├── endereco_type.py
+│           |   └── pagination_type.py
+│           └── validators/
+│               ├── contribuinte_validator.py
+│               ├── danfe_validator.py
+│               └── endereco_validator.py
 ├── sql/
 │   ├── script.sql
 │   └── setup.sql

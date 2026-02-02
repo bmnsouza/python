@@ -4,7 +4,7 @@ from pydantic import BaseModel
 SchemaT = TypeVar("SchemaT", bound=BaseModel)
 
 
-def validate_schema(
+def validate_input(
     *,
     data: Any | None,
     schema: Type[SchemaT],

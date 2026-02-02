@@ -31,7 +31,7 @@ def _normalize_pagination(
 
     normalized_offset = offset or 0
     normalized_limit = limit or max_limit
-    normalized_limit = min(offset=normalized_limit, limit=max_limit)
+    normalized_limit = min(normalized_limit, max_limit)
 
     return Pagination(
         offset=normalized_offset,
