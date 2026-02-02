@@ -1,4 +1,4 @@
-from typing import Optional, NamedTuple
+from typing import NamedTuple
 
 from app.core.constants import ACCEPT_RANGES
 from app.core.exception import raise_graphql_error
@@ -12,8 +12,8 @@ class Pagination(NamedTuple):
 
 def _validate_pagination(
     *,
-    offset: Optional[int],
-    limit: Optional[int],
+    offset:  int | None,
+    limit:  int | None
 ) -> None:
     if offset is not None and offset < 0:
         raise_graphql_error(description="offset deve ser >= 0")
@@ -24,14 +24,14 @@ def _validate_pagination(
 
 def _normalize_pagination(
     *,
-    offset: Optional[int],
-    limit: Optional[int],
+    offset:  int | None,
+    limit:  int | None
 ) -> Pagination:
     max_limit = ACCEPT_RANGES
 
     normalized_offset = offset or 0
     normalized_limit = limit or max_limit
-    normalized_limit = min(normalized_limit, max_limit)
+    normalized_limit = min(offset=normalized_limit, limit=max_limit)
 
     return Pagination(
         offset=normalized_offset,
@@ -42,14 +42,8 @@ def _normalize_pagination(
 
 def map_pagination(
     *,
-    offset: Optional[int],
-    limit: Optional[int],
+    offset:  int | None,
+    limit:  int | None
 ) -> Pagination:
-    """
-    Mapper de paginação:
-    - Valida dados vindos do adapter (GraphQL / HTTP)
-    - Normaliza valores
-    - Retorna estrutura neutra para o use case
-    """
     _validate_pagination(offset=offset, limit=limit)
     return _normalize_pagination(offset=offset, limit=limit)

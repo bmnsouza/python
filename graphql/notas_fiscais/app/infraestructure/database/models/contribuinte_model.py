@@ -1,4 +1,4 @@
-from typing import List, Optional, TYPE_CHECKING
+from typing import List, TYPE_CHECKING
 
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -16,7 +16,7 @@ class ContribuinteModel(Base):
 
     cd_contribuinte: Mapped[str] = mapped_column(String(20), primary_key=True)
     cnpj_contribuinte: Mapped[str] = mapped_column(String(14), unique=True, nullable=False)
-    nm_fantasia: Mapped[Optional[str]] = mapped_column(String(200), nullable=False)
+    nm_fantasia: Mapped[str | None] = mapped_column(String(200), nullable=False)
 
     danfes: Mapped[List["DanfeModel"]] = relationship(
         back_populates="contribuinte",

@@ -20,6 +20,7 @@ class DanfeQuery:
     async def get_list(
         self,
         info: Info,
+        *,
         offset: int | None = None,
         limit: int | None = None,
         filter: DanfeFilterInput | None = None,
@@ -74,8 +75,8 @@ class DanfeQuery:
     @strawberry.field
     async def get_last_seven_days(
         self,
-        *,
         info: Info,
+        *,
         offset: int | None = None,
         limit: int | None = None,
         filter: DanfeFilterLastSevenDaysInput
@@ -116,8 +117,8 @@ class DanfeQuery:
     @strawberry.field
     async def get_monthly(
         self,
-        *,
         info: Info,
+        *,
         offset: int | None = None,
         limit: int | None = None,
         filter: DanfeFilterMonthlyInput

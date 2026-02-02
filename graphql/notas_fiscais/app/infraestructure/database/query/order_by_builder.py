@@ -1,19 +1,18 @@
-from typing import Optional
 
-from app.presentation.graphql.inputs.order_input import OrderDirection
-
-
-def build_order_by(order: Optional[object]) -> str:
+def build_order_by(order: dict[str, str]) -> str:
     if not order:
         return ""
 
     clauses = []
 
-    for field, direction in vars(order).items():
+    for field, direction in order.items():
         if direction is None:
             continue
 
-        sql_direction = "ASC" if direction == OrderDirection.ASC else "DESC"
+        sql_direction = "ASC"
+        if str(direction).upper() == "DESC":
+            sql_direction = "DESC"
+
         clauses.append(f"{field} {sql_direction}")
 
     if not clauses:

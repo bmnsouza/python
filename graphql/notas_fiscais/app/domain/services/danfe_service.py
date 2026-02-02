@@ -20,8 +20,8 @@ class DanfeService:
         self,
         *,
         pagination: Pagination,
-        filter: dict | None,
-        order: dict | None
+        filter: dict | None = None,
+        order: dict | None = None
     ) -> Tuple[int, List[DanfeListDTO]]:
         try:
             total = await self.repo.count_list(filter=filter)
@@ -45,7 +45,7 @@ class DanfeService:
         self,
         *,
         pagination: Pagination,
-        filter: dict | None
+        filter: dict
     ) -> Tuple[int, List[DanfeLastSevenDaysDTO]]:
         try:
             total = await self.repo.count_last_seven_days(filter=filter)
@@ -68,7 +68,7 @@ class DanfeService:
         self,
         *,
         pagination: Pagination,
-        filter: dict | None
+        filter: dict
     ) -> Tuple[int, List[DanfeMonthlyDTO]]:
         try:
             total = await self.repo.count_monthly(filter=filter)

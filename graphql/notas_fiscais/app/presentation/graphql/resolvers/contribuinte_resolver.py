@@ -20,6 +20,7 @@ class ContribuinteQuery:
     async def get_list(
         self,
         info: Info,
+        *,
         offset: int | None = None,
         limit: int | None = None,
         filter: ContribuinteFilterInput | None = None,
@@ -34,7 +35,7 @@ class ContribuinteQuery:
 
             neutral_order = to_neutral_dict(obj=order)
             validate_schema(
-                data=neutral_order, 
+                data=neutral_order,
                 schema=ContribuinteOrderSchema
             )
 

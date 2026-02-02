@@ -1,5 +1,3 @@
-from typing import Optional
-
 import strawberry
 
 from app.presentation.graphql.inputs.order_input import OrderDirection
@@ -7,15 +5,15 @@ from app.presentation.graphql.inputs.order_input import OrderDirection
 
 @strawberry.input
 class EnderecoFilterInput:
-    cd_contribuinte: Optional[str] = None
-    logradouro: Optional[str] = None
-    municipio: Optional[str] = None
-    uf: Optional[str] = None
+    cd_contribuinte: str | None = None
+    logradouro: str | None = None
+    municipio: str | None = None
+    uf: str | None = None
 
 
 @strawberry.input
 class EnderecoOrderInput:
-    cd_contribuinte: Optional[OrderDirection] = None
-    logradouro: Optional[OrderDirection] = None
-    municipio: Optional[OrderDirection] = None
-    uf: Optional[OrderDirection] = None
+    cd_contribuinte: OrderDirection | None = None
+    logradouro: OrderDirection | None = None
+    municipio: OrderDirection | None = None
+    uf: OrderDirection | None = None

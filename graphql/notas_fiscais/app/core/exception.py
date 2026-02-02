@@ -37,7 +37,13 @@ def map_data_base_error(e: Exception):
     raise e
 
 
-def raise_graphql_error(exc: Exception = None, *, code: str = None, title: str = None, description: str = None) -> None:
+def raise_graphql_error(
+    exc: Exception = None,
+    *,
+    code: str = None,
+    title: str = None,
+    description: str = None
+) -> None:
 
     # Se já é GraphQLError → relança
     if isinstance(exc, GraphQLError):

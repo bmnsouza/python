@@ -7,7 +7,7 @@ class ContribuinteRepository(Protocol):
 
     async def count_list(
         self,
-        filter: dict | None
+        filter: dict | None = None
     ) -> int:
         ...
 
@@ -16,7 +16,7 @@ class ContribuinteRepository(Protocol):
         self,
         *,
         pagination: Pagination,
-        filter: dict | None,
-        order: dict | None
+        filter: dict | None = None,
+        order: dict | None = None
     ) -> List[dict]:
         ...

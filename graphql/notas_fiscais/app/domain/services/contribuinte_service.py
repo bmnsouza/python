@@ -20,8 +20,8 @@ class ContribuinteService:
         self,
         *,
         pagination: Pagination,
-        filter: dict | None,
-        order: dict | None
+        filter: dict | None = None,
+        order: dict | None = None
     ) -> Tuple[int, List[ContribuinteListDTO]]:
         try:
             total = await self.repo.count_list(filter=filter)

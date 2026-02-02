@@ -56,7 +56,6 @@ notas_fiscais/
 │   |   ├── constants.py
 │   |   └── exception.py
 │   ├── domain/
-│   |   ├── entities/
 │   |   ├── repositories/
 │   |   |   ├── contribuinte_repository.py
 │   |   |   ├── danfe_repository.py

@@ -16,7 +16,7 @@ class ContribuinteRepositoryImpl:
 
     def _apply_filter_list(
         self,
-        filter: dict | None
+        filter: dict
     ) -> Tuple[str, Dict[str, Any]]:
         if not filter:
             return "", {}
@@ -43,7 +43,7 @@ class ContribuinteRepositoryImpl:
 
     async def count_list(
         self,
-        filter: dict | None
+        filter: dict | None = None
     ) -> int:
         where_sql, params = self._apply_filter_list(filter=filter)
 
@@ -61,8 +61,8 @@ class ContribuinteRepositoryImpl:
         self,
         *,
         pagination: Pagination,
-        filter: dict | None,
-        order: dict | None
+        filter: dict | None = None,
+        order: dict | None = None
     ) -> List[dict]:
         where_sql, params = self._apply_filter_list(filter=filter)
         order_sql = build_order_by(order=order)

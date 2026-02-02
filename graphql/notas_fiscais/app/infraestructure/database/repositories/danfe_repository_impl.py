@@ -17,7 +17,7 @@ class DanfeRepositoryImpl:
 
     def _apply_filter_list(
         self,
-        filter: dict | None
+        filter: dict
     ) -> Tuple[str, Dict[str, Any]]:
         if not filter:
             return "", {}
@@ -50,7 +50,7 @@ class DanfeRepositoryImpl:
 
     async def count_list(
         self,
-        filter: dict | None
+        filter: dict | None = None
     ) -> int:
         where_sql, params = self._apply_filter_list(filter=filter)
 
@@ -68,8 +68,8 @@ class DanfeRepositoryImpl:
         self,
         *,
         pagination: Pagination,
-        filter: dict | None,
-        order: dict | None
+        filter: dict | None = None,
+        order: dict | None = None
     ) -> List[dict]:
         where_sql, params = self._apply_filter_list(filter=filter)
         order_sql = build_order_by(order=order)
@@ -92,14 +92,19 @@ class DanfeRepositoryImpl:
         self,
         filter: dict
     ) -> Tuple[str, Dict[str, Any]]:
+        if not filter:
+            return "", {}
+
         where_clauses: list[str] = []
         params: Dict[str, Any] = {}
 
         if "cd_contribuinte" in filter:
             where_clauses.append("d.CD_CONTRIBUINTE = :cd_contribuinte")
             params["cd_contribuinte"] = filter["cd_contribuinte"]
+            where_clauses.append("TRUNC(d.DATA_EMISSAO) >= TRUNC(SYSDATE) - 7")
 
-        where_clauses.append("TRUNC(d.DATA_EMISSAO) >= TRUNC(SYSDATE) - 7")
+        if not where_clauses:
+            return "", {}
 
         return " WHERE " + " AND ".join(where_clauses), params
 
@@ -146,6 +151,9 @@ class DanfeRepositoryImpl:
         self,
         filter: dict
     ) -> Tuple[str, Dict[str, Any]]:
+        if not filter:
+            return "", {}
+
         where_clauses: list[str] = []
         params: Dict[str, Any] = {}
 
@@ -173,7 +181,7 @@ class DanfeRepositoryImpl:
 
     async def count_monthly(
         self,
-        filter: dict | None
+        filter: dict
     ) -> int:
         where_sql, params = self._apply_filter_monthly(filter=filter)
 

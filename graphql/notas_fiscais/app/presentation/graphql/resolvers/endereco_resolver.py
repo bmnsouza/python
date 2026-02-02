@@ -20,6 +20,7 @@ class EnderecoQuery:
     async def get_list(
         self,
         info: Info,
+        *,
         offset: int | None = None,
         limit: int | None = None,
         filter: EnderecoFilterInput | None = None,

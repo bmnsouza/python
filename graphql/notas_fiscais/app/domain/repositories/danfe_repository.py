@@ -7,7 +7,7 @@ class DanfeRepository(Protocol):
 
     async def count_list(
         self,
-        filter: dict | None
+        filter: dict | None = None
     ) -> int:
         ...
 
@@ -16,15 +16,15 @@ class DanfeRepository(Protocol):
         self,
         *,
         pagination: Pagination,
-        filter: dict | None,
-        order: dict | None
+        filter: dict | None = None,
+        order: dict | None = None
     ) -> List[dict]:
         ...
 
 
     async def count_last_seven_days(
         self,
-        filter: dict | None
+        filter: dict
     ) -> int:
         ...
 
@@ -33,14 +33,14 @@ class DanfeRepository(Protocol):
         self,
         *,
         pagination: Pagination,
-        filter: dict | None
+        filter: dict
     ) -> List[dict]:
         ...
 
 
     async def count_monthly(
         self,
-        filter: dict | None
+        filter: dict
     ) -> int:
         ...
 
@@ -49,6 +49,6 @@ class DanfeRepository(Protocol):
         self,
         *,
         pagination: Pagination,
-        filter: dict | None
+        filter: dict
     ) -> List[dict]:
         ...
