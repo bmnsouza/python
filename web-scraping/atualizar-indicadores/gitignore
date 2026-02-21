@@ -1,0 +1,63 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribuição / build
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Arquivos de ambiente
+.env
+.env.*
+*.env
+
+# =========================
+# Ambiente virtual
+# =========================
+.venv/
+venv/
+env/
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# Sistema Operacional
+# =========================
+# Windows
+Thumbs.db
+desktop.ini
+
+# Mac
+.DS_Store
+
+# =========================
+# Arquivos temporários
+# =========================
+*.tmp
+*.bak
+*.swp
+
+# =========================
+# SQLite / Banco local
+# =========================
+*.sqlite3
+*.db
+
+# =========================
+# Cache do Selenium / Web scraping
+# =========================
+*.crdownload

@@ -1,0 +1,33 @@
+{
+    "editor.insertSpaces": true,
+    "editor.rulers": [79],
+    "editor.tabSize": 4,
+    "editor.trimAutoWhitespace": true,
+
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/.mypy_cache": true,
+        "**/.pytest_cache": true
+    },
+
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+    },
+
+    "pylint.args": [
+        "--disable=broad-exception-caught",
+        "--disable=C0111",
+        "--disable=line-too-long",
+        "--disable=not-callable",
+        "--disable=raise-missing-from",
+        "--disable=redefined-builtin",
+        "--disable=too-few-public-methods",
+        "--disable=too-many-arguments",
+        "--disable=too-many-branches",
+        "--disable=too-many-locals",
+        "--disable=too-many-positional-arguments",
+        "--disable=unused-argument"
+    ],
+
+    "pylint.importStrategy": "fromEnvironment"
+}
