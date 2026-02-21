@@ -89,7 +89,7 @@ def processar_etfs(driver, worksheet):
             )
         except Exception as e:
             mensagem = f"Erro ao buscar ETF {ativo}: {e}"
-            print(mensagem)
+            print(f"\n{mensagem}")
             escrever_log(mensagem)
             break
 
@@ -137,7 +137,7 @@ def processar_fiis(driver, worksheet):
             )
         except Exception as e:
             mensagem = f"Erro ao buscar FII {ativo}: {e}"
-            print(mensagem)
+            print(f"\n{mensagem}")
             escrever_log(mensagem)
             break
 
