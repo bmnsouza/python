@@ -145,8 +145,6 @@ def processar_fiis(driver, worksheet):
 
 
 def main():
-    escrever_log("Iniciando atualização da planilha")
-
     driver = configurar_driver()
     workbook = load_workbook(ARQUIVO_EXCEL)
     worksheet = workbook[ABA_PLANILHA]
@@ -157,7 +155,6 @@ def main():
     workbook.save(ARQUIVO_EXCEL)
     driver.quit()
 
-    escrever_log("Planilha atualizada com sucesso.")
     print("\nPlanilha atualizada com sucesso.")
     time.sleep(5)
 
