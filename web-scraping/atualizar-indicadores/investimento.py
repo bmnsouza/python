@@ -30,12 +30,19 @@ ARQUIVO_EXCEL = "Investimento.xlsx"
 ABA_PLANILHA = "Indicadores"
 ETF = "ETF"
 FII = "FII"
-LOG_FILE = "erro.log"
 
-# Configuração de logging
-logging.basicConfig(
-    filename=LOG_FILE, level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+
+def log_erro(mensagem):
+    logger = logging.getLogger("meu_logger")
+
+    if not logger.handlers:
+        handler = logging.FileHandler("erro.log")
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.ERROR)
+
+    logger.error(mensagem)
 
 
 def configurar_driver():
@@ -91,7 +98,7 @@ def processar_ativos(driver, worksheet, url_base: str, inicio: int, tipo: str):
                 else:
                     mensagem = f"Dados incompletos para {ativo}"
                     print(f"\n{mensagem}")
-                    logging.warning(mensagem)
+                    log_erro(mensagem)
 
             elif tipo == FII:
                 preco = buscar_valor(driver, DIV_COTACAO + DIV_BODY + DIV_1 + SPAN_1)
@@ -106,12 +113,12 @@ def processar_ativos(driver, worksheet, url_base: str, inicio: int, tipo: str):
                 else:
                     mensagem = f"Dados incompletos para {ativo}"
                     print(f"\n{mensagem}")
-                    logging.warning(mensagem)
+                    log_erro(mensagem)
 
         except Exception as e:
             mensagem = f"Erro ao buscar {tipo} {ativo}: {e}"
             print(f"\n{mensagem}")
-            logging.error(mensagem)
+            log_erro(mensagem)
             break
 
         row += 1
@@ -140,7 +147,7 @@ def main():
     except Exception as e:
         mensagem = f"Erro inesperado: {e}"
         print(f"\n{mensagem}")
-        logging.error(mensagem)
+        log_erro(mensagem)
     finally:
         if workbook:
             workbook.close()
