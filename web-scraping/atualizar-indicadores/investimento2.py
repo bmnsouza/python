@@ -9,7 +9,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
-
 # URL
 URL_INVESTIDOR10_ETF = "https://investidor10.com.br/etfs-global"
 URL_INVESTIDOR10_FII = "https://investidor10.com.br/fiis"
@@ -31,13 +30,11 @@ ARQUIVO_EXCEL = "Investimento.xlsx"
 ABA_PLANILHA = "Indicadores"
 ETF = "ETF"
 FII = "FII"
-LOG_FILE = "log.txt"
+LOG_FILE = "erro.log"
 
 # Configuração de logging
 logging.basicConfig(
-    filename=LOG_FILE,
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    filename=LOG_FILE, level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
 
@@ -46,16 +43,16 @@ def configurar_driver():
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
+    options.add_argument(
+        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    )
     return webdriver.Chrome(options=options)
 
 
 def converter_moeda(valor: str) -> float:
     return float(
-        valor.replace("R$", "")
-        .replace("US$", "")
-        .replace(".", "")
-        .replace(",", ".")
-        .strip()
+        valor.replace("R$", "").replace("US$", "").replace(".", "").replace(",", ".").strip()
     )
 
 
@@ -87,25 +84,33 @@ def processar_ativos(driver, worksheet, url_base: str, inicio: int, tipo: str):
                 preco = buscar_valor(driver, DIV_COTACAO + DIV_BODY + DIV_ETF + SPAN_1)
                 dividendo = buscar_valor(driver, DIV_DY + DIV_BODY + SPAN_1)
 
-                print(f"{ativo} = Preço: {preco}; Dividendo: {dividendo}")
-
-                worksheet.cell(row=row, column=3).value = converter_moeda(preco)
-                worksheet.cell(row=row, column=4).value = converter_percentual(dividendo)
+                if preco and dividendo:
+                    print(f"{ativo} = Preço: {preco}; Dividendo: {dividendo}")
+                    worksheet.cell(row=row, column=3).value = converter_moeda(preco)
+                    worksheet.cell(row=row, column=4).value = converter_percentual(dividendo)
+                else:
+                    mensagem = f"Dados incompletos para {ativo}"
+                    print(f"\n{mensagem}")
+                    logging.warning(mensagem)
 
             elif tipo == FII:
                 preco = buscar_valor(driver, DIV_COTACAO + DIV_BODY + DIV_1 + SPAN_1)
                 vp = buscar_valor(driver, DIV_TABLE_INDICATORS + DIV_13 + DIV_DESC + DIV_VALUE)
                 dividendo = buscar_valor(driver, DIV_DY + DIV_BODY + DIV_1 + SPAN_1)
 
-                print(f"{ativo} = Preço: {preco}; VP: {vp}; Dividendo: {dividendo}")
-
-                worksheet.cell(row=row, column=3).value = converter_moeda(preco)
-                worksheet.cell(row=row, column=4).value = converter_moeda(vp)
-                worksheet.cell(row=row, column=5).value = converter_percentual(dividendo)
+                if preco and vp and dividendo:
+                    print(f"{ativo} = Preço: {preco}; VP: {vp}; Dividendo: {dividendo}")
+                    worksheet.cell(row=row, column=3).value = converter_moeda(preco)
+                    worksheet.cell(row=row, column=4).value = converter_moeda(vp)
+                    worksheet.cell(row=row, column=5).value = converter_percentual(dividendo)
+                else:
+                    mensagem = f"Dados incompletos para {ativo}"
+                    print(f"\n{mensagem}")
+                    logging.warning(mensagem)
 
         except Exception as e:
-            mensagem = f"\nErro ao buscar {tipo} {ativo}: {e}"
-            print(mensagem)
+            mensagem = f"Erro ao buscar {tipo} {ativo}: {e}"
+            print(f"\n{mensagem}")
             logging.error(mensagem)
             break
 
@@ -114,7 +119,9 @@ def processar_ativos(driver, worksheet, url_base: str, inicio: int, tipo: str):
 
 def main():
     inicio = time.time()
-    
+    driver = None
+    workbook = None
+
     try:
         driver = configurar_driver()
         workbook = load_workbook(ARQUIVO_EXCEL)
@@ -124,23 +131,22 @@ def main():
         processar_ativos(driver, worksheet, URL_INVESTIDOR10_FII, inicio=10, tipo=FII)
 
         workbook.save(ARQUIVO_EXCEL)
-        workbook.close()
-        driver.quit()
 
         fim = time.time()
         duracao = fim - inicio
         print("\nPlanilha atualizada com sucesso")
-        print(f"\nTempo total: {duracao:.2f} segundos")
+        print(f"Tempo total: {duracao:.2f} segundos")
         time.sleep(5)
     except Exception as e:
-        mensagem = f"\nErro inesperado: {e}"
-        print(mensagem)
+        mensagem = f"Erro inesperado: {e}"
+        print(f"\n{mensagem}")
         logging.error(mensagem)
-        
-        try:
+    finally:
+        if workbook:
+            workbook.close()
+        if driver:
             driver.quit()
-        except:
-            pass
+
 
 if __name__ == "__main__":
     main()
