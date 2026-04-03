@@ -1,10 +1,14 @@
 import time
-from datetime import datetime
+import logging
 
 from openpyxl import load_workbook
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
+
 
 # URL
 URL_INVESTIDOR10_ETF = "https://investidor10.com.br/etfs-global"
@@ -25,13 +29,16 @@ SPAN_1 = "/span[1]"
 # Outros
 ARQUIVO_EXCEL = "Investimento.xlsx"
 ABA_PLANILHA = "Indicadores"
+ETF = "ETF"
+FII = "FII"
 LOG_FILE = "log.txt"
 
-
-def escrever_log(mensagem: str):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open(file=LOG_FILE, mode="a", encoding="utf-8") as log:
-        log.write(f"{timestamp} - {mensagem}\n")
+# Configuração de logging
+logging.basicConfig(
+    filename=LOG_FILE,
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 def configurar_driver():
@@ -56,108 +63,84 @@ def converter_percentual(valor: str) -> float:
     return float(valor.replace("%", "").replace(",", ".").strip()) / 100
 
 
-def processar_etfs(driver, worksheet):
-    print("*** ETFs ***")
-    row = 3
+def buscar_valor(driver, xpath: str) -> str | None:
+    try:
+        wait = WebDriverWait(driver, 1)
+        return wait.until(EC.presence_of_element_located((By.XPATH, xpath))).text.strip()
+    except (NoSuchElementException, TimeoutException):
+        return None
+
+
+def processar_ativos(driver, worksheet, url_base: str, inicio: int, tipo: str):
+    print(f"\n*** {tipo.upper()} ***")
+    row = inicio
 
     while True:
         ativo = worksheet.cell(row=row, column=2).value
         if not ativo:
             break
 
-        driver.get(f"{URL_INVESTIDOR10_ETF}/{ativo.lower()}/")
-        time.sleep(1)
+        driver.get(f"{url_base}/{ativo.lower()}/")
 
         try:
-            preco = driver.find_element(
-                By.XPATH,
-                DIV_COTACAO + DIV_BODY + DIV_ETF + SPAN_1,
-            ).text.strip()
+            if tipo == ETF:
+                preco = buscar_valor(driver, DIV_COTACAO + DIV_BODY + DIV_ETF + SPAN_1)
+                dividendo = buscar_valor(driver, DIV_DY + DIV_BODY + SPAN_1)
 
-            dividendo = driver.find_element(
-                By.XPATH,
-                DIV_DY + DIV_BODY + SPAN_1,
-            ).text.strip()
+                print(f"{ativo} = Preço: {preco}; Dividendo: {dividendo}")
 
-            print(f"{ativo} = Preço: {preco}; Dividendo: {dividendo}")
+                worksheet.cell(row=row, column=3).value = converter_moeda(preco)
+                worksheet.cell(row=row, column=4).value = converter_percentual(dividendo)
 
-            worksheet.cell(row=row, column=3).value = converter_moeda(
-                valor=preco
-            )
-            worksheet.cell(row=row, column=4).value = converter_percentual(
-                valor=dividendo
-            )
+            elif tipo == FII:
+                preco = buscar_valor(driver, DIV_COTACAO + DIV_BODY + DIV_1 + SPAN_1)
+                vp = buscar_valor(driver, DIV_TABLE_INDICATORS + DIV_13 + DIV_DESC + DIV_VALUE)
+                dividendo = buscar_valor(driver, DIV_DY + DIV_BODY + DIV_1 + SPAN_1)
+
+                print(f"{ativo} = Preço: {preco}; VP: {vp}; Dividendo: {dividendo}")
+
+                worksheet.cell(row=row, column=3).value = converter_moeda(preco)
+                worksheet.cell(row=row, column=4).value = converter_moeda(vp)
+                worksheet.cell(row=row, column=5).value = converter_percentual(dividendo)
+
         except Exception as e:
-            mensagem = f"Erro ao buscar ETF {ativo}: {e}"
-            print(f"\n{mensagem}")
-            escrever_log(mensagem)
-            break
-
-        row += 1
-
-
-def processar_fiis(driver, worksheet):
-    print("\n*** FIIs ***")
-    row = 10
-
-    while True:
-        ativo = worksheet.cell(row=row, column=2).value
-        if not ativo:
-            break
-
-        driver.get(f"{URL_INVESTIDOR10_FII}/{ativo.lower()}/")
-        time.sleep(1)
-
-        try:
-            preco = driver.find_element(
-                By.XPATH,
-                DIV_COTACAO + DIV_BODY + DIV_1 + SPAN_1,
-            ).text.strip()
-
-            vp = driver.find_element(
-                By.XPATH,
-                DIV_TABLE_INDICATORS + DIV_13 + DIV_DESC + DIV_VALUE,
-            ).text.strip()
-
-            dividendo = driver.find_element(
-                By.XPATH,
-                DIV_DY + DIV_BODY + DIV_1 + SPAN_1,
-            ).text.strip()
-
-            print(
-                f"{ativo} = Preço: {preco}; VP: {vp}; Dividendo: {dividendo}"
-            )
-
-            worksheet.cell(row=row, column=3).value = converter_moeda(
-                valor=preco
-            )
-            worksheet.cell(row=row, column=4).value = converter_moeda(valor=vp)
-            worksheet.cell(row=row, column=5).value = converter_percentual(
-                valor=dividendo
-            )
-        except Exception as e:
-            mensagem = f"Erro ao buscar FII {ativo}: {e}"
-            print(f"\n{mensagem}")
-            escrever_log(mensagem)
+            mensagem = f"\nErro ao buscar {tipo} {ativo}: {e}"
+            print(mensagem)
+            logging.error(mensagem)
             break
 
         row += 1
 
 
 def main():
-    driver = configurar_driver()
-    workbook = load_workbook(ARQUIVO_EXCEL)
-    worksheet = workbook[ABA_PLANILHA]
+    inicio = time.time()
+    
+    try:
+        driver = configurar_driver()
+        workbook = load_workbook(ARQUIVO_EXCEL)
+        worksheet = workbook[ABA_PLANILHA]
 
-    processar_etfs(driver, worksheet)
-    processar_fiis(driver, worksheet)
+        processar_ativos(driver, worksheet, URL_INVESTIDOR10_ETF, inicio=3, tipo=ETF)
+        processar_ativos(driver, worksheet, URL_INVESTIDOR10_FII, inicio=10, tipo=FII)
 
-    workbook.save(ARQUIVO_EXCEL)
-    driver.quit()
+        workbook.save(ARQUIVO_EXCEL)
+        workbook.close()
+        driver.quit()
 
-    print("\nPlanilha atualizada com sucesso.")
-    time.sleep(5)
-
+        fim = time.time()
+        duracao = fim - inicio
+        print("\nPlanilha atualizada com sucesso")
+        print(f"\nTempo total: {duracao:.2f} segundos")
+        time.sleep(5)
+    except Exception as e:
+        mensagem = f"\nErro inesperado: {e}"
+        print(mensagem)
+        logging.error(mensagem)
+        
+        try:
+            driver.quit()
+        except:
+            pass
 
 if __name__ == "__main__":
     main()
