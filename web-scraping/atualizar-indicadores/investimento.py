@@ -143,7 +143,7 @@ def main():
         duracao = fim - inicio
         print("\nPlanilha atualizada com sucesso")
         print(f"Tempo total: {duracao:.2f} segundos")
-        time.sleep(5)
+        input("\nPresssione ENTER para sair ...")
     except Exception as e:
         mensagem = f"Erro inesperado: {e}"
         print(f"\n{mensagem}")
