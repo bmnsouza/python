@@ -6,8 +6,7 @@ Estudos de GraphQL.
 ### Pré-requisitos
 
 - Python 3.13.3
-- Oracle Client / Instant Client configurado
-- Banco de dados Oracle 11g ou superior
+- Banco de dados Oracle 21c
 - Pacotes Python (ver `requirements.txt`)
 
 ---
