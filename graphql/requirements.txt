@@ -1,0 +1,16 @@
+black
+ecs-logging
+fastapi
+flake8
+greenlet
+oracledb
+isort
+mypy
+pydantic
+pydantic-settings
+python-dotenv
+pylance
+pylint
+sqlalchemy[asyncio]
+strawberry-graphql[fastapi]
+uvicorn

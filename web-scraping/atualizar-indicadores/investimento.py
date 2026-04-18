@@ -135,7 +135,7 @@ def main():
         worksheet = workbook[ABA_PLANILHA]
 
         processar_ativos(driver, worksheet, URL_INVESTIDOR10_ETF, inicio=3, tipo=ETF)
-        processar_ativos(driver, worksheet, URL_INVESTIDOR10_FII, inicio=10, tipo=FII)
+        processar_ativos(driver, worksheet, URL_INVESTIDOR10_FII, inicio=15, tipo=FII)
 
         workbook.save(ARQUIVO_EXCEL)
 
