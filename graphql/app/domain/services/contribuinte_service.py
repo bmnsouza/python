@@ -3,7 +3,7 @@ import logging
 from app.core.exceptions import CustomException
 from app.presentation.dtos.contribuinte_dto import ContribuinteDTO
 from app.presentation.filters.contribuinte_filter import ContribuinteFilter, ContribuintesFilter
-from app.presentation.types.helpers.result_type import NodeWithRN, PaginatedResult
+from app.presentation.types.helpers.result_type import PaginatedResult
 
 from ..repositories.contribuinte_repository import ContribuinteRepository
 
@@ -32,7 +32,7 @@ class ContribuinteService:
         filtro: ContribuintesFilter,
         offset: int,
         limit: int,
-    ) -> PaginatedResult[NodeWithRN[ContribuinteDTO]] | None:
+    ) -> PaginatedResult[ContribuinteDTO] | None:
         try:
             rows = await self.repo.get_contribuintes(
                 filtro=filtro,
@@ -40,13 +40,7 @@ class ContribuinteService:
                 limit=limit,
             )
 
-            items = [
-                NodeWithRN(
-                    dto=ContribuinteDTO.model_validate(row),
-                    rn=row["rn"],
-                )
-                for row in rows
-            ]
+            items = [ContribuinteDTO.model_validate(row) for row in rows]
 
             return PaginatedResult(items=items)
         except Exception as e:

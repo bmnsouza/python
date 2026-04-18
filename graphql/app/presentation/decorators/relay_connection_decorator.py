@@ -9,17 +9,10 @@ from ..utils.cursor_util import Cursor
 
 T = TypeVar("T")
 
-MAX_PAGE_SIZE = 200
+MAX_PAGE_SIZE = 5
 
 
 def relay_connection(resolver) -> Connection[T]:
-    """
-    Transforma um PaginatedResult[NodeWithRN[DTO]] em Connection[DTO].
-    Estratégia:
-    - Busca first + 1 registros
-    - Se vier first + 1 → existe próxima página
-    """
-
     @wraps(resolver)
     async def wrapper(*args, **kwargs):
         # Normalização do first
@@ -40,7 +33,7 @@ def relay_connection(resolver) -> Connection[T]:
         if after is not None:
             after_decoded = Cursor.decode(after)
 
-        # Chama o resolver → espera PaginatedResult[NodeWithRN]
+        # Chama o resolver
         result = await resolver(*args, **kwargs)
         items = result.items
 
@@ -49,7 +42,11 @@ def relay_connection(resolver) -> Connection[T]:
 
         # Remove o item extra e monta edges
         items = items[:first]
-        edges = [Edge(node=item.dto, cursor=Cursor.encode(item.rn)) for item in items]
+
+        edges = [
+            Edge(node=item, cursor=Cursor.encode(after_decoded + i + 1))
+            for i, item in enumerate(items)
+        ]
 
         # Monta pageInfo
         page_info = PageInfo(

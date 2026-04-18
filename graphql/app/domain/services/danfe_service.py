@@ -3,7 +3,7 @@ import logging
 from app.core.exceptions import CustomException
 from app.presentation.dtos.danfe_dto import DanfeDTO
 from app.presentation.filters.danfe_filter import DanfeFilter, DanfesFilter
-from app.presentation.types.helpers.result_type import NodeWithRN, PaginatedResult
+from app.presentation.types.helpers.result_type import PaginatedResult
 
 from ..repositories.danfe_repository import DanfeRepository
 
@@ -32,7 +32,7 @@ class DanfeService:
         filtro: DanfesFilter,
         offset: int,
         limit: int,
-    ) -> PaginatedResult[NodeWithRN[DanfeDTO]] | None:
+    ) -> PaginatedResult[DanfeDTO] | None:
         try:
             rows = await self.repo.get_danfes(
                 filtro=filtro,
@@ -40,13 +40,7 @@ class DanfeService:
                 limit=limit,
             )
 
-            items = [
-                NodeWithRN(
-                    dto=DanfeDTO.model_validate(row),
-                    rn=row["rn"],
-                )
-                for row in rows
-            ]
+            items = [DanfeDTO.model_validate(row) for row in rows]
 
             return PaginatedResult(items=items)
         except Exception as e:

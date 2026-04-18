@@ -4,17 +4,12 @@ from sqlalchemy import text
 class SqlHelper:
 
     @staticmethod
-    def paginate(query: str, order_by: str) -> str:
+    def paginate(query: str, order_by: str) -> text:
         return text(f"""
         SELECT *
         FROM (
-            SELECT r.*,
-                ROW_NUMBER() OVER (ORDER BY {order_by}) rn
-            FROM (
-                {query}
-            ) r
-            ORDER BY {order_by}
+            {query}
         )
-        WHERE rn > :offset
-        AND rn <= :offset + :limit
+        ORDER BY {order_by}
+        OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
         """)

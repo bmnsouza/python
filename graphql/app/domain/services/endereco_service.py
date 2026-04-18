@@ -3,7 +3,7 @@ import logging
 from app.core.exceptions import CustomException
 from app.presentation.dtos.endereco_dto import EnderecoDTO
 from app.presentation.filters.endereco_filter import EnderecoFilter, EnderecosFilter
-from app.presentation.types.helpers.result_type import NodeWithRN, PaginatedResult
+from app.presentation.types.helpers.result_type import PaginatedResult
 
 from ..repositories.endereco_repository import EnderecoRepository
 
@@ -32,7 +32,7 @@ class EnderecoService:
         filtro: EnderecosFilter,
         offset: int,
         limit: int,
-    ) -> PaginatedResult[NodeWithRN[EnderecoDTO]] | None:
+    ) -> PaginatedResult[EnderecoDTO] | None:
         try:
             rows = await self.repo.get_enderecos(
                 filtro=filtro,
@@ -40,13 +40,7 @@ class EnderecoService:
                 limit=limit,
             )
 
-            items = [
-                NodeWithRN(
-                    dto=EnderecoDTO.model_validate(row),
-                    rn=row["rn"],
-                )
-                for row in rows
-            ]
+            items = [EnderecoDTO.model_validate(row) for row in rows]
 
             return PaginatedResult(items=items)
         except Exception as e:
