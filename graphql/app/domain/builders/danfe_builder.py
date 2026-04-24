@@ -2,9 +2,8 @@ from typing import Any
 
 from sqlalchemy import text
 
+from app.domain.builders.helpers.sql_helper import SqlHelper
 from app.presentation.filters.danfe_filter import DanfeFilter, DanfesFilter
-
-from ..builders.helpers.sql_helper import SqlHelper
 
 
 class DanfeBuilder:

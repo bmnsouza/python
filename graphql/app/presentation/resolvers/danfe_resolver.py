@@ -4,11 +4,10 @@ from strawberry.types import Info
 
 from app.core.exceptions import CustomException
 from app.domain.services.danfe_service import DanfeService
-
-from ..decorators.relay_connection_decorator import relay_connection
-from ..inputs.danfe_input import DanfeInput, DanfesInput
-from ..types.danfe_type import DanfeType
-from ..utils.cursor_util import Cursor
+from app.presentation.decorators.relay_connection_decorator import relay_connection
+from app.presentation.inputs.danfe_input import DanfeInput, DanfesInput
+from app.presentation.types.danfe_type import DanfeType
+from app.presentation.utils.cursor_util import Cursor
 
 
 @strawberry.type

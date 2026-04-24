@@ -2,9 +2,8 @@ from typing import Any
 
 from sqlalchemy import text
 
+from app.domain.builders.helpers.sql_helper import SqlHelper
 from app.presentation.filters.contribuinte_filter import ContribuinteFilter, ContribuintesFilter
-
-from ..builders.helpers.sql_helper import SqlHelper
 
 
 class ContribuinteBuilder:

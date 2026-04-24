@@ -1,6 +1,6 @@
 from strawberry.experimental.pydantic import input as strawberry_pydantic_input
 
-from ..filters.contribuinte_filter import ContribuinteFilter, ContribuintesFilter
+from app.presentation.filters.contribuinte_filter import ContribuinteFilter, ContribuintesFilter
 
 
 @strawberry_pydantic_input(model=ContribuinteFilter, all_fields=True)

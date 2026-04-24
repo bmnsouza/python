@@ -1,4 +1,4 @@
-from .session import get_session
+from app.database.core.session import get_session
 
 
 async def get_context():

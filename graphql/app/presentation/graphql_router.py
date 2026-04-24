@@ -2,22 +2,17 @@ import strawberry
 from strawberry.fastapi import GraphQLRouter
 
 from app.database.core.context import get_context
+from app.presentation.resolvers.contribuinte_resolver import ContribuinteQuery
+from app.presentation.resolvers.danfe_resolver import DanfeQuery
+from app.presentation.resolvers.endereco_resolver import EnderecoQuery
 
-from .resolvers.contribuinte_resolver import ContribuinteQuery
-from .resolvers.danfe_resolver import DanfeQuery
-from .resolvers.endereco_resolver import EnderecoQuery
 
-GRAPHQL_MODULES = [
-    ("/graphql/contribuinte", ContribuinteQuery),
-    ("/graphql/danfe", DanfeQuery),
-    ("/graphql/endereco", EnderecoQuery),
-]
+@strawberry.type
+class Query(ContribuinteQuery, DanfeQuery, EnderecoQuery):
+    pass
 
 
 def get_graphql_routers():
-    routers = []
-    for prefix, query_cls in GRAPHQL_MODULES:
-        schema = strawberry.Schema(query=query_cls)
-        router = GraphQLRouter(schema=schema, context_getter=get_context)
-        routers.append((prefix, router))
-    return routers
+    schema = strawberry.Schema(query=Query)
+    router = GraphQLRouter(schema=schema, context_getter=get_context)
+    return [("/graphql", router)]

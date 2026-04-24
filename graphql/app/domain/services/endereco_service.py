@@ -1,11 +1,10 @@
 import logging
 
 from app.core.exceptions import CustomException
+from app.domain.repositories.endereco_repository import EnderecoRepository
 from app.presentation.dtos.endereco_dto import EnderecoDTO
 from app.presentation.filters.endereco_filter import EnderecoFilter, EnderecosFilter
 from app.presentation.types.helpers.result_type import PaginatedResult
-
-from ..repositories.endereco_repository import EnderecoRepository
 
 logger = logging.getLogger(__name__)
 

@@ -4,8 +4,7 @@ from typing import TypeVar
 from strawberry.relay import Connection, Edge, PageInfo
 
 from app.core.exceptions import ValidationException
-
-from ..utils.cursor_util import Cursor
+from app.presentation.utils.cursor_util import Cursor
 
 T = TypeVar("T")
 
@@ -43,10 +42,7 @@ def relay_connection(resolver) -> Connection[T]:
         # Remove o item extra e monta edges
         items = items[:first]
 
-        edges = [
-            Edge(node=item, cursor=Cursor.encode(after_decoded + i + 1))
-            for i, item in enumerate(items)
-        ]
+        edges = [Edge(node=item, cursor=Cursor.encode(after_decoded + i + 1)) for i, item in enumerate(items)]
 
         # Monta pageInfo
         page_info = PageInfo(

@@ -1,6 +1,6 @@
 from strawberry.experimental.pydantic import input as strawberry_pydantic_input
 
-from ..filters.danfe_filter import DanfeFilter, DanfesFilter
+from app.presentation.filters.danfe_filter import DanfeFilter, DanfesFilter
 
 
 @strawberry_pydantic_input(model=DanfeFilter, all_fields=True)

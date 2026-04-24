@@ -1,11 +1,10 @@
 import logging
 
 from app.core.exceptions import CustomException
+from app.domain.repositories.danfe_repository import DanfeRepository
 from app.presentation.dtos.danfe_dto import DanfeDTO
 from app.presentation.filters.danfe_filter import DanfeFilter, DanfesFilter
 from app.presentation.types.helpers.result_type import PaginatedResult
-
-from ..repositories.danfe_repository import DanfeRepository
 
 logger = logging.getLogger(__name__)
 

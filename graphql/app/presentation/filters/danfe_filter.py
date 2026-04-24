@@ -1,4 +1,4 @@
-from .base.base_filter import BaseFilter
+from app.presentation.filters.base.base_filter import BaseFilter
 
 
 class DanfeFilter(BaseFilter):

@@ -4,20 +4,17 @@ from strawberry.types import Info
 
 from app.core.exceptions import CustomException
 from app.domain.services.contribuinte_service import ContribuinteService
-
-from ..decorators.relay_connection_decorator import relay_connection
-from ..inputs.contribuinte_input import ContribuinteInput, ContribuintesInput
-from ..types.contribuinte_type import ContribuinteType
-from ..utils.cursor_util import Cursor
+from app.presentation.decorators.relay_connection_decorator import relay_connection
+from app.presentation.inputs.contribuinte_input import ContribuinteInput, ContribuintesInput
+from app.presentation.types.contribuinte_type import ContribuinteType
+from app.presentation.utils.cursor_util import Cursor
 
 
 @strawberry.type
 class ContribuinteQuery:
 
     @strawberry.field
-    async def contribuinte(
-        self, info: Info, *, filtro: ContribuinteInput
-    ) -> ContribuinteType | None:
+    async def contribuinte(self, info: Info, *, filtro: ContribuinteInput) -> ContribuinteType | None:
         try:
             service = ContribuinteService(session=info.context["session"])
             result = await service.get_contribuinte(filtro=filtro.to_pydantic())

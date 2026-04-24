@@ -2,9 +2,8 @@ from typing import Any
 
 from sqlalchemy import text
 
+from app.domain.builders.helpers.sql_helper import SqlHelper
 from app.presentation.filters.endereco_filter import EnderecoFilter, EnderecosFilter
-
-from ..builders.helpers.sql_helper import SqlHelper
 
 
 class EnderecoBuilder:
@@ -30,7 +29,7 @@ class EnderecoBuilder:
         SELECT e.cnpj_contribuinte, e.logradouro, e.municipio, e.uf
         FROM nota_fiscal.endereco e
         WHERE e.uf = :uf
-          AND e.municipio = :municipio
+            AND e.municipio = :municipio
         """
 
         @classmethod

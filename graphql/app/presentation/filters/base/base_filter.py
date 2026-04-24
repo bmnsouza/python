@@ -1,9 +1,10 @@
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class BaseFilter(BaseModel):
+    model_config = ConfigDict(use_enum_values=True)
 
     def parameters(
         self,

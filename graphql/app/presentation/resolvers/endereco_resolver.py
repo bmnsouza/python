@@ -4,11 +4,10 @@ from strawberry.types import Info
 
 from app.core.exceptions import CustomException
 from app.domain.services.endereco_service import EnderecoService
-
-from ..decorators.relay_connection_decorator import relay_connection
-from ..inputs.endereco_input import EnderecoInput, EnderecosInput
-from ..types.endereco_type import EnderecoType
-from ..utils.cursor_util import Cursor
+from app.presentation.decorators.relay_connection_decorator import relay_connection
+from app.presentation.inputs.endereco_input import EnderecoInput, EnderecosInput
+from app.presentation.types.endereco_type import EnderecoType
+from app.presentation.utils.cursor_util import Cursor
 
 
 @strawberry.type

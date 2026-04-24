@@ -1,11 +1,10 @@
 import logging
 
 from app.core.exceptions import CustomException
+from app.domain.repositories.contribuinte_repository import ContribuinteRepository
 from app.presentation.dtos.contribuinte_dto import ContribuinteDTO
 from app.presentation.filters.contribuinte_filter import ContribuinteFilter, ContribuintesFilter
 from app.presentation.types.helpers.result_type import PaginatedResult
-
-from ..repositories.contribuinte_repository import ContribuinteRepository
 
 logger = logging.getLogger(__name__)
 

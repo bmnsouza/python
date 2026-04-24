@@ -1,4 +1,5 @@
-from .base.base_filter import BaseFilter
+from app.presentation.enums.endereco_enum import UF
+from app.presentation.filters.base.base_filter import BaseFilter
 
 
 class EnderecoFilter(BaseFilter):
@@ -6,5 +7,5 @@ class EnderecoFilter(BaseFilter):
 
 
 class EnderecosFilter(BaseFilter):
-    uf: str
+    uf: UF
     municipio: str
