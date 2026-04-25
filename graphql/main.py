@@ -3,30 +3,26 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.database.core import connection
-from app.presentation.graphql_router import get_graphql_routers
+from app.database.core.db import shutdown_db
+from app.presentation.graphql_router import get_graphql_router
 
 logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-
-    # Startup
     logger.info("===========================")
     logger.info("FastAPI iniciado")
     logger.info("SQLAlchemy ORM inicializado")
     logger.info("===========================")
 
-    yield  # Mantém a aplicação rodando
+    yield
 
-    # Shutdown
     logger.info("Encerrando aplicação e liberando recursos SQLAlchemy")
-    await connection.engine.dispose()
+    await shutdown_db()
     logger.info("Pool de conexões SQLAlchemy encerrado com sucesso")
 
 
-# Configuração Principal do FastAPI
 app = FastAPI(
     title="FastAPI",
     description="API GraphQL",
@@ -34,10 +30,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-
-# Registrando todos os routers GraphQL dinamicamente
-for prefix, router in get_graphql_routers():
-    app.include_router(router=router, prefix=prefix)
+# Registrando o router GraphQL dinamicamente
+prefix, router = get_graphql_router()
+app.include_router(router=router, prefix=prefix)
 
 
 @app.get("/")
