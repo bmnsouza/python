@@ -11,8 +11,14 @@ class DanfeBuilder:
     class Danfe:
 
         _QUERY = """
-        SELECT c.cnpj_contribuinte, c.nm_fantasia, d.numero, d.valor_total, d.data_emissao,
-            e.logradouro, e.municipio, e.uf
+        SELECT c.cnpj_contribuinte,
+            c.nm_fantasia,
+            d.numero,
+            d.valor_total,
+            d.data_emissao,
+            e.logradouro,
+            e.municipio,
+            e.uf
         FROM nota_fiscal.contribuinte c
         INNER JOIN nota_fiscal.danfe d ON d.cnpj_contribuinte = c.cnpj_contribuinte
         INNER JOIN nota_fiscal.endereco e ON e.cnpj_contribuinte = c.cnpj_contribuinte
@@ -29,8 +35,14 @@ class DanfeBuilder:
     class Danfes:
 
         _QUERY = """
-        SELECT c.cnpj_contribuinte, c.nm_fantasia, d.numero, d.valor_total, d.data_emissao,
-            e.logradouro, e.municipio, e.uf
+        SELECT c.cnpj_contribuinte,
+            c.nm_fantasia,
+            d.numero,
+            d.valor_total,
+            d.data_emissao,
+            e.logradouro,
+            e.municipio,
+            e.uf
         FROM nota_fiscal.contribuinte c
         INNER JOIN nota_fiscal.danfe d ON d.cnpj_contribuinte = c.cnpj_contribuinte
         INNER JOIN nota_fiscal.endereco e ON e.cnpj_contribuinte = c.cnpj_contribuinte

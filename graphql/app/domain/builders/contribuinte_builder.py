@@ -11,7 +11,8 @@ class ContribuinteBuilder:
     class Contribuinte:
 
         _QUERY = """
-        SELECT c.cnpj_contribuinte, c.nm_fantasia
+        SELECT c.cnpj_contribuinte,
+            c.nm_fantasia
         FROM nota_fiscal.contribuinte c
         WHERE c.cnpj_contribuinte = :cnpj
         """
@@ -26,7 +27,8 @@ class ContribuinteBuilder:
     class Contribuintes:
 
         _QUERY = """
-        SELECT c.cnpj_contribuinte, c.nm_fantasia
+        SELECT c.cnpj_contribuinte,
+            c.nm_fantasia
         FROM nota_fiscal.contribuinte c
         WHERE c.nm_fantasia LIKE '%' || :nmFantasia || '%'
         """

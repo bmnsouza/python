@@ -11,7 +11,10 @@ class EnderecoBuilder:
     class Endereco:
 
         _QUERY = """
-        SELECT e.cnpj_contribuinte, e.logradouro, e.municipio, e.uf
+        SELECT e.cnpj_contribuinte,
+            e.logradouro,
+            e.municipio,
+            e.uf
         FROM nota_fiscal.endereco e
         WHERE e.cnpj_contribuinte = :cnpj
         """
@@ -26,7 +29,10 @@ class EnderecoBuilder:
     class Enderecos:
 
         _QUERY = """
-        SELECT e.cnpj_contribuinte, e.logradouro, e.municipio, e.uf
+        SELECT e.cnpj_contribuinte,
+            e.logradouro,
+            e.municipio,
+            e.uf
         FROM nota_fiscal.endereco e
         WHERE e.uf = :uf
             AND e.municipio = :municipio
