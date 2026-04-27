@@ -33,8 +33,7 @@ def relay_connection(resolver) -> Connection[T]:
             after_decoded = Cursor.decode(after)
 
         # Chama o resolver
-        result = await resolver(*args, **kwargs)
-        items = result.items
+        items = await resolver(*args, **kwargs)
 
         # Detecta a próxima página
         has_next_page = len(items) > first
