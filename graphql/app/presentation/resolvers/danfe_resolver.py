@@ -5,22 +5,13 @@ from strawberry.types import Info
 from app.core.exceptions import CustomException
 from app.domain.services.danfe_service import DanfeService
 from app.presentation.decorators.relay_connection_decorator import relay_connection
-from app.presentation.inputs.danfe_input import DanfeInput, DanfesInput
+from app.presentation.inputs.danfe_input import DanfesInput
 from app.presentation.types.danfe_type import DanfeType
 from app.presentation.utils.cursor_util import Cursor
 
 
 @strawberry.type
 class DanfeQuery:
-
-    @strawberry.field
-    async def danfe(self, info: Info, *, filtro: DanfeInput) -> DanfeType | None:
-        try:
-            service = DanfeService(session=info.context["session"])
-            result = await service.get_danfe(filtro=filtro.to_pydantic())
-            return result
-        except Exception as e:
-            raise CustomException(str(e))
 
     @strawberry.field
     @relay_connection

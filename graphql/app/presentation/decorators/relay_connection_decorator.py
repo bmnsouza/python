@@ -23,25 +23,23 @@ def relay_connection(resolver) -> Connection[T]:
         else:
             first = min(first, MAX_PAGE_SIZE)
 
-        # Importante: pedimos +1 para detectar próxima página
+        # Pedimos +1 para detectar próxima página
         kwargs["first"] = first + 1
 
-        # Decodificação do cursor
         after = kwargs.get("after")
-        after_decoded = 0
-        if after is not None:
-            after_decoded = Cursor.decode(after)
+        after_decoded = Cursor.decode(after) if after else 0
 
         # Chama o resolver
         items = await resolver(*args, **kwargs)
 
         # Detecta a próxima página
         has_next_page = len(items) > first
-
-        # Remove o item extra e monta edges
         items = items[:first]
 
-        edges = [Edge(node=item, cursor=Cursor.encode(after_decoded + i + 1)) for i, item in enumerate(items)]
+        edges = [
+            Edge(node=item, cursor=Cursor.encode(after_decoded + i + 1))
+            for i, item in enumerate(items)
+        ]
 
         # Monta pageInfo
         page_info = PageInfo(
