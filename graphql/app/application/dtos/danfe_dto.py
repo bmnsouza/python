@@ -1,6 +1,8 @@
+import json
+
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 
 class DanfeItemDTO(BaseModel):
@@ -16,3 +18,14 @@ class DanfeDTO(BaseModel):
     municipio: str | None
     uf: str | None
     danfe: list[DanfeItemDTO] | None
+
+    @field_validator("danfe", mode="before")
+    @classmethod
+    def parse_danfe_json(cls, value):
+        if value is None:
+            return []
+
+        if isinstance(value, str):
+            return json.loads(value)
+
+        return value

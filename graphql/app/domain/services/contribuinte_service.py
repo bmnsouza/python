@@ -1,7 +1,7 @@
 import logging
 
 from app.domain.repositories.contribuinte_repository import ContribuinteRepository
-from app.presentation.dtos.contribuinte_dto import ContribuinteDTO
+from app.application.dtos.contribuinte_dto import ContribuinteDTO
 from app.presentation.filters.contribuinte_filter import ContribuinteFilter, ContribuintesFilter
 
 logger = logging.getLogger(__name__)
