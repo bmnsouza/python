@@ -35,7 +35,7 @@ class BenchmarkSession:
             "returned_rows": returned_rows,
         }
 
-        csv_file = f"benchmark_{self.resolver_name}.csv"
+        csv_file = f"tests/reports/benchmark_{self.resolver_name}.csv"
 
         async with _csv_lock:
             file_exists = os.path.isfile(csv_file)
