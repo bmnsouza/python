@@ -10,14 +10,17 @@ from sqlalchemy.orm import DeclarativeBase
 from app.core import config
 
 
+settings = config.get_settings()
+
+
 class Base(DeclarativeBase):
     pass
 
 
 DATABASE_URL = (
-    f"oracle+oracledb_async://{config.DB_USER}:{config.DB_PASSWORD}"
-    f"@{config.DB_HOST}:{config.DB_PORT}/"
-    f"?service_name={config.DB_SERVICE}"
+    f"oracle+oracledb_async://{settings.db_user}:{settings.db_password}"
+    f"@{settings.db_host}:{settings.db_port}/"
+    f"?service_name={settings.db_service}"
 )
 
 
@@ -30,6 +33,7 @@ engine = create_async_engine(
     pool_recycle=1800,
     pool_pre_ping=True,
 )
+
 
 SessionFactory = async_sessionmaker(
     bind=engine,

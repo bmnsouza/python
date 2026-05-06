@@ -5,6 +5,7 @@ flake8
 greenlet
 oracledb
 isort
+locust==2.31.0
 mypy
 pydantic
 pydantic-settings

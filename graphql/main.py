@@ -1,16 +1,24 @@
 import logging
 from contextlib import asynccontextmanager
+import tracemalloc
 
 from fastapi import FastAPI
 
+from app.core import config
 from app.database.core.db import shutdown_db
 from app.presentation.graphql_router import get_graphql_router
 
 logger = logging.getLogger(__name__)
 
+settings = config.get_settings()
+
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
+    if settings.enable_benchmark:
+        tracemalloc.start()
+        logger.info("Benchmark de memória habilitado")
+
     logger.info("===========================")
     logger.info("FastAPI iniciado")
     logger.info("SQLAlchemy ORM inicializado")
@@ -30,7 +38,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Registrando o router GraphQL dinamicamente
 prefix, router = get_graphql_router()
 app.include_router(router=router, prefix=prefix)
 

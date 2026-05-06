@@ -1,18 +1,28 @@
-import os
+from functools import lru_cache
 
-from dotenv import load_dotenv
-
-# Carrega variáveis de ambiente do arquivo .env
-load_dotenv()
-
-# Configuração do Oracle
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = int(os.getenv("DB_PORT", "1521"))
-DB_SERVICE = os.getenv("DB_SERVICE")
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-# Validação mínima
-if not all([DB_USER, DB_PASSWORD, DB_HOST, DB_SERVICE]):
-    raise RuntimeError("Variáveis de ambiente do banco não configuradas corretamente")
+class Settings(BaseSettings):
+    # Database Oracle
+    db_user: str
+    db_password: str
+    db_host: str
+    db_port: int
+    db_service: str
+
+    # Benchmark
+    enable_benchmark: bool = False
+
+    # Configuração para carregar do .env
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore",
+    )
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()

@@ -8,7 +8,7 @@ from app.presentation.utils.cursor_util import Cursor
 
 T = TypeVar("T")
 
-MAX_PAGE_SIZE = 20
+MAX_PAGE_SIZE = 50
 
 
 def relay_connection(resolver) -> Connection[T]:

@@ -1,0 +1,25 @@
+query {
+    danfesJsonPython(filtro: { ano: 2025 }) {
+        pageInfo {
+            hasNextPage
+            hasPreviousPage
+            startCursor
+            endCursor
+        }
+        edges {
+            cursor
+            node {
+                cnpjContribuinte
+                nmFantasia
+                logradouro
+                municipio
+                uf
+                danfe {
+                    numero
+                    valorTotal
+                    dataEmissao
+                }
+            }
+        }
+    }
+}
