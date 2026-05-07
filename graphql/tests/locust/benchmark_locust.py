@@ -17,7 +17,7 @@ class BenchmarkRow:
     returned_rows: int
 
 
-CSV_FILE = "tests/locust/reports/locust_benchmark.csv"
+CSV_FILE = "tests/locust/reports/csv/locust_benchmark.csv"
 
 
 def benchmark_request(resolver_name: str, payload, csv_file: str = CSV_FILE) -> BenchmarkRow:

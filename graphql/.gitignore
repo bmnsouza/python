@@ -1,23 +1,20 @@
 # Ambiente virtual
+.venv/
 venv/
 
-# Ignorar arquivos compilados do Python
+# Arquivos compilados do Python
 *.pyc
 *.pyo
 __pycache__/
 **/__pycache__/
 
-# Ignorar arquivos de configuração do PyCharm
+# Arquivos de configuração do PyCharm
 .idea/
 
-# Cache do MyPy
+# Cache
 .mypy_cache/
-
-# Cache do Pytest
 .pytest_cache/
 
-# Logs
+# Pastas
 logs/
-
-# Ambiente virtual alternativo
-.venv/
+reports/

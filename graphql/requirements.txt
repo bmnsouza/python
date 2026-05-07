@@ -6,7 +6,9 @@ greenlet
 oracledb
 isort
 locust==2.31.0
+matplotlib==3.10.9
 mypy
+pandas==3.0.2
 pydantic
 pydantic-settings
 python-dotenv
@@ -14,4 +16,5 @@ pylance
 pylint
 sqlalchemy[asyncio]
 strawberry-graphql[fastapi]
+tabulate==0.10.0
 uvicorn
