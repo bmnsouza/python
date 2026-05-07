@@ -36,10 +36,7 @@ def relay_connection(resolver) -> Connection[T]:
         has_next_page = len(items) > first
         items = items[:first]
 
-        edges = [
-            Edge(node=item, cursor=Cursor.encode(after_decoded + i + 1))
-            for i, item in enumerate(items)
-        ]
+        edges = [Edge(node=item, cursor=Cursor.encode(after_decoded + i + 1)) for i, item in enumerate(items)]
 
         # Monta pageInfo
         page_info = PageInfo(

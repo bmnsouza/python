@@ -9,7 +9,6 @@ from sqlalchemy.orm import DeclarativeBase
 
 from app.core import config
 
-
 settings = config.get_settings()
 
 
@@ -35,7 +34,7 @@ engine = create_async_engine(
 )
 
 
-SessionFactory = async_sessionmaker(
+session_factory = async_sessionmaker(
     bind=engine,
     class_=AsyncSession,
     expire_on_commit=False,
@@ -44,7 +43,7 @@ SessionFactory = async_sessionmaker(
 
 @asynccontextmanager
 async def get_db_session():
-    async with SessionFactory() as session:
+    async with session_factory() as session:
         yield session
 
 

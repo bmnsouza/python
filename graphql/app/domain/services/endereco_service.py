@@ -1,7 +1,7 @@
 import logging
 
-from app.domain.repositories.endereco_repository import EnderecoRepository
 from app.application.dtos.endereco_dto import EnderecoDTO
+from app.domain.repositories.endereco_repository import EnderecoRepository
 from app.presentation.filters.endereco_filter import EnderecoFilter, EnderecosFilter
 
 logger = logging.getLogger(__name__)

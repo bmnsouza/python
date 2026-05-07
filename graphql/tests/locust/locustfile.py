@@ -1,13 +1,12 @@
-from pathlib import Path
 import importlib.util
+from pathlib import Path
 
-from tests.locust_base import BaseGraphQLUser
-
+from tests.locust.locust_base import BaseGraphQLUser
 
 SCENARIOS_DIR = Path(__file__).parent / "scenarios"
 
 
-for scenario_file in SCENARIOS_DIR.glob("*_locust.py"):
+for scenario_file in SCENARIOS_DIR.glob("*scenario.py"):
     module_name = scenario_file.stem
 
     spec = importlib.util.spec_from_file_location(module_name, scenario_file)

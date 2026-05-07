@@ -2,10 +2,8 @@ import strawberry
 from strawberry.relay import Connection
 from strawberry.types import Info
 
-
 from app.core.exceptions import CustomException
 from app.domain.services.danfe_service import DanfeService
-from app.presentation.decorators.benchmark_decorator import benchmark
 from app.presentation.decorators.relay_connection_decorator import relay_connection
 from app.presentation.inputs.danfe_input import DanfesInput
 from app.presentation.types.danfe_type import DanfeType
@@ -17,7 +15,6 @@ class DanfeQuery:
 
     @strawberry.field
     @relay_connection
-    @benchmark
     async def danfes_json_python(
         self,
         info: Info,
@@ -38,7 +35,6 @@ class DanfeQuery:
 
     @strawberry.field
     @relay_connection
-    @benchmark
     async def danfes_json_banco(
         self,
         info: Info,

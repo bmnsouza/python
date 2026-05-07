@@ -1,6 +1,5 @@
 import logging
 from contextlib import asynccontextmanager
-import tracemalloc
 
 from fastapi import FastAPI
 
@@ -15,14 +14,8 @@ settings = config.get_settings()
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    if settings.enable_benchmark:
-        tracemalloc.start()
-        logger.info("Benchmark de memória habilitado")
-
-    logger.info("===========================")
     logger.info("FastAPI iniciado")
     logger.info("SQLAlchemy ORM inicializado")
-    logger.info("===========================")
 
     yield
 
