@@ -1,9 +1,11 @@
 from tests.locust.locust_base import BaseGraphQLUser
 
+QUERY_FOLDER = "queries/danfe_query"
+
 
 class DanfesJsonPythonUser(BaseGraphQLUser):
-    pass
+    query_folder = QUERY_FOLDER
 
 
 class DanfesJsonBancoUser(BaseGraphQLUser):
-    pass
+    query_folder = QUERY_FOLDER

@@ -7,12 +7,13 @@ from tests.locust.benchmark_locust import benchmark_request
 
 class BaseGraphQLUser(HttpUser):
     abstract = True
+    host = "http://localhost:8080"
+    query_folder: str = "queries"
 
     def get_query_file(self) -> Path:
         class_name = self.__class__.__name__.replace("User", "")
         file_name = "".join(["_" + c.lower() if c.isupper() else c for c in class_name]).lstrip("_") + ".graphql"
-
-        return Path("tests/queries") / file_name
+        return Path("tests") / self.query_folder / file_name
 
     def get_request_name(self) -> str:
         # Usa o nome do arquivo sem extensão como identificador
@@ -27,6 +28,7 @@ class BaseGraphQLUser(HttpUser):
             "/graphql",
             json={"query": query_text},
             headers={"Content-Type": "application/json"},
+            name=self.get_request_name(),
         )
 
         benchmark_request(self.get_request_name(), response.json())
