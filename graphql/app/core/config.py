@@ -11,9 +11,6 @@ class Settings(BaseSettings):
     db_port: int
     db_service: str
 
-    # Benchmark
-    enable_benchmark: bool = False
-
     # Configuração para carregar do .env
     model_config = SettingsConfigDict(
         env_file=".env",
