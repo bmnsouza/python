@@ -8,29 +8,34 @@ URL = "/graphql"
 
 class GraphQLClient:
     def __init__(self):
-        print(">>> __init__ <<<")
         self.client = httpx.AsyncClient(
-            base_url="http://localhost:8080",
+            base_url=BASE_URL,
             timeout=5.0,
         )
+
+    async def close(self):
+        await self.client.aclose()
 
     async def execute_query(self, query_path: str) -> dict:
         query = Path(query_path).read_text(encoding="utf-8")
 
-        print(">>> query:", query)
-
         try:
             response = await self.client.post(
-                url="http://localhost:8080/graphql",
+                url=URL,
                 json={"query": query},
-                headers={"Content-Type": "application/json"},
             )
+
+            response.raise_for_status()
+
             return response.json()
 
-        except httpx.ConnectTimeout:
+        except httpx.ConnectTimeout as ex:
             raise RuntimeError(
                 f"Servidor não está respondendo em {BASE_URL + URL}. "
                 "Suba a aplicação antes de rodar os testes."
-            )
-        except Exception as ex:
-            raise RuntimeError(ex)
+            ) from ex
+
+        except httpx.HTTPError as ex:
+            raise RuntimeError(
+                f"Erro HTTP ao chamar GraphQL: {ex}"
+            ) from ex
