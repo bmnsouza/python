@@ -43,7 +43,7 @@ class BenchmarkRunner:
             [
                 "locust",
                 "-f",
-                "tests/benchmark/load/load_test.py",
+                "tests/benchmark/load/locustfile.py",
                 "--host",
                 "http://localhost:8080",
                 "--users",

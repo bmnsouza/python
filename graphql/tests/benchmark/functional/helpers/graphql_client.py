@@ -3,7 +3,7 @@ from pathlib import Path
 import httpx
 
 BASE_URL = "http://localhost:8080"
-URL = "/graphql"
+URL = "graphql"
 
 
 class GraphQLClient:
@@ -31,11 +31,8 @@ class GraphQLClient:
 
         except httpx.ConnectTimeout as ex:
             raise RuntimeError(
-                f"Servidor não está respondendo em {BASE_URL + URL}. "
-                "Suba a aplicação antes de rodar os testes."
+                f"Servidor não está respondendo em {BASE_URL}/{URL}. " "Suba a aplicação antes de rodar os testes."
             ) from ex
 
         except httpx.HTTPError as ex:
-            raise RuntimeError(
-                f"Erro HTTP ao chamar GraphQL: {ex}"
-            ) from ex
+            raise RuntimeError(f"Erro HTTP ao chamar GraphQL: {ex}") from ex

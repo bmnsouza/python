@@ -25,7 +25,7 @@ class BaseGraphQLUser(HttpUser):
         return "".join(["_" + char.lower() if char.isupper() else char for char in class_name]).lstrip("_")
 
     def get_query_file(self) -> Path:
-        return Path("tests") / "benchmark" / "queries" / self.query_folder / f"{self.query_name}.graphql"
+        return Path("tests") / "resources" / "graphql" / self.query_folder / f"{self.query_name}.graphql"
 
     @task
     def run_query(self):
