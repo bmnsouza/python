@@ -13,10 +13,10 @@ class DanfeService:
     def __init__(self, session):
         self.repo: DanfeRepository = DanfeRepository(session=session)
 
-    async def get_danfes_json_python(self, *, filtro: DanfesFilter, offset: int, limit: int) -> list[DanfeDTO]:
-        rows = await self.repo.get_danfes_json_python(filtro=filtro, offset=offset, limit=limit)
-        return DanfeMapper.agrupar(rows)
-
     async def get_danfes_json_banco(self, *, filtro: DanfesFilter, offset: int, limit: int) -> list[DanfeDTO]:
         rows = await self.repo.get_danfes_json_banco(filtro=filtro, offset=offset, limit=limit)
         return [DanfeDTO.model_validate(row) for row in rows]
+
+    async def get_danfes_json_python(self, *, filtro: DanfesFilter, offset: int, limit: int) -> list[DanfeDTO]:
+        rows = await self.repo.get_danfes_json_python(filtro=filtro, offset=offset, limit=limit)
+        return DanfeMapper.agrupar(rows)

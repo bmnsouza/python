@@ -15,26 +15,6 @@ class DanfeQuery:
 
     @strawberry.field
     @relay_connection
-    async def danfes_json_python(
-        self,
-        info: Info,
-        *,
-        filtro: DanfesInput,
-        first: int | None = None,
-        after: str | None = None,
-    ) -> Connection[DanfeType]:
-        try:
-            service = DanfeService(session=info.context["session"])
-            return await service.get_danfes_json_python(
-                filtro=filtro.to_pydantic(),
-                offset=Cursor.decode(after),
-                limit=first,
-            )
-        except Exception as e:
-            raise CustomException(str(e))
-
-    @strawberry.field
-    @relay_connection
     async def danfes_json_banco(
         self,
         info: Info,
@@ -46,6 +26,26 @@ class DanfeQuery:
         try:
             service = DanfeService(session=info.context["session"])
             return await service.get_danfes_json_banco(
+                filtro=filtro.to_pydantic(),
+                offset=Cursor.decode(after),
+                limit=first,
+            )
+        except Exception as e:
+            raise CustomException(str(e))
+
+    @strawberry.field
+    @relay_connection
+    async def danfes_json_python(
+        self,
+        info: Info,
+        *,
+        filtro: DanfesInput,
+        first: int | None = None,
+        after: str | None = None,
+    ) -> Connection[DanfeType]:
+        try:
+            service = DanfeService(session=info.context["session"])
+            return await service.get_danfes_json_python(
                 filtro=filtro.to_pydantic(),
                 offset=Cursor.decode(after),
                 limit=first,

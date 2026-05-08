@@ -1,6 +1,6 @@
-from tests.locust.locust_base import BaseGraphQLUser
+from tests.benchmark.load.base_user import BaseGraphQLUser
 
-QUERY_FOLDER = "queries/danfe_query"
+QUERY_FOLDER = "danfe"
 
 
 class DanfesJsonBancoUser(BaseGraphQLUser):

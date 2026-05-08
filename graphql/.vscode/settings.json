@@ -12,6 +12,7 @@
         "--disable=broad-exception-caught",
         "--disable=C0111",
         "--disable=line-too-long",
+        "--disable=no-member",
         "--disable=not-callable",
         "--disable=raise-missing-from",
         "--disable=redefined-builtin",
