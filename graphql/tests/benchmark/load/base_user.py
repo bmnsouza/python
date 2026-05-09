@@ -2,7 +2,7 @@ from pathlib import Path
 
 from locust import HttpUser, task
 
-from tests.benchmark.load.request_metrics import collect_request_metrics
+from tests.benchmark.load.reporting.request_metrics import collect_request_metrics
 
 
 class BaseGraphQLUser(HttpUser):
@@ -16,12 +16,10 @@ class BaseGraphQLUser(HttpUser):
 
     def on_start(self):
         self.query_name = self._build_query_name()
-
         self.query_text = self.get_query_file().read_text(encoding="utf-8")
 
     def _build_query_name(self) -> str:
         class_name = self.__class__.__name__.replace("User", "")
-
         return "".join(["_" + char.lower() if char.isupper() else char for char in class_name]).lstrip("_")
 
     def get_query_file(self) -> Path:
@@ -36,16 +34,23 @@ class BaseGraphQLUser(HttpUser):
             name=self.query_name,
             catch_response=True,
         ) as response:
-
-            payload = response.json()
+            try:
+                payload = response.json()
+            except Exception as exc:
+                response.failure(f"Resposta inválida (não é JSON): {exc}")
+                return
 
             if "errors" in payload:
                 response.failure(str(payload["errors"]))
                 return
 
-            collect_request_metrics(
-                resolver_name=self.query_name,
-                payload=payload,
-            )
+            try:
+                collect_request_metrics(
+                    resolver_name=self.query_name,
+                    payload=payload,
+                )
+            except Exception as exc:
+                response.failure(f"Erro ao coletar métricas: {exc}")
+                return
 
             response.success()

@@ -6,7 +6,7 @@ import orjson
 
 @dataclass(slots=True)
 class BenchmarkResult:
-    payload_size_kb: float
+    payload_size: float
     returned_rows: int
 
 
@@ -42,6 +42,6 @@ def count_rows(payload: Any) -> int:
 
 def measure_all(payload: Any) -> BenchmarkResult:
     return BenchmarkResult(
-        payload_size_kb=measure_payload(payload),
+        payload_size=measure_payload(payload),
         returned_rows=count_rows(payload),
     )

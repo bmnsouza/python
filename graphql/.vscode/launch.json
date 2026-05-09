@@ -20,15 +20,18 @@
             "name": "Load",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/tests/benchmark/load/runner.py",
+            "module": "tests.benchmark.load.runner",
             "args": [
-                "--users", "1000",
-                "--spawn-rate", "100",
+                "--users", "100",
+                "--spawn-rate", "10",
                 "--run-time", "1m"
             ],
             "justMyCode": true,
             "console": "integratedTerminal",
-            "preLaunchTask": "Run Uvicorn"
+            "preLaunchTask": "Run Uvicorn",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }            
         },
         {
             "name": "Pytest",

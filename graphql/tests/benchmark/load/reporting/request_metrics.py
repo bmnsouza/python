@@ -12,11 +12,11 @@ from tests.benchmark.core import BenchmarkResult, measure_all
 class BenchmarkRow:
     executed_at: str
     resolver: str
-    payload_size_kb: float
+    payload_size: float
     returned_rows: int
 
 
-CSV_FILE = Path("tests/benchmark/load/reports/csv/load_benchmark.csv")
+CSV_FILE = Path("tests/benchmark/load/output/csv/load_benchmark.csv")
 
 BENCHMARK_ROWS: list[BenchmarkRow] = []
 
@@ -30,7 +30,7 @@ def collect_request_metrics(
     row = BenchmarkRow(
         executed_at=datetime.now().isoformat(),
         resolver=resolver_name,
-        payload_size_kb=metrics.payload_size_kb,
+        payload_size=metrics.payload_size,
         returned_rows=metrics.returned_rows,
     )
 
