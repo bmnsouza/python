@@ -3,7 +3,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from .data_loader import BenchmarkData
+from tests.benchmark.load.reporting.data_loader import BenchmarkData
 
 
 def generate_all(data: BenchmarkData, images_dir: Path) -> None:
