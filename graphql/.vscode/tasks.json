@@ -1,0 +1,34 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run Uvicorn",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "-m", "uvicorn",
+                "main:app",
+                "--reload",
+                "--lifespan", "on",
+                "--host", "0.0.0.0",
+                "--port", "8080"
+            ],
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": [
+                    {
+                        "regexp": ".",
+                        "file": 1,
+                        "location": 2,
+                        "message": 3
+                    }
+                ],
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^INFO:\\s+Waiting for application startup.$",
+                    "endsPattern": "^INFO:\\s+Application startup complete.$"
+                }
+            }
+        }
+    ]
+}

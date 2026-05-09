@@ -13,9 +13,35 @@
                 "--host", "0.0.0.0",
                 "--port", "8080"
             ],
-            "jinja": true,
             "justMyCode": true,
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Load",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/benchmark/load/runner.py",
+            "args": [
+                "--users", "1000",
+                "--spawn-rate", "100",
+                "--run-time", "1m"
+            ],
+            "justMyCode": true,
+            "console": "integratedTerminal",
+            "preLaunchTask": "Run Uvicorn"
+        },
+        {
+            "name": "Pytest",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "-v",
+                "tests/"
+            ],
+            "justMyCode": true,
+            "console": "integratedTerminal",
+            "preLaunchTask": "Run Uvicorn"
         }
     ]
 }
